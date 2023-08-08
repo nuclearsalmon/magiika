@@ -12,45 +12,86 @@ def Magiika::Lang.define_magiika() : Magiika::Lang::Interpreter
     # --------------------------------------------------
 
     # comments
-    token(:COMMENT, /\#.*$/)
-    token(:COMMENT, /\/\*([^*]|\r?\n|(\*+([^*\/]|\r?\n)))*\*+\//)
-    token(:DOC_COMMENT, /\/\*\*(\r?\n|(\*+([^*\/]|\r?\n)))*\*\*+\//)
+    #token(:COMMENT, /\#.*$/)
+    #token(:COMMENT, /\/\*([^*]|\r?\n|(\*+([^*\/]|\r?\n)))*\*+\//)
+    #token(:DOC_COMMENT, /\/\*\*(\r?\n|(\*+([^*\/]|\r?\n)))*\*\*+\//)
 
     # keywords
-    token(:CONST, /const/)
+    #token(:CONST, /const/)
 
     # operators
+    token(:DEFINE, /:/)
     token(:ASSIGN, /=/)
-    token(:INLINE_ASSIGN, /:=/)
+    #token(:INLINE_ASSIGN, /:=/)
 
     # literals
     token(:BOOL, /true|false/)
     token(:FLT, /\d+\.\d+/)
     token(:INT, /[\+\-]?\d+/)
-    token(:STR, /"([^"\\]*(?:\\.[^"\\]*)*)"/)
+    #token(:STR, /"([^"\\]*(?:\\.[^"\\]*)*)"/)
     #token(:STR, /'([^'\\]*(?:\\.[^'\\]*)*)'/)
 
     # names
     token(:NAME, /[A-Za-z_][A-Za-z0-9_]*/)
 
     # whitespace (run this last to allow for whitespace-sensitive tokens)
-    token(:SPACE, / /)
+    #token(:TAB, /\t| {2}+/)
+    token(:SPACE, / +/)
+    token(:LINE_SEGMENT, /\\[\t ]*\r?\n/)
     token(:NEWLINE, /\r?\n/)
-    token(:LINEBREAK, /;/)
+    token(:INLINE_NEWLINE, /;/)
 
 
     # SYNTAX
     # --------------------------------------------------
 
-    root(:root)
+    root(:stmts)
+    ignore(:LINE_SEGMENT)
 
-    group(:root) do
+    group(:nl) do
+      rule(:NEWLINE)
+      rule(:INLINE_NEWLINE)
+    end
+
+    group(:nls) do
+      rule(:nl, :nls)
+      rule(:nl)
+    end
+
+    group(:spc) do
+      rule(:TAB)
+      rule(:SPACE)
+    end
+
+    group(:spcs) do
+      rule(:spc, :spcs)
+      rule(:spc)
+    end
+
+    group(:stmts) do
+      rule(:stmt, :nls, :stmts) do |_,(stmt,_,stmts)|
+        stmts
+      end
+      rule(:nls, :stmts) do |_,(_,stmts)|
+        stmts
+      end
+      rule(:stmts, :nls) do |_,(stmts,_)|
+        stmts
+      end
+      rule(:nls, :stmts, :nls) do |_,(_,stmts,_)|
+        stmts
+      end
+      rule(:stmt)
+    end
+
+    group(:stmt) do
       rule(:setvar)
       rule(:getvar)
     end
 
     group(:setvar) do
-      rule(:NAME, :ASSIGN, :value) do |(name,op),(value)|
+      rule(:DEFINE, :NAME, :ASSIGN, :value) do \
+        |(_,name,op),(value)|
         Magiika::Node::Assign.new(op.pos, name, value)
       end
     end
@@ -152,7 +193,7 @@ module Magiika::Lang
       join_str = "\n    "
       warn(ex.to_s + "\n   Traceback:" \
         + join_str + filtered_backtrace.join(join_str))
-      print("\n\n")
+      print("\n")
     end
 
     def execute(

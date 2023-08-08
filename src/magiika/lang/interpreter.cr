@@ -60,6 +60,7 @@ module Magiika::Lang
 
     private def rule(rule : Rule)
       if rule.pattern[0] == @name
+        rule.pattern.shift
         @lr_rules << rule
       else
         @rules << rule
@@ -69,19 +70,35 @@ module Magiika::Lang
     # TODO: Move all methods that aren't meant to be called
     #  with yield to outside the data class. Move to module.
 
-    private alias TryRulesResult = Tuple(Array(MatchedToken), Array(Node::Node))
+    private alias TryRulesResult \
+      = Tuple(Array(MatchedToken), Array(Node::Node))
+
+    def parse : TryRulesResult?
+      rule_result = try_rules(lr=false)
+      return nil if rule_result.nil?
+
+      loop do
+        result = try_rules(lr=true, rule_result)
+
+        return rule_result if result.nil?
+        rule_result = result
+      end
+    end
 
     private def try_rules(
         lr : Bool = false,
         pre_result : TryRulesResult? = nil) : TryRulesResult?
-      rule_result = TryRulesResult.new(Array(MatchedToken).new, Array(Node::Node).new)
+      rule_result = nil
 
       start_pos = @interpreter.parsing_pos
 
-      (lr ? @lr_rules : @rules).each do |rule|
+      matches = (lr ? @lr_rules : @rules)
+      matches.each do |rule|
         result = pre_result.nil? ? \
             TryRulesResult.new([] of MatchedToken, [] of Node::Node) \
           : TryRulesResult.new(*pre_result)
+
+        #pp "trying rule #{rule} ..."
 
         # iterate over rule symbols, eg [:NAME, :EQ, :expr]
         rule.pattern.each_with_index do |sym, idx|
@@ -90,9 +107,10 @@ module Magiika::Lang
           # sym is token name
           if sym_s == sym_s.upcase  # token
             new_tok = @interpreter.expect(sym)
-            if !new_tok.nil?
+            unless new_tok.nil?
               # MATCH
               result[0] << new_tok
+              #pp "[A] match for rule #{rule}"
             else
               # NO MATCH
               result = nil
@@ -101,49 +119,42 @@ module Magiika::Lang
           # sym is group name
           elsif @interpreter.groups[sym]
             new_result = @interpreter.groups[sym].parse
-            if !(new_result.nil?)
+            unless new_result.nil?
               # MATCH
               result[0].concat(new_result[0])
               result[1].concat(new_result[1])
+              #pp "[B] match for rule #{rule}"
             else
               # NO MATCH
-              result[0].clear
-              result[1].clear
+              result = nil
               break
             end
           # was group name, but did not find matching group
           else
             # NO MATCH
-            t_result, n_result = nil, nil
+            result = nil
             break
           end
         end
 
-        if !(result.nil?) && !(result[0].empty? && result[1].empty?)
+        unless result.nil? \
+            || (result[0].size() == 0 && result[1].size() == 0)
           block = rule.block
-          if !(block.nil?)
-            rule_result[1] << block.call(*result)
+          unless block.nil?
+            #pp "executing block for rule #{rule} ..."
+            rule_result = \
+              TryRulesResult.new(
+                [] of MatchedToken,
+                [block.call(*result)])
           else
-            rule_result = result
+            rule_result = TryRulesResult.new(
+              result[0].size() != 0 ? [result[0][0]] : [] of MatchedToken,
+              result[1].size() != 0 ? [result[1][0]] : [] of Node::Node)
           end
           break
         else
           # did not match anything, reset start
           @interpreter.parsing_pos = start_pos
-        end
-      end
-
-      return rule_result
-    end
-
-    def parse : TryRulesResult?
-      rule_result = try_rules(lr=false)
-      return nil if rule_result.nil?
-
-      if !(@lr_rules.empty?)
-        loop do
-          rule_result_alt = try_rules(lr=true, rule_result)
-          return rule_result_alt unless rule_result_alt.nil?
         end
       end
 
@@ -159,6 +170,7 @@ module Magiika::Lang
     @root_sym : Symbol? = nil
     @tokens = Hash(Symbol, Token).new
     @groups = Hash(Symbol, Group).new
+    @ignore = Array(Symbol).new
 
     @parsing_pos = 0
     @parsing_tokens = Array(MatchedToken).new
@@ -199,6 +211,14 @@ module Magiika::Lang
       end
     end
 
+    private def ignore(pattern : Symbol)
+      @ignore << pattern
+    end
+
+    private def ignore(*patterns : Symbol)
+      @ignore.concat(patterns)
+    end
+
     def parse(@parsing_tokens : Array(MatchedToken)) \
         : Tuple(Array(MatchedToken), Array(Node::Node))?
       @parsing_pos = 0
@@ -210,16 +230,30 @@ module Magiika::Lang
         result = root.parse
 
         # TODO: verify that every token was consumed
+        pos = @parsing_pos
+        if @parsing_tokens.size > pos+1
+          raise Error::Internal.new("Unconsumed tokens:\n" + @parsing_tokens.join("\n"))
+        end
+
+        @parsing_tokens.clear
+        @parsing_pos = 0
 
         return result
       end
     end
 
     def next_token : MatchedToken?
-      pos = @parsing_pos
-      @parsing_pos += 1
+      loop do
+        pos = @parsing_pos
+        @parsing_pos += 1
 
-      return @parsing_tokens[pos] unless @parsing_tokens.size < pos+1
+        if @parsing_tokens.size <= pos #< pos+1
+          return nil
+        else
+          tok = @parsing_tokens[pos]
+          return tok unless @ignore.includes?(tok.name)
+        end
+      end
       return nil
     end
 
