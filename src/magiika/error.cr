@@ -9,6 +9,12 @@ module Magiika::Error
     end
   end
 
+  class InternalType < Internal
+    def initialize
+      super("Incorrect type.")
+    end
+  end
+
   class Safe < Exception
     def initialize(
         title : String,

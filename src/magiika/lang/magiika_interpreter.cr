@@ -35,7 +35,7 @@ def Magiika::Lang.define_magiika() : Magiika::Lang::Interpreter
     token(:NAME, /[A-Za-z_][A-Za-z0-9_]*/)
 
     # whitespace (run this last to allow for whitespace-sensitive tokens)
-    #token(:TAB, /\t| {2}+/)
+    token(:TAB, /\t| {2}+/)
     token(:SPACE, / +/)
     token(:LINE_SEGMENT, /\\[\t ]*\r?\n/)
     token(:NEWLINE, /\r?\n/)
@@ -45,8 +45,11 @@ def Magiika::Lang.define_magiika() : Magiika::Lang::Interpreter
     # SYNTAX
     # --------------------------------------------------
 
-    root(:stmts)
-    ignore(:LINE_SEGMENT)
+    root do
+      ignore(:LINE_SEGMENT)
+      ignore(:SPACE)
+      rule(:stmts)
+    end
 
     group(:nl) do
       rule(:NEWLINE)
@@ -69,17 +72,12 @@ def Magiika::Lang.define_magiika() : Magiika::Lang::Interpreter
     end
 
     group(:stmts) do
-      rule(:stmt, :nls, :stmts) do |_,(stmt,_,stmts)|
-        stmts
-      end
-      rule(:nls, :stmts) do |_,(_,stmts)|
-        stmts
-      end
-      rule(:stmts, :nls) do |_,(stmts,_)|
-        stmts
-      end
-      rule(:nls, :stmts, :nls) do |_,(_,stmts,_)|
-        stmts
+      ignore(:NEWLINE)
+      rule(:stmt, :stmts) do |_,(stmt,stmts)|
+        raise Error::InternalType.new unless stmts.is_a?(Array)
+        raise Error::InternalType.new unless stmt.is_a?(Node::Node)
+        
+        [stmt, *stmts]
       end
       rule(:stmt)
     end

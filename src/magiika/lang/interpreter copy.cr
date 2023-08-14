@@ -9,6 +9,8 @@ require "./tokenizer.cr"
 
 
 module Magiika::Lang
+  # TODO: add Rule class with type method to typecheck.
+
   private class Group
     private alias RuleBlock = \
         Array(MatchedToken), \
@@ -36,31 +38,31 @@ module Magiika::Lang
                    @name : Symbol)
     end
 
-    private def rule(pattern : Symbol)
+    protected def rule(pattern : Symbol)
       rule(Rule.new([pattern], nil))
     end
 
-    private def rule(*pattern : Symbol)
+    protected def rule(*pattern : Symbol)
       rule(Rule.new(pattern.to_a, nil))
     end
 
-    private def rule(pattern : Symbol, &block : RuleBlock)
+    protected def rule(pattern : Symbol, &block : RuleBlock)
       rule(Rule.new([pattern], block))
     end
 
-    private def rule(*pattern : Symbol, &block : RuleBlock)
+    protected def rule(*pattern : Symbol, &block : RuleBlock)
       rule(Rule.new(pattern.to_a, block))
     end
 
-    private def rule(pattern : Array(Symbol))
+    protected def rule(pattern : Array(Symbol))
       rule(Rule.new(pattern.to_a, nil))
     end
 
-    private def rule(pattern : Array(Symbol), &block : RuleBlock)
+    protected def rule(pattern : Array(Symbol), &block : RuleBlock)
       rule(Rule.new(pattern.to_a, block))
     end
 
-    private def rule(rule : Rule)
+    protected def rule(rule : Rule)
       if rule.pattern[0] == @name
         rule.pattern.shift
         @lr_rules << rule
@@ -80,11 +82,8 @@ module Magiika::Lang
 
     protected def noignore(pattern : Symbol)
       noignores = @noignores
-      if noignores.nil?
-        noignores = Array(Symbol).new 
-        @noignores = noignores
-      end
-      noignores << pattern
+      @noignores = Array(Symbol).new if noignores.nil?
+      @noignores << pattern
     end
 
     # TODO: Move all methods that aren't meant to be called
@@ -95,16 +94,16 @@ module Magiika::Lang
 
     def parse : TryRulesResult?
       rule_result = try_rules(lr=false)
-      puts "[1.A] '#{@name}': '#{rule_result}'"
+      puts "[A] '#{@name}': '#{rule_result}'"
       return nil if rule_result.nil?
 
       loop do
         result = try_rules(lr=true, rule_result)
-        puts "[1.B] '#{@name}': '#{result}'"
+        puts "[B] '#{@name}': '#{result}'"
 
         return rule_result if result.nil?
         rule_result = result
-        puts "[1.C] '#{@name}': next ..."
+        puts "[C] '#{@name}': next ..."
       end
     end
 
@@ -115,11 +114,13 @@ module Magiika::Lang
 
       start_pos = @interpreter.parsing_pos
 
-      rules = (lr ? @lr_rules : @rules)
-      rules.each do |rule|
+      matches = (lr ? @lr_rules : @rules)
+      matches.each do |rule|
         result = pre_result.nil? ? \
             TryRulesResult.new([] of MatchedToken, [] of Node::Node) \
           : TryRulesResult.new(*pre_result)
+
+        #pp "trying rule #{rule} ..."
 
         # iterate over rule symbols, eg [:NAME, :EQ, :expr]
         rule.pattern.each_with_index do |sym, idx|
@@ -131,7 +132,7 @@ module Magiika::Lang
             unless new_tok.nil?
               # MATCH
               result[0] << new_tok
-              puts "[2.A] match for rule #{rule}"
+              #pp "[A] match for rule #{rule}"
             else
               # NO MATCH
               result = nil
@@ -144,7 +145,7 @@ module Magiika::Lang
               # MATCH
               result[0].concat(new_result[0])
               result[1].concat(new_result[1])
-              puts "[2.B] match for rule #{rule}"
+              #pp "[B] match for rule #{rule}"
             else
               # NO MATCH
               result = nil
@@ -164,7 +165,8 @@ module Magiika::Lang
           unless block.nil?
             #pp "executing block for rule #{rule} ..."
             block_result = block.call(*result)
-            block_result = [block_result] unless block_result.is_a?(Array)
+            block_result = [block_result] if block_result.is_a?(Node::Node)
+
             rule_result = \
               TryRulesResult.new(
                 [] of MatchedToken,
@@ -190,26 +192,36 @@ module Magiika::Lang
     include Tokenizer
 
     @root : Group? = nil
+    @root_sym : Symbol? = nil
     @tokens = Hash(Symbol, Token).new
     @groups = Hash(Symbol, Group).new
 
     @parsing_pos = 0
     @parsing_tokens = Array(MatchedToken).new
 
+    @noignores: Bool = false
+
     getter tokens, groups
     property parsing_pos
-    getter parsing_tokens, parsing_expected
+    getter parsing_tokens
 
     def self.new(&block)
       instance = Interpreter.new
       with instance yield
 
-      # TODO: error check that root is not nil.
+      # TODO: error check that root_sym is nil
+      #  and root is not. error differently depending
+      #  on whichever is the case.
 
       instance
     end
 
     private def token(name : Symbol, pattern : Regex)
+      if name.to_s != name.to_s.upcase
+        raise Error::Internal.new("Bad syntax rule: Token '#{name}', " +
+          "token symbols must be in uppercase.")
+      end
+
       @tokens[name] = Token.new(name, Regex.new("\\A" + pattern.source))
     end
 
@@ -224,17 +236,9 @@ module Magiika::Lang
     end
 
     private def group(name : Symbol, &block)
-      group_instance = Group.new(self, name)
-      with group_instance yield
-      @groups[name] = group_instance
-    end
-
-    private def ignore(pattern : Symbol)
-      @ignore << pattern
-    end
-
-    private def ignore(*patterns : Symbol)
-      @ignore.concat(patterns)
+      group_inst = Group.new(self, name)
+      with group_inst yield
+      @groups[name] = group_inst
     end
 
     def parse(@parsing_tokens : Array(MatchedToken)) \
@@ -247,12 +251,14 @@ module Magiika::Lang
       else
         result = root.parse
 
+        print("parsed result: #{result}")
+
         # TODO: verify that every token was consumed
         pos = @parsing_pos
         if @parsing_tokens.size > pos+1
-          raise Error::Internal.new( \
-            "Unconsumed tokens (#{@parsing_tokens.size-pos}" \
-            "/#{@parsing_tokens.size}):\n" +
+          raise Error::Internal.new(
+            "Unconsumed tokens (#{@parsing_tokens.size-pos}" +
+            "/#{@parsing_tokens.size}):\n" + 
             @parsing_tokens[pos..].join("\n"))
         end
 
@@ -263,57 +269,67 @@ module Magiika::Lang
       end
     end
 
-    def should_ignore?(name : Symbol,
-                       ignores : Array(Symbol),
-                       noignores : Array(Symbol)? = nil) \
-                       : Bool
+    private def should_ignore?(token : MatchedToken,
+                               ignores : Array(Symbol),
+                               noignores : Array(Symbol)?) \
+                               : Bool
       root = @root
       raise Error::Internal.new("root should not be nil") if root.nil?
-      
+
       final_ignores = Array(Symbol).new
-      
-      if noignores.nil?
-        final_ignores.concat(root.ignores)
-      else
-        if noignores.size > 0
-          root.ignores.each { |ig_sym|
-            next if noignores.includes?(ig_sym)
-            final_ignores << ig_sym 
-          }
+
+      if !@noignores
+        if noignores.nil?
+          final_ignores.concat(root.ignores)
+        else
+          if noignores.size > 0
+            root.ignores.each { |ig_sym|
+              next if noignores.includes?(ig_sym)
+              final_ignores << ig_sym 
+            }
+          end
         end
+        final_ignores.concat(ignores)
       end
-      final_ignores.concat(ignores)
+
+      puts "ignores: #{ignores}"
+      puts "noignores: #{noignores}"
+      puts "final ignores: #{final_ignores}"
 
       final_ignores.each { |ig_sym|
-        return true if name == ig_sym
+        return true if token.name == ig_sym
       }
       return false
     end
 
-    def next_token(ignores : Array(Symbol),
-                   noignores : Array(Symbol)? = nil) \
-                   : MatchedToken?
+    private def next_token(ignores : Array(Symbol)? = nil,
+                           noignores : Array(Symbol)? = nil) \
+                           : MatchedToken?
       loop do
-        pos = @parsing_pos
         @parsing_pos += 1
 
-        if @parsing_tokens.size <= pos #< pos+1
+        if @parsing_pos >= @parsing_tokens.size #< pos+1
           return nil
         else
-          tok = @parsing_tokens[pos]
-          return tok unless should_ignore?(tok.name, ignores, noignores)
+          token = @parsing_tokens[@parsing_pos]
+          sh = should_ignore?(token, ignores, noignores)
+          puts "should ignore '#{token}': '#{sh}'"
+          return token unless sh
         end
       end
       return nil
     end
 
-    def expect(expected_token_name : Symbol,
-               ignores : Array(Symbol) = Array(Symbol).new,
+    def expect(expected_token_name : Symbol, 
+               ignores : Array(Symbol)? = nil,
                noignores : Array(Symbol)? = nil) \
                : MatchedToken?
-      tok = next_token(ignores, noignores)
-      return tok unless tok.nil? || expected_token_name != tok.name
-      return nil
+      while true
+        tok = next_token(ignores, noignores)
+        return nil if tok.nil?
+        return tok if expected_token_name == tok.name
+        return nil
+      end
     end
   end
 end
