@@ -74,6 +74,7 @@ def Magiika::Lang.define_magiika() : Magiika::Lang::Interpreter
     group(:stmts) do
       ignore(:NEWLINE)
       rule(:stmt, :stmts) do |_,(stmt,stmts)|
+        pp stmts
         raise Error::InternalType.new unless stmts.is_a?(Array)
         raise Error::InternalType.new unless stmt.is_a?(Node::Node)
         
@@ -89,8 +90,8 @@ def Magiika::Lang.define_magiika() : Magiika::Lang::Interpreter
 
     group(:setvar) do
       rule(:DEFINE, :NAME, :ASSIGN, :value) do \
-        |(_,name,op),(value)|
-        Magiika::Node::Assign.new(op.pos, name, value)
+        |(df,name,op),(value)|
+        Magiika::Node::Assign.new(df.pos, name, value)
       end
     end
 
