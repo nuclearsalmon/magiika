@@ -7,26 +7,6 @@ module Magiika::Lang::Syntax
       rule(:stmts)
     end
 
-    group(:nl) do
-      rule(:NEWLINE)
-      rule(:INLINE_NEWLINE)
-    end
-
-    group(:nls) do
-      rule(:nl, :nls)
-      rule(:nl)
-    end
-
-    group(:spc) do
-      rule(:TAB)
-      rule(:SPACE)
-    end
-
-    group(:spcs) do
-      rule(:spc, :spcs)
-      rule(:spc)
-    end
-
     group(:stmts) do
       ignore(:NEWLINE)
       
@@ -46,6 +26,7 @@ module Magiika::Lang::Syntax
     
     group(:value) do
       rule(:BOOL) do |(value),_|
+        puts value
         Magiika::Node::Bool.new(value.value == "true", value.pos)
       end
 

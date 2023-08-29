@@ -18,6 +18,7 @@ module Magiika::Lang
   
         # register builtins
         register_tokens
+        register_commons
         register_base
         register_var
       end
@@ -45,12 +46,14 @@ module Magiika::Lang
     # ------------------------------------------------------
 
     private def banner
-      print ANSI_BOLD_ACCENT_STYLE + \
-        " -    ⊹ M a g i i k a ₊+   - " + \
-        ANSI_RESET + "\n"
-      print ANSI_ACCENT_STYLE + \
-        "   a ⊹₊magical₊+ language~   " + \
-        ANSI_RESET + "\n\n"
+      print(ANSI_BOLD_ACCENT_STYLE +
+        " -    ⊹ M a g i i k a ₊+   - " +
+        ANSI_RESET + "\n")
+      print(ANSI_ACCENT_STYLE +
+        "   a ⊹₊magical₊+ language~   " +
+        ANSI_RESET + "\n\n")
+      
+      notify("(type `##h' for debug commands ₊+)")
     end
 
     private def resetprint(msg)
@@ -94,8 +97,37 @@ module Magiika::Lang
       }
 
       join_str = "\n    "
-      warn(ex.to_s + "\n   Traceback:" \
-        + join_str + filtered_backtrace.join(join_str))
+      warn(ex.to_s + "\n   Traceback:" + 
+        join_str + filtered_backtrace.join(join_str))
+      print("\n")
+    end
+
+    private def operator_command(cmd : Char)
+      case cmd
+      when 't'
+        @display_tokenization = !@display_tokenization
+        notify("show tokenization result: #{cond_to_tg(@display_tokenization)}.")
+      when 'p'
+        @display_parsing = !@display_parsing
+        notify("show parsing result: #{cond_to_tg(@display_parsing)}.")
+      when 'l'
+        from_level = Magiika.log_level
+        is_debug = from_level == ::Log::Severity::Debug
+        to_level = is_debug ? ::Log::Severity::Info : ::Log::Severity::Debug
+        Magiika.change_log_level(to_level)
+        notify("show debug_logs: #{cond_to_tg(!is_debug)}.")
+      when 'h'
+        notify(
+          ANSI_UNDERLINE_ON +
+          "command list ⊹ ₊+          " +
+          ANSI_UNDERLINE_OFF + "\n" +
+          "   't' : toggle showing tokenization result\n" +
+          "   'p' : toggle showing parsing result\n" +
+          "   `l' : toggle showing debug logs\n" +
+          "   'h' : this help menu")
+      else
+        warn("unknown command. try `##h'.")
+      end
       print("\n")
     end
 
@@ -161,25 +193,14 @@ module Magiika::Lang
 
           break if input.nil? || input == "exit"
 
-          if input.size == 2 && input[0] == '%'
-            case input[1]
-            when 't'
-              @display_tokenization = !@display_tokenization
-              notify("show tokenization result: #{cond_to_tg(@display_tokenization)}.")
-              print("\n")
-              next
-            when 'p'
-              @display_parsing = !@display_parsing
-              notify("show parsing result: #{cond_to_tg(@display_parsing)}.")
-              print("\n")
-              next
+          if input.size == 3 && input[0] == '#' && input[1] == '#'
+            operator_command(input[2])
+          else
+            unless (result = execute(input, scope, filename)).nil?
+              print "⭐ #{result.to_s}\n"
             end
+            print "\n"
           end
-
-          unless (result = execute(input, scope, filename)).nil?
-            print "⭐ #{result.to_s}\n"
-          end
-          print "\n"
         rescue ex : Error::Safe
           print_ex(ex)
         end
