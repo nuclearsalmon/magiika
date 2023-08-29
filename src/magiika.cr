@@ -1,30 +1,45 @@
 #!/usr/bin/env -S crystal run
+require "log"
 require "./magiika/error.cr"
-require "./magiika/lang/__init__.cr"
-require "./magiika/node/__init__.cr"
-require "./magiika/scope/__init__.cr"
+require "./magiika/lang/MODULE.cr"
 
 
 module Magiika
   VERSION = "0.1.0"
+  LOG_LEVEL = ::Log::Severity::Debug
 
   extend self
 
-  def execute(instructions : String, scope : Scope::Scope, filename : String)
-    Lang::MagiikaInterpreter.new.execute(instructions, scope, filename)
+
+  # LOGGING SETUP
+  # --------------------------------------------------------
+
+  Log = ::Log.for("root")
+
+  backend = ::Log::IOBackend.new
+  backend.dispatcher = ::Log::DirectDispatcher
+  backend.formatter = ::Log::Formatter.new do |entry, io|
+    io << entry.severity.label << " - " \
+      << entry.source << ": " \
+      << entry.message
+  end
+  ::Log.builder.bind("*", LOG_LEVEL, backend)
+
+
+  # API AND RUNTIME
+  # --------------------------------------------------------
+
+  def interpreter
+    Lang::MagiikaInterpreter.new
   end
 
-  def execute(instructions : String)
-    Lang::MagiikaInterpreter.new.execute(instructions)
-  end
-
-  def interactive
-    Lang::MagiikaInterpreter.new.interactive
+  def run
+    interpreter.interactive
   end
 
   def main
     if ARGV.size == 0
-      Magiika.interactive
+      Magiika.run
     else
       raise NotImplementedError.new("")
     end

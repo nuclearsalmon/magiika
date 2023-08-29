@@ -1,132 +1,28 @@
-require "./interpreter.cr"
+require "./parser.cr"
 require "./position.cr"
 require "./token.cr"
+require "./syntax/**"
 require "../node/base.cr"
-require "../node/type/__init__.cr"
-require "../node/stmt/__init__.cr"
-require "../scope/__init__.cr"
+require "../node/type/**"
+require "../node/stmt/**"
+require "../scope/MODULE.cr"
 
-def Magiika::Lang.define_magiika() : Magiika::Lang::Interpreter
-  return Magiika::Lang::Interpreter.new do
-    # TOKENS
-    # --------------------------------------------------
-
-    # comments
-    #token(:COMMENT, /\#.*$/)
-    #token(:COMMENT, /\/\*([^*]|\r?\n|(\*+([^*\/]|\r?\n)))*\*+\//)
-    #token(:DOC_COMMENT, /\/\*\*(\r?\n|(\*+([^*\/]|\r?\n)))*\*\*+\//)
-
-    # keywords
-    #token(:CONST, /const/)
-
-    # operators
-    token(:DEFINE, /:/)
-    token(:ASSIGN, /=/)
-    #token(:INLINE_ASSIGN, /:=/)
-
-    # literals
-    token(:BOOL, /true|false/)
-    token(:FLT, /\d+\.\d+/)
-    token(:INT, /[\+\-]?\d+/)
-    #token(:STR, /"([^"\\]*(?:\\.[^"\\]*)*)"/)
-    #token(:STR, /'([^'\\]*(?:\\.[^'\\]*)*)'/)
-
-    # names
-    token(:NAME, /[A-Za-z_][A-Za-z0-9_]*/)
-
-    # whitespace (run this last to allow for whitespace-sensitive tokens)
-    token(:TAB, /\t| {2}+/)
-    token(:SPACE, / +/)
-    token(:LINE_SEGMENT, /\\[\t ]*\r?\n/)
-    token(:NEWLINE, /\r?\n/)
-    token(:INLINE_NEWLINE, /;/)
-
-
-    # SYNTAX
-    # --------------------------------------------------
-
-    root do
-      ignore(:LINE_SEGMENT)
-      ignore(:SPACE)
-      rule(:stmts)
-    end
-
-    group(:nl) do
-      rule(:NEWLINE)
-      rule(:INLINE_NEWLINE)
-    end
-
-    group(:nls) do
-      rule(:nl, :nls)
-      rule(:nl)
-    end
-
-    group(:spc) do
-      rule(:TAB)
-      rule(:SPACE)
-    end
-
-    group(:spcs) do
-      rule(:spc, :spcs)
-      rule(:spc)
-    end
-
-    group(:stmts) do
-      ignore(:NEWLINE)
-      rule(:stmt, :stmts) do |_,(stmt,stmts)|
-        pp stmts
-        raise Error::InternalType.new unless stmts.is_a?(Array)
-        raise Error::InternalType.new unless stmt.is_a?(Node::Node)
-        
-        [stmt, *stmts]
-      end
-      rule(:stmt)
-    end
-
-    group(:stmt) do
-      rule(:setvar)
-      rule(:getvar)
-    end
-
-    group(:setvar) do
-      rule(:DEFINE, :NAME, :ASSIGN, :value) do \
-        |(df,name,op),(value)|
-        Magiika::Node::Assign.new(df.pos, name, value)
-      end
-    end
-
-    group(:getvar) do
-      rule(:NAME) do |(name),_|
-        Magiika::Node::Retrieve.new(name.pos, name)
-      end
-    end
-
-    group(:value) do
-      rule(:BOOL) do |(value),_|
-        Magiika::Node::Bool.new(value.value == "true", value.pos)
-      end
-
-      rule(:INT) do |(value),_|
-        Magiika::Node::Int.new(value.value.to_i32, value.pos)
-      end
-
-      rule(:FLT) do |(value),_|
-        Magiika::Node::Flt.new(value.value.to_f32, value.pos)
-      end
-    end
-
-    # collect(:decos, :deco)
-    #
-    # group(:deco) do
-    #   rule(:PUBL)
-    #   rule(:PRIV)
-    #   rule(:CONST)
-    # end
-  end
-end
 
 module Magiika::Lang
   class MagiikaInterpreter
+    private class Builder < Parser::Builder
+      include Syntax
+  
+      def initialize
+        super
+  
+        # register builtins
+        register_tokens
+        register_base
+        register_var
+      end
+    end
+
     private ANSI_RESET             = "\x1b[m"
     private ANSI_UNDERLINE_ON      = "\x1b[4m"
     private ANSI_UNDERLINE_OFF     = "\x1b[24m"
@@ -135,10 +31,18 @@ module Magiika::Lang
     private ANSI_WARNING_STYLE     = "\x1b[38;2;235;59;47m"
     private ANSI_RELAXED_STYLE     = "\x1b[38;2;150;178;195m"
 
-    @@interpreter : Interpreter = Lang.define_magiika
+    @parser : Parser
+    
     @display_tokenization = false
     @display_parsing = false
 
+    def initialize
+      @parser = Builder.new.build
+    end
+
+
+    # decorative
+    # ------------------------------------------------------
 
     private def banner
       print ANSI_BOLD_ACCENT_STYLE + \
@@ -149,7 +53,7 @@ module Magiika::Lang
         ANSI_RESET + "\n\n"
     end
 
-    protected def resetprint(msg)
+    private def resetprint(msg)
       if msg.is_a?(String)
         print msg + "\n"
       else
@@ -158,31 +62,31 @@ module Magiika::Lang
       print "#{ANSI_RESET}"
     end
 
-    protected def inform(msg)
+    private def inform(msg)
       print "🌟 #{ANSI_ACCENT_STYLE}"
       resetprint msg
     end
 
-    protected def notify(msg)
+    private def notify(msg)
       print "🌠 #{ANSI_RELAXED_STYLE}"
       resetprint msg
     end
 
-    protected def warn(msg)
+    private def warn(msg)
       print "💫 #{ANSI_WARNING_STYLE}"
       resetprint msg
     end
 
-    protected def cond_to_tg(condition)
+    private def cond_to_tg(condition)
       return condition ? "enabled" : "disabled"
     end
 
-    protected def exit
+    private def exit
       print "🌠 #{ANSI_RELAXED_STYLE}leaving interactive mode#{ANSI_RESET}\n"
       exit 0
     end
 
-    protected def print_ex(ex : Exception)
+    private def print_ex(ex : Exception)
       filtered_backtrace = [] of String
       ex.backtrace.each{ | line |
         break if line.ends_with?("in '__crystal_main'")
@@ -195,17 +99,26 @@ module Magiika::Lang
       print("\n")
     end
 
+
+    # functionality
+    # ------------------------------------------------------
+
+    def parse(parsing_tokens : Array(MatchedToken)) \
+        : Tuple(Array(MatchedToken), Array(Node::Node))?
+      @parser.parse(parsing_tokens)
+    end
+
     def execute(
         instructions : String,
         scope : Scope::Scope,
         filename : String) : Node::Node?
-      tokens = @@interpreter.tokenize(instructions, filename)
+      tokens = @parser.tokenize(instructions, filename)
 
       if @display_tokenization
         inform(tokens)
       end
 
-      parsed_result = @@interpreter.parse(tokens)
+      parsed_result = @parser.parse(tokens)
 
       if @display_parsing
         inform(parsed_result)
@@ -241,7 +154,7 @@ module Magiika::Lang
       Signal::INT.trap { print "\n"; exit }
 
       banner
-      while true
+      loop do
         begin
           print "✨ "
           input = gets
@@ -263,12 +176,10 @@ module Magiika::Lang
             end
           end
 
-          result = execute(input, scope, filename)
-          unless result.nil?
-            print "⭐ "
-            puts result.to_s
+          unless (result = execute(input, scope, filename)).nil?
+            print "⭐ #{result.to_s}\n"
           end
-          puts "\n"
+          print "\n"
         rescue ex : Error::Safe
           print_ex(ex)
         end
