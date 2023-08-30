@@ -8,14 +8,14 @@ module Magiika::Node
       super(position)
     end
 
-    def eval(scope : Magiika::Scope::Scope) : Nil
+    def eval(scope : Magiika::Scope::Scope) : Node
       case @oper
       when "="
         scope.set(@ident, @value)
       else
         raise Error::Internal.new("Unknown assignment operator: \'#{@oper}\'")
       end
-      return nil
+      return @value
     end
   end
 end

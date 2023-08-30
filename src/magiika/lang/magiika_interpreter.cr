@@ -20,6 +20,7 @@ module Magiika::Lang
         register_tokens
         register_commons
         register_base
+        register_conditions
         register_var
       end
     end
@@ -121,10 +122,10 @@ module Magiika::Lang
           ANSI_UNDERLINE_ON +
           "command list ⊹ ₊+          " +
           ANSI_UNDERLINE_OFF + "\n" +
-          "   't' : toggle showing tokenization result\n" +
-          "   'p' : toggle showing parsing result\n" +
+          "   `t' : toggle showing tokenization result\n" +
+          "   `p' : toggle showing parsing result\n" +
           "   `l' : toggle showing debug logs\n" +
-          "   'h' : this help menu")
+          "   `h' : this help menu")
       else
         warn("unknown command. try `##h'.")
       end

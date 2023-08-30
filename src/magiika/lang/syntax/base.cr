@@ -26,8 +26,14 @@ module Magiika::Lang::Syntax
     
     group(:value) do
       rule(:BOOL) do |(value),_|
-        puts value
-        Magiika::Node::Bool.new(value.value == "true", value.pos)
+        case value.value
+        when "true"
+          Magiika::Node::Bool.new(true, value.pos)
+        when "false"
+          Magiika::Node::Bool.new(false, value.pos)
+        else
+          raise Error::Internal.new("Invalid bool value: \"#{value.value}\".")
+        end
       end
 
       rule(:INT) do |(value),_|

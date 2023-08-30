@@ -4,12 +4,30 @@ module Magiika::Node
       {{ @type.methods.map &.name.stringify }}
     end
 
+    private alias OperationMethod = \
+      Array(Magiika::Node::Node), \
+      Magiika::Scope::Scope \
+      -> Magiika::Node::Node
+    private alias OperationMethodByName = \
+      Hash(String, OperationMethod)
+    private alias OperationMethodsByNargs = \
+      Hash(Int32, OperationMethod)
+    
+    
     property position : Lang::Position
 
     def initialize(@position : Lang::Position)
     end
 
-    abstract def eval(scope : Magiika::Scope::Scope) : Node?
+    abstract def eval(scope : Magiika::Scope::Scope) : Magiika::Node::Node
+
+    def [](nargs) : OperationMethodsByNargs
+      # { 2: {
+      #      "==": -> { |r| eq (r) }
+      #   }
+      # }
+      OperationMethodsByNargs.new
+    end
 
     def to_s
       return "#{self.class.name}@#{@position} ...\n" \
@@ -17,7 +35,7 @@ module Magiika::Node
     end
   end
 
-  class VarMeta < Node
+  class VarMeta < Magiika::Node::Node
     property position : Lang::Position
 
     property name : String
@@ -25,14 +43,15 @@ module Magiika::Node
     property nullable : ::Bool = false
     property const : ::Bool = false
     property _type : Node.class | Nil
-    property value : Node?
+    property value : Node
 
     def initialize(
-      @position : Lang::Position,
+      position : Lang::Position,
       @name : String,
       @_type : Type?,
-      @value : Node::Node?,
+      @value : Magiika::Node::Node,
       @nullable : ::Bool)
+      super(position)
     end
 
     def magic?
@@ -40,7 +59,7 @@ module Magiika::Node
       return _type.nil?
     end
 
-    def eval(scope : Magiika::Scope::Scope) : Node?
+    def eval(scope : Magiika::Scope::Scope) : Magiika::Node::Node
       return @value
     end
   end
@@ -50,12 +69,14 @@ module Magiika::Node
     property static : ::Bool = false
 
     def initialize(
-      @position : Lang::Position,
-      @name : String,
-      @_type : Type?,
-      @value : Node::Node?,
+      position : Lang::Position,
+      name : String,
+      _type : Type?,
+      value : Magiika::Node::Node,
+      nullable : ::Bool,
       @accessor : Symbol,
       @static : ::Bool)
+      super(position, name, _type, value, nullable)
     end
   end
 end

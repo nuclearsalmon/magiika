@@ -60,7 +60,6 @@ module Magiika::Lang
                 parser.cache[parser.parsing_pos]?).nil?)\
               && !((cache_result = cache_section[sym]?).nil?))
 
-            Log.debug { "Recovered :#{sym} from cache." }
             cache_node = cache_result[0]
             cache_offset = cache_result[1]
 
@@ -118,6 +117,11 @@ module Magiika::Lang
 
       rules = (lr ? @lr_rules : @rules)
       rules.each do |rule|
+        if parser.parsing_tokens[start_pos..].size < rule.pattern.size
+          Log.debug { "Skipping rule #{rule.pattern}, not enough tokens." }
+          next
+        end
+
         rule_result = pre_result.nil? ? \
           TryRulesResult.new([] of MatchedToken, [] of Node::Node) \
           : TryRulesResult.new(*pre_result)
@@ -134,7 +138,7 @@ module Magiika::Lang
         else
           block = rule.block
           unless block.nil?
-            Log.debug { "Executing block for rule :#{rule.pattern} ..." }
+            Log.debug { "Executing block for rule #{rule.pattern} ..." }
             block_result = block.call(*rule_result)
             block_result = [block_result] unless block_result.is_a?(Array)
             return TryRulesResult.new(
