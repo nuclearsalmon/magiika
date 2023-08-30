@@ -9,22 +9,22 @@ module Magiika::Lang::Syntax
 
     group(:stmts) do
       ignore(:NEWLINE)
-      
+
       rule(:stmt, :stmts) do |_,(stmt,stmts)|
         type(stmts, Array)
         type(stmt, Node::Node)
-        
+
         [stmt, *stmts]
       end
       rule(:stmt)
     end
 
     group(:stmt) do
-      rule(:setvar)
-      rule(:getvar)
+      rule(:set_var)
+      rule(:get_var)
     end
-    
-    group(:value) do
+
+    group(:literal) do
       rule(:BOOL) do |(value),_|
         case value.value
         when "true"
@@ -43,6 +43,12 @@ module Magiika::Lang::Syntax
       rule(:FLT) do |(value),_|
         Magiika::Node::Flt.new(value.value.to_f32, value.pos)
       end
+    end
+
+    group(:value) do
+      rule(:literal)
+      rule(:member_access)
+      rule(:L_PAR, :cond, :R_PAR)
     end
   end
 end

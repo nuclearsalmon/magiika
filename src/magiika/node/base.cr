@@ -12,9 +12,9 @@ module Magiika::Node
       Hash(String, OperationMethod)
     private alias OperationMethodsByNargs = \
       Hash(Int32, OperationMethod)
-    
-    
-    property position : Lang::Position
+
+
+    getter position : Lang::Position
 
     def initialize(@position : Lang::Position)
     end

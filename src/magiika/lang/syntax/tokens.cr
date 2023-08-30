@@ -1,6 +1,6 @@
 module Magiika::Lang::Syntax
   #extend self
-  
+
   protected def register_tokens
     # comments
     # ------------------------------------------------------
@@ -23,15 +23,15 @@ module Magiika::Lang::Syntax
     #token(:STR, /'([^'\\]*(?:\\.[^'\\]*)*)'/)
 
 
-    # multi-character operators
+    # multi-character operators and tokens
     # ------------------------------------------------------
-    #token(:ASSIGN_INLINE, /:=/)
-    #token(:ASSIGN_SUB, /\-=/)
-    #token(:ASSIGN_ADD, /\+=/)
-    #token(:ASSIGN_MULT, /\*=/)
-    #token(:ASSIGN_DIV, /\\=/)
-    #token(:ASSIGN_POW, /\*\*=/)
-    #token(:ASSIGN_PIPE, /\|=/)
+    token(:ASSIGN_INLINE, /:=/)
+    token(:ASSIGN_SUB, /\-=/)
+    token(:ASSIGN_ADD, /\+=/)
+    token(:ASSIGN_MULT, /\*=/)
+    token(:ASSIGN_DIV, /\\=/)
+    token(:ASSIGN_POW, /\*\*=/)
+    token(:ASSIGN_PIPE, /\|=/)
 
     token(:OR, /\|\||or/)
     token(:AND, /&&|and/)
@@ -42,7 +42,7 @@ module Magiika::Lang::Syntax
     token(:NOR, /nor/)
     token(:NAND, /nand/)
     token(:NOT_L, /not/)
-    
+
     token(:EQ, /==/)
     token(:NEQ, /!=/)
     token(:LEQ, /<=/)
@@ -54,28 +54,38 @@ module Magiika::Lang::Syntax
     token(:LSH, /<</)
     token(:RSH, />>/)
     token(:IMPL, /\->/)
-  
 
-    # single-character operators
+
+    # single-character operators and tokens
     # ------------------------------------------------------
     token(:DEFINE, /:/)
     token(:ASSIGN, /=/)
-    
+
     # FIXME: swap bitwise ops to be literal "XOR",
     #   and use single chars for other ops.
     token(:BOR, /\|/)
     token(:BAND, /&/)
-    token(:BXOR, /\^/) 
-    
+    token(:BXOR, /\^/)
+
     token(:ADD, /\+/)
     token(:SUB, /\-/)
     token(:MULT, /\*/)
     token(:DIV, /\//)
     token(:MOD, /%/)
-    
+
     token(:NOT_S, /!/)
     token(:LT, /</)
     token(:GT, />/)
+
+    token(:L_PAR, /\(/)
+    token(:R_PAR, /\)/)
+    token(:L_SQPAR, /\[/)
+    token(:R_SQPAR, /\]/)
+    token(:L_BRC, /\{/)
+    token(:R_BRC, /\}/)
+
+    token(:MEMBER, /\./)
+
 
 
     # identifiers
@@ -83,7 +93,7 @@ module Magiika::Lang::Syntax
     token(:NAME, /([A-Za-z_][A-Za-z0-9_]*)/)
 
 
-    # whitespace 
+    # whitespace
     # (ran last, to allow for whitespace-sensitive tokens)
     # ------------------------------------------------------
     token(:TAB, /\t| {2}+/)
