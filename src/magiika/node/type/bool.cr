@@ -1,6 +1,6 @@
-module Magiika::Node
-  class Bool < Node
-    def initialize(@value : ::Bool, position)
+module Magiika
+  class Node::Bool < NodeClassBase
+    def initialize(@value : ::Bool, position : Lang::Position)
       super(position)
     end
 
@@ -8,8 +8,12 @@ module Magiika::Node
       return @value.to_s
     end
 
-    def eval(scope : Magiika::Scope::Scope) : Node:Bool
+    def eval(scope : Scope) : self
       return self
+    end
+
+    def eval_bool(scope : Scope) : ::Bool
+      return @value
     end
   end
 end

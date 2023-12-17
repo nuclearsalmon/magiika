@@ -1,8 +1,8 @@
 module Magiika::Lang::Syntax
   private def register_conditions
-    group :cond do  # exists for the sake of readability
-      bin_expr_rule(:or_cond, :BOR, :and_cond)
-      bin_expr_rule(:or_cond, :OR, :and_cond)
+    group :cond do
+      bin_expr_rule(:cond, :BOR, :and_cond)
+      bin_expr_rule(:cond, :OR, :and_cond)
       rule(:and_cond)
     end
 
@@ -25,9 +25,7 @@ module Magiika::Lang::Syntax
     end
 
     group :nor_cond do
-      rule(:BNOR, :nand_cond) do |(op),(l,r)|
-        Node::UnaryExpr.new(l.position, op.value, r)
-      end
+      un_expr_rule(:BNOR, :nand_cond)
       bin_expr_rule(:nor_cond, :BNOR, :nand_cond)
       bin_expr_rule(:nor_cond, :NOR, :nand_cond)
       rule(:nand_cond)
@@ -40,11 +38,14 @@ module Magiika::Lang::Syntax
     end
 
     group :comp do
-      bin_expr_rule(:expr, :COMP, :expr)
+      bin_expr_rule(:expr, :EQ, :expr)
       #rule(:NOT, :cond) do |_,(value)|
       #  BooleanInverterNode.new(l.position, value)
       #end
-      #rule(:expr)
+      #rule(:NOT_L, :cond) do |_,(value)|
+      #  BooleanInverterNode.new(l.position, value)
+      #end
+      rule(:expr)
     end
   end
 end

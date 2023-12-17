@@ -15,6 +15,13 @@ module Magiika::Error
     end
   end
 
+  class InternalMatchFail < Internal
+    def initialize(errors : Array(String))
+      error_string = Util.terminated_concat(errors)
+      super(error_string)
+    end
+  end
+
   class Safe < Exception
     def initialize(
         title : String,
@@ -67,12 +74,12 @@ module Magiika::Error
 
   class UndefinedVariable < Safe
     def initialize(
-        ident : Lang::MatchedToken,
-        scope : Magiika::Scope::Scope,
+        ident : String,
+        scope : Scope,
         position : Lang::Position)
       super(
         "UNDEFINED VARIABLE",
-        "Undefined variable: '#{ident.value}'",
+        "Undefined variable: '#{ident}'",
         position
       )
     end

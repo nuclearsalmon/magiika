@@ -1,18 +1,21 @@
 module Magiika::Lang
   private alias RuleBlock = \
     Array(MatchedToken), \
-    Array(Node::Node) \
-    -> Node::Node | Array(Node::Node)
+    Array(Node) \
+    -> Node | Array(Node)
 
   private record Rule,
     pattern : Array(Symbol),
     block : RuleBlock?
 
   private alias TryRulesResult \
-    = Tuple(Array(MatchedToken), Array(Node::Node))
+    = Tuple(Array(MatchedToken), Array(Node))
   
   private class Group
+    # required for functionality
     getter name, ignores, noignores
+    # required for validation
+    getter rules, lr_rules
 
     @name : Symbol
     @rules : Array(Rule)
@@ -71,7 +74,7 @@ module Magiika::Lang
             Log.debug { "Cache-match :#{sym} in #{rule.pattern}" }
             matched_rule = true
           # sym is group name
-          elsif !((group = parser.groups[sym]).nil?)
+          elsif !((group = parser.groups[sym]?).nil?)
             pre_pos = parser.parsing_pos
             new_result = group.parse(parser)
             unless new_result.nil?
@@ -123,7 +126,7 @@ module Magiika::Lang
         end
 
         rule_result = pre_result.nil? ? \
-          TryRulesResult.new([] of MatchedToken, [] of Node::Node) \
+          TryRulesResult.new([] of MatchedToken, [] of Node) \
           : TryRulesResult.new(*pre_result)
 
         rule_result = try_patterns(
@@ -151,7 +154,7 @@ module Magiika::Lang
                 [] of MatchedToken,
               rule_result[1].size() != 0 ? \
                 [rule_result[1][0]] : \
-                [] of Node::Node)
+                [] of Node)
           end
         end
       end

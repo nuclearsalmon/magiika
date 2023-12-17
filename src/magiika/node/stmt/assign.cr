@@ -1,5 +1,5 @@
-module Magiika::Node
-  class Assign < Node
+module Magiika
+  class Node::AssignVar < NodeClassBase
     def initialize(
         position : Lang::Position,
         @ident : Lang::MatchedToken,
@@ -8,7 +8,7 @@ module Magiika::Node
       super(position)
     end
 
-    def eval(scope : Magiika::Scope::Scope) : Node
+    def eval(scope : Scope) : Node
       value = @value.eval(scope)
       case @oper
       when "="
@@ -16,7 +16,31 @@ module Magiika::Node
       else
         raise Error::Internal.new("Unknown assignment operator: \'#{@oper}\'")
       end
+
       return value
+    end
+
+    def eval_bool(scope : Scope) : ::Bool
+      return False
+    end
+  end
+
+  class Node::AssignMember < NodeClassBase
+    def initialize(
+        position : Lang::Position,
+        @dest : Node,
+        @value : Node,
+        @oper : String)
+      super(position)
+    end
+
+    def eval(scope : Scope) : Node
+      value = @value.eval(scope)
+      return value
+    end
+
+    def eval_bool(scope : Scope) : ::Bool
+      return False
     end
   end
 end

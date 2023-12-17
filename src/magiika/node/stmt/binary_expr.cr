@@ -1,8 +1,8 @@
 require "../base.cr"
 
 
-module Magiika::Node
-  class BinaryExpr < Node
+module Magiika
+  class Node::BinaryExpr < NodeClassBase
     def initialize(
         position : Lang::Position,
         @left : Node, 
@@ -11,10 +11,23 @@ module Magiika::Node
       super(position)
     end
 
-    def eval(scope : Magiika::Scope::Scope) : Magiika::Node::Node
+    def eval(scope : Scope) : Node
       left = @left.eval(scope)
       right = @right.eval(scope)
-      left[2][@oper].call([right], scope)
+      node = left[":"+@oper]?
+
+      if node.nil?
+        raise Error::Internal.new("unknown method `:#{@oper}'.")
+      else
+        node = node.eval(scope)
+
+        if node.node_is_a_inh?(Function)
+          return node.as(Function).call_safe_raise(
+            [FnArg.new(nil, right)], scope)
+        else
+          return node
+        end
+      end
     end
   end
 end

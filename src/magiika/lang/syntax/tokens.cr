@@ -9,18 +9,28 @@ module Magiika::Lang::Syntax
     #token(:DOC_COMMENT, /\/\*\*(\r?\n|(\*+([^*\/]|\r?\n)))*\*\*+\//)
 
 
-    # keywords
-    # ------------------------------------------------------
-    #token(:CONST, /const/)
-
-
     # literals
     # ------------------------------------------------------
+    #token(:STR, /"([^"\\]*(?:\\.[^"\\]*)*)"/)
+    #token(:STR, /'([^'\\]*(?:\\.[^'\\]*)*)'/)
     token(:BOOL, /(true|false)/)
     token(:FLT, /-?\d+\.\d+/)
     token(:INT, /-?\d+/)
-    #token(:STR, /"([^"\\]*(?:\\.[^"\\]*)*)"/)
-    #token(:STR, /'([^'\\]*(?:\\.[^'\\]*)*)'/)
+    
+
+    # keywords and types
+    # ------------------------------------------------------
+    token(:BOOL_TYP, /bool/)
+    token(:INT_TYP, /int/)
+    token(:FLT_TYP, /flt/)
+    token(:STR_TYP, /str/)
+    token(:NIL_TYP, /nil/)
+    token(:BOOL_TYP, /bool/)
+    token(:LIST_TYP, /list/)
+    token(:FN_TYP, /fn/)
+    token(:CLS_TYP, /cls/)
+
+    token(:ABSTRACT, /abst/)
 
 
     # multi-character operators and tokens
@@ -35,13 +45,13 @@ module Magiika::Lang::Syntax
 
     token(:OR, /\|\||or/)
     token(:AND, /&&|and/)
-    token(:BXNOR, /!\^|xnor/)
-    token(:BXOR, /xor/)
-    token(:BNOR, /!\|/)
-    token(:BNAND, /!&/)
+    token(:XNOR, /xnor/)
+    token(:BXNOR, /!\^|XNOR/)
+    token(:XOR, /xor/)
+    token(:BNOR, /!\||NOR/)
     token(:NOR, /nor/)
+    token(:BNAND, /!&|NAND/)
     token(:NAND, /nand/)
-    token(:NOT_L, /not/)
 
     token(:EQ, /==/)
     token(:NEQ, /!=/)
@@ -54,6 +64,11 @@ module Magiika::Lang::Syntax
     token(:LSH, /<</)
     token(:RSH, />>/)
     token(:IMPL, /\->/)
+    token(:DIA, /<>/)
+
+    token(:PAR, /\(\)/)
+    token(:SQBRC, /\[\]/)
+    token(:BRC, /\{\}/)
 
 
     # single-character operators and tokens
@@ -63,9 +78,9 @@ module Magiika::Lang::Syntax
 
     # FIXME: swap bitwise ops to be literal "XOR",
     #   and use single chars for other ops.
-    token(:BOR, /\|/)
-    token(:BAND, /&/)
-    token(:BXOR, /\^/)
+    token(:BOR, /\||OR/)
+    token(:BAND, /&|AND/)
+    token(:BXOR, /\^|XOR/)
 
     token(:ADD, /\+/)
     token(:SUB, /\-/)
@@ -73,19 +88,20 @@ module Magiika::Lang::Syntax
     token(:DIV, /\//)
     token(:MOD, /%/)
 
-    token(:NOT_S, /!/)
+    token(:NOT, /!|not/)
+    token(:BNOT, /NOT/)
     token(:LT, /</)
     token(:GT, />/)
 
     token(:L_PAR, /\(/)
     token(:R_PAR, /\)/)
-    token(:L_SQPAR, /\[/)
-    token(:R_SQPAR, /\]/)
+    token(:L_SQBRC, /\[/)
+    token(:R_SQBRC, /\]/)
     token(:L_BRC, /\{/)
     token(:R_BRC, /\}/)
 
     token(:MEMBER, /\./)
-
+    token(:SEP, /,/)
 
 
     # identifiers

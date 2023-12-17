@@ -2,15 +2,15 @@ require "./position.cr"
 require "./token.cr"
 require "./tokenizer.cr"
 require "./group.cr"
+require "./parser_validation.cr"
 require "../node/base.cr"
-require "../node/type/**"
-require "../node/stmt/**"
-require "../scope/MODULE.cr"
+require "../scope/**"
 
 
 module Magiika::Lang
   class Parser
     include Tokenizer
+    include ParserValidation
 
     @root : Group
     @groups : Hash(Symbol, Group)
@@ -37,10 +37,11 @@ module Magiika::Lang
     def initialize(@root : Group,
                    @groups : Hash(Symbol, Group),
                    @tokens : Hash(Symbol, Token))
+      validate_group_rules
     end
 
     def parse(@parsing_tokens : Array(MatchedToken)) \
-        : Tuple(Array(MatchedToken), Array(Node::Node))?
+        : Tuple(Array(MatchedToken), Array(Node))?
       @parsing_pos = 0
       @cache.clear()
 

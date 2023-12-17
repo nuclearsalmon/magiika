@@ -1,6 +1,8 @@
-module Magiika::Node
-  class Flt < Node
-    def initialize(@value : ::Float32, position)
+module Magiika
+  class Node::Flt < NodeClassBase
+    protected getter value
+    
+    def initialize(@value : ::Float32, position : Lang::Position)
       super(position)
     end
 
@@ -8,8 +10,12 @@ module Magiika::Node
       return @value.to_s
     end
 
-    def eval(scope : Magiika::Scope::Scope) : Node:Flt
+    def eval(scope : Scope) : Node::Flt
       return self
+    end
+
+    def eval_bool(scope : Scope) : ::Bool
+      return @value != 0.0
     end
   end
 end

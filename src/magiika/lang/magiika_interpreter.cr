@@ -1,11 +1,16 @@
+require "../util/**"
 require "./parser.cr"
 require "./position.cr"
 require "./token.cr"
 require "./syntax/**"
 require "../node/base.cr"
+require "../node/constraint.cr"
+require "../node/meta.cr"
+require "../node/type/list.cr"
 require "../node/type/**"
 require "../node/stmt/**"
-require "../scope/MODULE.cr"
+require "../scope/scope.cr"
+require "../scope/**"
 
 
 module Magiika::Lang
@@ -20,8 +25,10 @@ module Magiika::Lang
         register_tokens
         register_commons
         register_base
+        register_expressions
         register_conditions
-        register_var
+        register_variables
+        #register_functions
       end
     end
 
@@ -137,14 +144,14 @@ module Magiika::Lang
     # ------------------------------------------------------
 
     def parse(parsing_tokens : Array(MatchedToken)) \
-        : Tuple(Array(MatchedToken), Array(Node::Node))?
+        : Tuple(Array(MatchedToken), Array(Node))?
       @parser.parse(parsing_tokens)
     end
 
     def execute(
         instructions : String,
-        scope : Scope::Scope,
-        filename : String) : Node::Node?
+        scope : Scope,
+        filename : String) : Node?
       tokens = @parser.tokenize(instructions, filename)
 
       if @display_tokenization
@@ -171,7 +178,7 @@ module Magiika::Lang
       return interpreted_result
     end
 
-    def execute(instructions : String) : Node::Node?
+    def execute(instructions : String) : Node?
       filename = "interpreted"
       pos = Lang::Position.new(filename, 1, 1)
       scope = Scope::Global.new("global", pos)

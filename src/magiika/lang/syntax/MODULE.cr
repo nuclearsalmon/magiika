@@ -15,20 +15,14 @@ module Magiika::Lang::Syntax
 
   private macro un_expr_rule(l, r)
     rule({{l}}, {{r}}) do |(op),(obj)|
-      {% if l.to_s.upcase == l.to_s && r.to_s.upcase != r.to_s %}
+      {% if (l2 = "#{l}").upcase == l2 && \
+          (r2 = "#{r}").upcase != r2 %}
         # prefix
         Node::UnaryExpr.new(
-          op.position,
+          op.pos,
           op.value,
           obj,
           false)
-      {% elsif l.to_s.upcase != l.to_s && r.to_s.upcase == r.to_s %}
-        # postfix
-        Node::UnaryExpr.new(
-          obj.position,
-          op.value,
-          obj,
-          true)
       {% else %}
         raise Error::Internal.new( \
           "One argument must be referencing a group," + \

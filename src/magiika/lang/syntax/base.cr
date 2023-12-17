@@ -12,7 +12,7 @@ module Magiika::Lang::Syntax
 
       rule(:stmt, :stmts) do |_,(stmt,stmts)|
         type(stmts, Array)
-        type(stmt, Node::Node)
+        type(stmt, Node)
 
         [stmt, *stmts]
       end
@@ -20,28 +20,28 @@ module Magiika::Lang::Syntax
     end
 
     group(:stmt) do
-      rule(:set_var)
-      rule(:get_var)
+      #rule(:member_set)
+      rule(:cond)
     end
 
     group(:literal) do
       rule(:BOOL) do |(value),_|
         case value.value
         when "true"
-          Magiika::Node::Bool.new(true, value.pos)
+          Node::Bool.new(true, value.pos)
         when "false"
-          Magiika::Node::Bool.new(false, value.pos)
+          Node::Bool.new(false, value.pos)
         else
           raise Error::Internal.new("Invalid bool value: \"#{value.value}\".")
         end
       end
 
       rule(:INT) do |(value),_|
-        Magiika::Node::Int.new(value.value.to_i32, value.pos)
+        Node::Int.new(value.value.to_i32, value.pos)
       end
 
       rule(:FLT) do |(value),_|
-        Magiika::Node::Flt.new(value.value.to_f32, value.pos)
+        Node::Flt.new(value.value.to_f32, value.pos)
       end
     end
 
