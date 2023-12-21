@@ -3,7 +3,6 @@ module Magiika::Lang::Syntax
     group(:set_var) do
       rule(:DEFINE, :NAME, :ASSIGN, :expr) do \
         |(_def,name,op),(value)|
-        type(value, Node)
         Node::AssignVar.new(_def.pos, name, value)
       end
     end

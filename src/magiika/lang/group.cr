@@ -2,7 +2,9 @@ module Magiika::Lang
   private alias RuleBlock = \
     Array(MatchedToken), \
     Array(Node) \
-    -> Node | Array(Node)
+    -> Node | Array(Node) | \
+       MatchedToken | Array(MatchedToken) | \
+       Tuple(Array(Node), Array(MatchedToken))
 
   private record Rule,
     pattern : Array(Symbol),

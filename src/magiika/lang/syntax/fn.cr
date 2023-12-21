@@ -38,14 +38,11 @@ module Magiika::Lang::Syntax
 
     group(:fn_params) do
       rule(:fn_param, :SEP, :fn_params) do |_, (param, params)|
-        type(param, Node)
-        type(params, Array(Node))
         params << param
       end
 
       rule(:fn_param) do |_, (param)|
-        type(param, Node)
-        Array(Node).new(param)
+        Array(Node::FnParam).new(param)
       end
     end
 
@@ -53,36 +50,55 @@ module Magiika::Lang::Syntax
       ignore(:NEWLINE)
 
       rule(:L_BRC, :stmts, :R_BRC) do |_, stmts|
-        type(stmts, Array(Node))
         stmts
       end
     end
 
-    group(:fn_def_blank_base) do
-      rule(:DEF, :NAME, :PAR) do |(_, name_, _), _|
-        # something
+    group(:fn_def_ident) do
+      rule(:FN_TYP, :DEF, :NAME) do |(_,_,name), _|
+        name
       end
 
-      rule(:DEF, :NAME, :L_PAR, :fn_params, :R_PAR) do |(_,name,_,_), params|
-        # something
-      end
-      rule(:FN_TYP, :DEF, :NAME) do |(_,_,name), _|
-        # something
+      rule(:DEF, :NAME) do |(_,name), _|
+        name
       end
     end
 
-    group(:fn_def_blank) do
-      rule(:fn_def_blank_base, :IMPL, :NAME) do |_, (base, ret)|
-        # something
+    group(:fn_def_params) do
+      rule(:PAR) do
+        Array(Node::FnParam).new
       end
 
-      rule(:fn_def_blank_base) do |_, (base)|
-        # something
+      rule(:L_PAR, :fn_params, :R_PAR) do |_, params|
+        params
       end
+    end
+
+    group(:fn_def_lspec) do
+      rule(:fn_def_ident, :fn_def_params) do |name, params|
+        Tuple.new(name, params)
+      end
+      rule(:fn_def_ident) do |name, _|
+        name
+      end
+    end
+
+    group(:fn_def_rspec) do
+      rule(:IMPL, :NAME) do |(_,ret), _|
+        ret
+      end
+    end
+
+    group(:fn_def_spec) do
+      rule(:fn_def_lspec, :fn_def_rspec) do |_, _, ((name, params), (ret))|
+        Tuple.new([name, ret], params)
+      end
+
+      rule(:fn_def_lspec)
     end
 
     group(:fn_def_abstract) do
-      rule(:ABSTRACT, :fn_def_blank) do |_, (base)|
+      rule(:ABSTRACT, :fn_def_spec) do |_, (base)|
         Node::StatementFunction.new(
           base.pos,
           base.name,
@@ -92,7 +108,7 @@ module Magiika::Lang::Syntax
     end
 
     group(:fn_def_immediate) do
-      rule(:fn_def_blank, :fn_stmt_body) do |_, (base, stmts)|
+      rule(:fn_def_spec, :fn_stmt_body) do |_, (base, stmts)|
         Node::StatementFunction.new(
           base.pos,
           base.name,

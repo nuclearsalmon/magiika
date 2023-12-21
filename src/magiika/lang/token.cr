@@ -1,10 +1,10 @@
 module Magiika::Lang
   record Token, 
-    name : Symbol, 
+    _type : Symbol, 
     pattern : Regex
 
   record MatchedToken,
-    name : Symbol,
+    _type : Symbol,
     value : String,
     pos : Lang::Position
 end

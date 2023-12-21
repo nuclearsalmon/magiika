@@ -11,12 +11,12 @@ module Magiika::Lang::Tokenizer
         match = token.pattern.match(str)
         
         unless match.nil?
-          Log.debug { "Matched token :#{token.name}: \"#{match[0]}\"" }
+          Log.debug { "Matched token :#{token._type}: \"#{match[0]}\"" }
 
           content = match[0]
           
           position = Lang::Position.new(filename, row, col)
-          token = Lang::MatchedToken.new(token.name, content, position)
+          token = Lang::MatchedToken.new(token._type, content, position)
           tokens_found << token
 
           str = match.post_match

@@ -42,32 +42,36 @@ module Magiika::Lang
 
     def parse(@parsing_tokens : Array(MatchedToken)) \
         : Tuple(Array(MatchedToken), Array(Node))?
+      # setup
       @parsing_pos = 0
       @cache.clear()
 
-      root = @root
-      if root.nil?
-        raise Error::Internal.new("Undefined root.")
-      else
-        result = root.parse(self)
+      # parse
+      result = @root.parse(self)
 
-        # TODO: verify that every token was consumed
-        pos = @parsing_pos
-        if @parsing_tokens.size > pos+1
-          raise Error::Internal.new( \
-            "Unconsumed tokens (#{@parsing_tokens.size-pos}" \
-            "/#{@parsing_tokens.size}):\n" +
-            @parsing_tokens[pos..].join("\n"))
-        end
-
-        @parsing_tokens.clear
-        @parsing_pos = 0
-
-        return result
+      # verify that root returned a node
+      unless result.is_a?(Node)
+        raise Error::Internal.new(
+          "Parsing did not return a Node. Result was #{result}.")
       end
+      
+      # verify that every token was consumed
+      pos = @parsing_pos
+      if @parsing_tokens.size > pos+1
+        raise Error::Internal.new( \
+          "Unconsumed tokens (#{@parsing_tokens.size-pos}" \
+          "/#{@parsing_tokens.size}):\n" +
+          @parsing_tokens[pos..].join("\n"))
+      end
+      
+      # reset
+      @parsing_tokens.clear
+      @parsing_pos = 0
+
+      return result
     end
 
-    def should_ignore?(name : Symbol,
+    def should_ignore?(_type : Symbol,
                        ignores : Array(Symbol),
                        noignores : Array(Symbol)? = nil) \
         : Bool
@@ -89,7 +93,7 @@ module Magiika::Lang
       final_ignores.concat(ignores)
 
       final_ignores.each { |ig_sym|
-        return true if name == ig_sym
+        return true if _type == ig_sym
       }
       return false
     end
@@ -107,18 +111,18 @@ module Magiika::Lang
           return nil
         else
           tok = @parsing_tokens[pos]
-          return tok unless should_ignore?(tok.name, ignores, noignores)
+          return tok unless should_ignore?(tok._type, ignores, noignores)
         end
       end
       return nil
     end
 
-    def expect(expected_token_name : Symbol,
+    def expect(expected_token_type : Symbol,
                ignores : Array(Symbol) = Array(Symbol).new,
                noignores : Array(Symbol)? = nil) \
                : MatchedToken?
       tok = next_token(ignores, noignores)
-      return tok unless tok.nil? || expected_token_name != tok.name
+      return tok unless tok.nil? || expected_token_type != tok._type
       return nil
     end
   end
@@ -145,8 +149,8 @@ module Magiika::Lang
       return Parser.new(root, @groups, @tokens)
     end
 
-    private def token(name : Symbol, pattern : Regex)
-      @tokens[name] = Token.new(name, Regex.new("\\A" + pattern.source))
+    private def token(_type : Symbol, pattern : Regex)
+      @tokens[_type] = Token.new(_type, Regex.new("\\A" + pattern.source))
     end
 
     private def root(&)
