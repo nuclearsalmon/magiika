@@ -1,8 +1,12 @@
 require "../util/**"
-require "./parser.cr"
+
+require "./parser/parser.cr"
+require "./parser/builder.cr"
+
 require "./position.cr"
 require "./token.cr"
-require "./syntax/**"
+require "./syntax_macros.cr"
+require "./syntax/*"
 require "../node/base.cr"
 require "../node/constraint.cr"
 require "../node/meta.cr"
@@ -164,18 +168,8 @@ module Magiika::Lang
         inform(parsed_result)
       end
 
-      interpreted_result = nil
-      unless parsed_result.nil?
-        if !parsed_result[0].empty?
-            raise Error::Internal.new("Final must return no tokens.")
-        end
-
-        parsed_result[1].each { |stmt|
-          interpreted_result = stmt.eval(scope)
-        }
-      end
-
-      return interpreted_result
+      return parsed_result.eval(scope) unless parsed_result.nil? 
+      return nil
     end
 
     def execute(instructions : String) : Node?

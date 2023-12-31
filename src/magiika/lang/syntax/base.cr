@@ -10,11 +10,11 @@ module Magiika::Lang::Syntax
     group(:stmts) do
       ignore(:NEWLINE)
 
-      rule(:stmt, :stmts) do |_,(stmt,stmts)|
-        type(stmts, Array)
-        type(stmt, Node)
-
-        [stmt, *stmts]
+      rule(:stmt, :stmts) do |context|
+        stmt = context.node(:stmt)
+        stmts = context.nodes(:stmts)
+        
+        ret( [stmt, *stmts] )
       end
       rule(:stmt)
     end
@@ -25,23 +25,26 @@ module Magiika::Lang::Syntax
     end
 
     group(:literal) do
-      rule(:BOOL) do |(value),_|
+      rule(:BOOL) do |context|
+        value = context.token(:BOOL)
         case value.value
         when "true"
-          Node::Bool.new(true, value.pos)
+          ret( Node::Bool.new(true, value.pos) )
         when "false"
-          Node::Bool.new(false, value.pos)
+          ret( Node::Bool.new(false, value.pos) )
         else
           raise Error::Internal.new("Invalid bool value: \"#{value.value}\".")
         end
       end
 
-      rule(:INT) do |(value),_|
-        Node::Int.new(value.value.to_i32, value.pos)
+      rule(:INT) do |context|
+        value = context.token(:INT)
+        ret( Node::Int.new(value.value.to_i32, value.pos) )
       end
 
-      rule(:FLT) do |(value),_|
-        Node::Flt.new(value.value.to_f32, value.pos)
+      rule(:FLT) do |context|
+        value = context.token(:FLT)
+        ret( Node::Flt.new(value.value.to_f32, value.pos) )
       end
     end
 

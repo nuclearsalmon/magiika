@@ -1,15 +1,20 @@
 module Magiika::Lang::Syntax
   protected def register_variables
     group(:set_var) do
-      rule(:DEFINE, :NAME, :ASSIGN, :expr) do \
-        |(_def,name,op),(value)|
-        Node::AssignVar.new(_def.pos, name, value)
+      rule(:DEFINE, :NAME, :ASSIGN, :expr) do |context|
+        _def = context.token(:DEFINE)
+        name = context.token(:NAME)
+        value = context.node(:expr)
+
+        ret( Node::AssignVar.new(_def.pos, name, value) )
       end
     end
 
     group(:get_var) do
-      rule(:NAME) do |(name),_|
-        Node::RetrieveVar.new(name.pos, name)
+      rule(:NAME) do |context|
+        name = context.token(:NAME)
+
+        ret( Node::RetrieveVar.new(name.pos, name) )
       end
     end
 
@@ -19,15 +24,22 @@ module Magiika::Lang::Syntax
     end
 
     group(:members) do
-      rule(:member, :MEMBER, :members) do |_, (src, act)|
-        Node::RetrieveMember.new(src.position, src, act)
+      rule(:member, :MEMBER, :members) do |context|
+        src = context.node(:member)
+        act = context.node(:members)
+        ret( Node::RetrieveMember.new(src.position, src, act) )
       end
+
       rule(:member)
     end
 
     group(:member_set) do
-      rule(:members, :ASSIGN, :expr) do |(op), (dest,value)|
-        Node::AssignMember.new(dest.position, dest, value, op.value)
+      rule(:members, :ASSIGN, :expr) do |context|
+        dest = context.node(:members)
+        value = context.node(:expr)
+        op = context.token(:ASSIGN)
+
+        ret( Node::AssignMember.new(dest.position, dest, value, op.value) )
       end
       rule(:set_var)
     end

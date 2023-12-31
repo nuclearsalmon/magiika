@@ -1,4 +1,4 @@
-module Magiika::Lang::ParserValidation
+module Magiika::Lang::ParserValidator
   private def validate_group_rules
     valid_group_names = @groups.keys.to_set
     valid_token_names = @tokens.keys.to_set

@@ -1,16 +1,12 @@
-require "./position.cr"
-require "./token.cr"
 require "./tokenizer.cr"
-require "./group.cr"
-require "./parser_validation.cr"
-require "../node/base.cr"
-require "../scope/**"
+require "./validator.cr"
+require "../group/group.cr"
 
 
 module Magiika::Lang
   class Parser
     include Tokenizer
-    include ParserValidation
+    include ParserValidator
 
     @root : Group
     @groups : Hash(Symbol, Group)
@@ -24,11 +20,11 @@ module Magiika::Lang
     getter parsing_tokens
 
     @cache = Hash(
-      Int32,               # start_i
+      Int32,               # start index
       Hash(                #
         Symbol,            # ident
         Tuple(             # 
-          TryRulesResult,  # content
+          RuleContext,     # content
           Int32            # end offset
         )
       )).new
@@ -40,21 +36,22 @@ module Magiika::Lang
       validate_group_rules
     end
 
-    def parse(@parsing_tokens : Array(MatchedToken)) \
-        : Tuple(Array(MatchedToken), Array(Node))?
+    def parse(@parsing_tokens : Array(MatchedToken)) : Node
       # setup
       @parsing_pos = 0
       @cache.clear()
+      initial_context = RuleContext.new(:root)
 
       # parse
-      result = @root.parse(self)
+      result_context = @root.parse(self, initial_context)
 
-      # verify that root returned a node
-      unless result.is_a?(Node)
+      if result_context.nil?
         raise Error::Internal.new(
-          "Parsing did not return a Node. Result was #{result}.")
+          "Parsing failed to match anything.")
       end
-      
+
+      result = result_context.result
+
       # verify that every token was consumed
       pos = @parsing_pos
       if @parsing_tokens.size > pos+1
@@ -124,47 +121,6 @@ module Magiika::Lang
       tok = next_token(ignores, noignores)
       return tok unless tok.nil? || expected_token_type != tok._type
       return nil
-    end
-  end
-
-  class Parser::Builder
-    private macro type(obj, typ)
-      raise Error::InternalType.new unless {{obj}}.is_a?({{typ}})
-    end
-
-    @root : Group? = nil
-    @groups = Hash(Symbol, Group).new
-    @tokens = Hash(Symbol, Token).new
-
-    def self.new(&)
-      instance = self.class.new
-      with instance yield instance
-      instance
-    end
-
-    def build : Parser
-      root = @root
-      raise Error::Internal.new("Undefined root") if root.nil?
-      
-      return Parser.new(root, @groups, @tokens)
-    end
-
-    private def token(_type : Symbol, pattern : Regex)
-      @tokens[_type] = Token.new(_type, Regex.new("\\A" + pattern.source))
-    end
-
-    private def root(&)
-      raise Error::Internal.new("root already defined") unless @root.nil?
-      
-      builder = Group::Builder.new(:root)
-      with builder yield
-      @root = builder.build
-    end
-
-    private def group(name : Symbol, &)
-      builder = Group::Builder.new(name)
-      with builder yield
-      @groups[name] = builder.build
     end
   end
 end
