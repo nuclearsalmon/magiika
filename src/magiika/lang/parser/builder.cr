@@ -38,6 +38,9 @@ module Magiika::Lang
     end
 
     private def group(name : Symbol, &)
+      name_s = name.to_s
+      raise Error::Internal.new("name must be lowercase") unless name_s == name_s.downcase
+
       builder = Group::Builder.new(name)
       with builder yield
       @groups[name] = builder.build

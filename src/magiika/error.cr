@@ -22,6 +22,19 @@ module Magiika::Error
     end
   end
 
+  class SevereParserError < Exception
+    def initialize(parser : Lang::Parser, cause : Exception, message : String? = nil)
+      new_message = "An error occured during parsing." + 
+        ((message.nil?) ? "" : " #{message}") + \
+        "\n---\nParser cache: \n#{parser.cache.pretty_inspect}\n---\n"
+      super(new_message, cause)
+    end
+
+    def to_s
+      return inspect_with_backtrace
+    end
+  end
+
   class Safe < Exception
     def initialize(
         title : String,

@@ -14,7 +14,12 @@ module Magiika::Lang::Syntax
         stmt = context.node(:stmt)
         stmts = context.nodes(:stmts)
         
-        ret( [stmt, *stmts] )
+        #stmts = [stmt, *stmts]
+        stmts << stmt
+
+        context.clear
+        context.update(:stmts, stmts)
+        nil
       end
       rule(:stmt)
     end
@@ -29,9 +34,9 @@ module Magiika::Lang::Syntax
         value = context.token(:BOOL)
         case value.value
         when "true"
-          ret( Node::Bool.new(true, value.pos) )
+          Node::Bool.new(true, value.pos)
         when "false"
-          ret( Node::Bool.new(false, value.pos) )
+          Node::Bool.new(false, value.pos)
         else
           raise Error::Internal.new("Invalid bool value: \"#{value.value}\".")
         end
@@ -39,12 +44,12 @@ module Magiika::Lang::Syntax
 
       rule(:INT) do |context|
         value = context.token(:INT)
-        ret( Node::Int.new(value.value.to_i32, value.pos) )
+        Node::Int.new(value.value.to_i32, value.pos)
       end
 
       rule(:FLT) do |context|
         value = context.token(:FLT)
-        ret( Node::Flt.new(value.value.to_f32, value.pos) )
+        Node::Flt.new(value.value.to_f32, value.pos)
       end
     end
 

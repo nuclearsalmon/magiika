@@ -4,7 +4,10 @@ module Magiika::Lang::ParserValidator
     valid_token_names = @tokens.keys.to_set
 
     @groups.each do |group_name, group|
-      validate_rules(group_name, group.rules, valid_group_names, valid_token_names, "rule")
+      group_name_s = group_name.to_s
+      raise Error::Internal.new("name must be lowercase") unless group_name_s == group_name_s.downcase
+
+      validate_rules(group_name, group.rl_rules, valid_group_names, valid_token_names, "rule")
       validate_rules(group_name, group.lr_rules, valid_group_names, valid_token_names, "LR rule")
     end
   end

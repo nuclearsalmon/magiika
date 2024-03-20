@@ -75,9 +75,9 @@ end
 
 module Magiika
   class Node::Constraint
-    property _type : Node.class | Nil
+    property _type : Node | Node.class | ::Nil
 
-    def initialize(@_type : Node.class | Nil)
+    def initialize(@_type : Node | Node.class | ::Nil = nil)
     end
 
     def validate(node : Node) : MatchResult

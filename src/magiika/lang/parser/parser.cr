@@ -1,6 +1,7 @@
 require "./tokenizer.cr"
 require "./validator.cr"
 require "../group/group.cr"
+require "../context.cr"
 
 
 module Magiika::Lang
@@ -20,12 +21,12 @@ module Magiika::Lang
     getter parsing_tokens
 
     @cache = Hash(
-      Int32,               # start index
-      Hash(                #
-        Symbol,            # ident
-        Tuple(             # 
-          RuleContext,     # content
-          Int32            # end offset
+      Int32,                   # start index
+      Hash(                    #
+        Symbol,                # ident
+        Tuple(                 # 
+          InterpreterContext,  # content
+          Int32                # end offset
         )
       )).new
     getter cache
@@ -37,20 +38,20 @@ module Magiika::Lang
     end
 
     def parse(@parsing_tokens : Array(MatchedToken)) : Node
-      # setup
-      @parsing_pos = 0
-      @cache.clear()
-      initial_context = RuleContext.new(:root)
-
       # parse
-      result_context = @root.parse(self, initial_context)
+      result_context : InterpreterContext?
+      begin
+        result_context = @root.parse(self)
+      rescue ex
+        raise Error::SevereParserError.new(self, ex)
+      end
 
       if result_context.nil?
         raise Error::Internal.new(
           "Parsing failed to match anything.")
       end
 
-      result = result_context.result
+      result_node : Node = result_context.result
 
       # verify that every token was consumed
       pos = @parsing_pos
@@ -60,12 +61,12 @@ module Magiika::Lang
           "/#{@parsing_tokens.size}):\n" +
           @parsing_tokens[pos..].join("\n"))
       end
-      
-      # reset
-      @parsing_tokens.clear
-      @parsing_pos = 0
 
-      return result
+      # restore before return
+      @parsing_pos = 0
+      @cache.clear()
+      
+      return result_node
     end
 
     def should_ignore?(_type : Symbol,
@@ -104,7 +105,7 @@ module Magiika::Lang
 
         @cache.delete(pos-1)
 
-        if @parsing_tokens.size <= pos #< pos+1
+        if @parsing_tokens.size <= pos
           return nil
         else
           tok = @parsing_tokens[pos]

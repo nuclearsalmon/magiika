@@ -32,7 +32,7 @@ module Magiika::Lang
         register_expressions
         register_conditions
         register_variables
-        #register_functions
+        register_functions
       end
     end
 
@@ -68,12 +68,16 @@ module Magiika::Lang
       notify("(type `##h' for debug commands ₊+)")
     end
 
-    private def resetprint(msg)
+    private def prettyprint(msg)
       if msg.is_a?(String)
         print msg + "\n"
       else
         pp msg
       end
+    end
+
+    private def resetprint(msg)
+      prettyprint msg
       print "#{ANSI_RESET}"
     end
 
@@ -101,7 +105,7 @@ module Magiika::Lang
       exit 0
     end
 
-    private def print_ex(ex : Exception)
+    private def print_safe_ex(ex : Exception)
       filtered_backtrace = [] of String
       ex.backtrace.each{ | line |
         break if line.ends_with?("in '__crystal_main'")
@@ -204,7 +208,7 @@ module Magiika::Lang
             print "\n"
           end
         rescue ex : Error::Safe
-          print_ex(ex)
+          print_safe_ex(ex)
         end
       end
     rescue ex : Exception
