@@ -1,4 +1,4 @@
-require "../rule.cr"
+require "../misc/rule.cr"
 
 
 module Magiika::Lang

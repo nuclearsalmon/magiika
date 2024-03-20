@@ -1,3 +1,6 @@
+require "./util/algo.cr"
+
+
 module Magiika::Error
   class Internal < Exception
     def initialize(message : String)

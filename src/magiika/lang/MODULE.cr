@@ -3,7 +3,7 @@ require "log"
 
 # EXPORT
 # ----------------------------------------------------------
-require "./magiika_interpreter.cr"
+require "./magiika/magiika_interpreter.cr"
 
 
 # LOGGING SETUP

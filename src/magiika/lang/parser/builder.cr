@@ -1,5 +1,5 @@
-require "../group/group.cr"
-require "../group/builder.cr"
+require "./group/group.cr"
+require "./group/builder.cr"
 
 
 module Magiika::Lang

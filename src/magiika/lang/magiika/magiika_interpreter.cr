@@ -1,20 +1,20 @@
-require "../util/**"
+require "../parser/parser.cr"
+require "../parser/builder.cr"
 
-require "./parser/parser.cr"
-require "./parser/builder.cr"
+require "../position.cr"
+require "../parser/misc/token.cr"
 
-require "./position.cr"
-require "./token.cr"
 require "./syntax_macros.cr"
 require "./syntax/*"
-require "../node/base.cr"
-require "../node/constraint.cr"
-require "../node/meta.cr"
-require "../node/type/list.cr"
-require "../node/type/**"
-require "../node/stmt/**"
-require "../scope/scope.cr"
-require "../scope/**"
+
+require "../../node/base.cr"
+require "../../node/constraint.cr"
+require "../../node/meta.cr"
+require "../../node/type/list.cr"
+require "../../node/type/**"
+require "../../node/stmt/**"
+require "../../scope/scope.cr"
+require "../../scope/**"
 
 
 module Magiika::Lang

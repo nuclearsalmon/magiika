@@ -1,3 +1,5 @@
+require "../util/clone_macros"
+
 module Magiika::Lang
   struct Position
     getter filename : String

@@ -1,3 +1,5 @@
+require "../../util/match_result.cr"
+
 module Magiika
   struct Node::FnParam < NodeStructBase
     getter name : String
