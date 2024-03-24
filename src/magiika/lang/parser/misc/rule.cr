@@ -75,9 +75,12 @@ module Magiika::Lang
 
               # update context
               # flatten tokens and nodes from new_context into context if there are no subcontexts in new_context, else update context by new_context
+              #puts "new context:"
               #pp new_context  # expr     :_  ok
+              #puts "\n---\ncontext before:"
               #pp context      # set_var  :_  not ok
               context.careful_merge(sym, new_context, @pattern.size > 1)
+              #puts "\n---\ncontext after:"
               #pp context
               matched_pattern_part = true
             end

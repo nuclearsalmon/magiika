@@ -141,21 +141,36 @@ module Magiika::Lang
 
     # flatten tokens and nodes from new context into self if there are no subcontexts in new context, else update self by context
     def careful_merge(sym : Symbol, context : InterpreterContext | MutableInterpreterContext, finalize : Bool)
+      puts "#{sym} {"
       if context.sub_contexts.empty?
         if finalize && !((node_value = context.node_results[:_]?).nil?)
+          puts "AAA"
+          pp @node_results
           (@node_results[sym] ||= [] of Node).concat(node_value)
+          pp @node_results
         elsif !context.node_results.empty?
+          puts "AAB"
+          pp @node_results
           @node_results.merge!(context.node_results) 
+          pp @node_results
         end
 
         if finalize && !((token_value = context.token_results[:_]?).nil?)
+          puts "ABA"
+          pp @token_results
           (@token_results[sym] ||= [] of MatchedToken).concat(token_value)
+          pp @token_results
         elsif !context.token_results.empty?
+          puts "ABB"
+          pp @token_results
           @token_results.merge!(context.token_results)
+          pp @token_results
         end
       else
+        puts "BXX"
         update(sym, context)
       end
+      puts "}"
     end
 
     def merge_context(context : InterpreterContext | MutableInterpreterContext)
