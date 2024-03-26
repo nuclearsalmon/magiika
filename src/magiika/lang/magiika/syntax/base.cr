@@ -11,45 +11,52 @@ module Magiika::Lang::Syntax
       ignore(:NEWLINE)
 
       rule(:stmt, :stmts) do |context|
-        stmt = context.node(:stmt)
-        stmts = context.nodes(:stmts)
-        
-        #stmts = [stmt, *stmts]
-        stmts << stmt
+        stmt = context[:stmt].node
+        stmts = context[:stmts].nodes
 
         context.clear
-        context.update(:stmts, stmts)
+        context.add(:stmts, stmts)
+        context.add(:stmts, stmt)
         nil
       end
       rule(:stmt)
     end
 
     group(:stmt) do
-      #rule(:member_set)
       rule(:cond)
     end
 
     group(:literal) do
       rule(:BOOL) do |context|
-        value = context.token(:BOOL)
-        case value.value
+        token = context.token
+
+        context.clear
+
+        bool_value : Bool
+        case token.value
         when "true"
-          Node::Bool.new(true, value.pos)
+          bool_value = true
         when "false"
-          Node::Bool.new(false, value.pos)
+          bool_value = false
         else
-          raise Error::Internal.new("Invalid bool value: \"#{value.value}\".")
+          raise Error::Internal.new("Invalid bool value: \"#{token.value}\".")
         end
+
+        context.add(Node::Bool.new(bool_value, token.pos))
       end
 
       rule(:INT) do |context|
-        value = context.token(:INT)
-        Node::Int.new(value.value.to_i32, value.pos)
+        token = context.token
+
+        context.clear
+        context.add(Node::Int.new(token.value.to_i32, token.pos))
       end
 
       rule(:FLT) do |context|
-        value = context.token(:FLT)
-        Node::Flt.new(value.value.to_f32, value.pos)
+        token = context.token
+
+        context.clear
+        context.add(Node::Flt.new(token.value.to_f32, token.pos))
       end
     end
 

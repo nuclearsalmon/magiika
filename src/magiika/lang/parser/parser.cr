@@ -24,8 +24,8 @@ module Magiika::Lang
       Int32,                   # start index
       Hash(                    #
         Symbol,                # ident
-        Tuple(                 # 
-          InterpreterContext,  # content
+        Tuple(                 #
+          Context,             # content
           Int32                # end offset
         )
       )).new
@@ -39,7 +39,7 @@ module Magiika::Lang
 
     def parse(@parsing_tokens : Array(MatchedToken)) : Node
       # parse
-      result_context : InterpreterContext?
+      result_context : Context?
       begin
         result_context = @root.parse(self)
       rescue ex
@@ -65,7 +65,7 @@ module Magiika::Lang
       # restore before return
       @parsing_pos = 0
       @cache.clear()
-      
+
       return result_node
     end
 
@@ -84,7 +84,7 @@ module Magiika::Lang
         if noignores.size > 0
           root.ignores.each { |ig_sym|
             next if noignores.includes?(ig_sym)
-            final_ignores << ig_sym 
+            final_ignores << ig_sym
           }
         end
       end
@@ -103,7 +103,7 @@ module Magiika::Lang
         pos = @parsing_pos
         @parsing_pos += 1
 
-        @cache.delete(pos-1)
+        #@cache.delete(pos-1)
 
         if @parsing_tokens.size <= pos
           return nil

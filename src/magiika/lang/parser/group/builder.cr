@@ -18,6 +18,15 @@ module Magiika::Lang
         @name, @rules, @lr_rules, @ignores, @noignores)
     end
 
+    private def rule(rule : Rule)
+      if rule.pattern[0] == @name
+        rule.pattern.shift
+        @lr_rules << rule
+      else
+        @rules << rule
+      end
+    end
+
     private def rule(pattern : Symbol)
       rule(Rule.new([pattern], nil))
     end
@@ -42,15 +51,6 @@ module Magiika::Lang
       rule(Rule.new(pattern.to_a, block))
     end
 
-    private def rule(rule : Rule)
-      if rule.pattern[0] == @name
-        rule.pattern.shift
-        @lr_rules << rule
-      else
-        @rules << rule
-      end
-    end
-
     private def ignore(pattern : Symbol)
       @ignores << pattern
     end
@@ -63,7 +63,7 @@ module Magiika::Lang
     private def noignore(pattern : Symbol)
       noignores = @noignores
       if noignores.nil?
-        noignores = Array(Symbol).new 
+        noignores = Array(Symbol).new
         @noignores = noignores
       end
       noignores << pattern

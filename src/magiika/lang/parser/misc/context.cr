@@ -2,220 +2,186 @@ require "./token.cr"
 
 
 module Magiika::Lang
-  private abstract class InterpreterContextBase
-    protected getter rule_name : Symbol
-    protected getter node_results : Hash(Symbol, Array(Node))
-    protected getter token_results : Hash(Symbol, Array(MatchedToken))
-    protected getter sub_contexts : Hash(Symbol, Array(InterpreterContext))
+  class Context
+    property name : Symbol
 
-    def initialize(
-        @rule_name : Symbol, 
-        @node_results = Hash(Symbol, Array(Node)).new, 
-        @token_results = Hash(Symbol, Array(MatchedToken)).new,
-        @sub_contexts = Hash(Symbol, Array(InterpreterContext)).new)
+    protected getter nodes : Array(Node)?
+    protected getter tokens : Array(MatchedToken)?
+    protected getter sub_contexts : Hash(Symbol, Context)?
+
+    def initialize(@name : Symbol)
     end
 
-    def initialize(base : InterpreterContextBase)
-      @rule_name = base.rule_name
-      @node_results = base.node_results
-      @token_results = base.token_results
-      @sub_contexts = base.sub_contexts
+    def initialize(@name : Symbol,
+        @nodes : Array(Node)?,
+        @tokens : Array(MatchedToken)?,
+        @sub_contexts : Hash(Symbol, Context)?)
     end
 
+    def copy_with(name : Symbol = @name,
+        nodes = @nodes,
+        tokens = @tokens,
+        sub_contexts = @sub_contexts)
+      self.class.new(name, nodes, tokens, sub_contexts)
+    end
 
-    # Metadata
+    def clone
+      self.class.new(
+        @name.clone,
+        @nodes.try(&.dup),
+        @tokens.try(&.dup),
+        @sub_contexts.try(&.clone))
+    end
+
+    # Modifying actions
     # ---
 
-    def name : Symbol
-      @rule_name
+    def clear_nodes
+      @nodes.try(&.clear)
     end
 
-
-    # Nodes
-    # ---
-
-    def node?(name : Symbol, index : Int32 = 0) : Node?
-      @node_results[name]?.try(&.[index]?)
+    def clear_tokens
+      @tokens.try(&.clear)
     end
 
-    def node(name : Symbol, index : Int32 = 0) : Node
-      node?(name, index) || raise Error::Internal.new("Expected node not found: :#{name}. Has: #{self.pretty_inspect}. Rule name: :#{@rule_name}.")
-    end
-
-    def nodes?(name : Symbol) : Array(Node)?
-      @node_results[name]?
-    end
-
-    def nodes(name : Symbol) : Array(Node)
-      nodes?(name) || raise Error::Internal.new("Expected nodes not found: :#{name}")
-    end
-
-
-    # Tokens
-    # ---
-
-    def token?(name : Symbol, index : Int32 = 0) : MatchedToken?
-      @token_results[name]?.try(&.[index]?)
-    end
-
-    def token(name : Symbol, index : Int32 = 0) : MatchedToken
-      token?(name, index) || raise Error::Internal.new("Expected token not found: #{name}")
-    end
-
-    def tokens?(name : Symbol) : Array(MatchedToken)?
-      @token_results[name]?
-    end
-
-    def tokens(name : Symbol) : Array(MatchedToken)
-      tokens?(name) || raise Error::Internal.new("Expected tokens not found: #{name}")
-    end
-
-
-    # Subcontexts
-    # ---
-
-    def context?(name : Symbol, index : Int32 = 0) : InterpreterContext?
-      @sub_contexts[name]?.try(&.[index]?)
-    end
-
-    def context(name : Symbol, index : Int32 = 0) : InterpreterContext
-      context?(name, index) || raise Error::Internal.new("Expected context not found: #{name}")
-    end
-
-    def contexts?(name : Symbol) : Array(InterpreterContext)?
-      @sub_contexts[name]?
-    end
-
-    def contexts(name : Symbol) : Array(InterpreterContext)
-      contexts?(name) || raise Error::Internal.new("Expected contexts not found: #{name}")
-    end
-
-
-    # Root result
-    # ---
-
-    def result : Node
-      unless @token_results.empty?
-        raise Error::Internal.new("Root must return no tokens. #{@token_results.pretty_inspect}")
-      end
-      unless @sub_contexts.empty?
-        raise Error::Internal.new("Root must return no subcontexts. #{@sub_contexts.pretty_inspect}")
-      end
-
-      if @node_results.size < 1
-        raise Error::Internal.new("Root did not return a Node.")
-      end
-      if @node_results.size > 1 || (arr = @node_results.first_value).size > 1
-        raise Error::Internal.new("Root returned more than one Node. #{@node_results.pretty_inspect}")
-      end
-
-      return @node_results.first_value.first
-    end
-  end
-
-  class InterpreterContext < InterpreterContextBase
-    def mutable : MutableInterpreterContext
-      MutableInterpreterContext.new(self)
-    end
-  end
-
-  class MutableInterpreterContext < InterpreterContextBase
-    def immutable : InterpreterContext
-      InterpreterContext.new(self)
+    def clear_subcontexts
+      @sub_contexts.try(&.clear)
     end
 
     def clear
-      @node_results.clear
-      @token_results.clear
-      @sub_contexts.clear
-    end
-
-    def rename(name : Symbol)
-      @rule_name = name
+      @nodes.try(&.clear)
+      @tokens.try(&.clear)
+      @sub_contexts.try(&.clear)
     end
 
     def reset(name : Symbol)
       clear
-      rename(name)
+      @name = name
     end
 
-    # flatten tokens and nodes from new context into self if there are no subcontexts in new context, else update self by context
-    def careful_merge(sym : Symbol, context : InterpreterContext | MutableInterpreterContext, finalize : Bool)
-      puts "#{sym} {"
-      if context.sub_contexts.empty?
-        if finalize && !((node_value = context.node_results[:_]?).nil?)
-          puts "AAA"
-          pp @node_results
-          (@node_results[sym] ||= [] of Node).concat(node_value)
-          pp @node_results
-        elsif !context.node_results.empty?
-          puts "AAB"
-          pp @node_results
-          @node_results.merge!(context.node_results) 
-          pp @node_results
+    def merge(from : Context)
+      unless (_from_sub_contexts = from.@sub_contexts).nil? || _from_sub_contexts.empty?
+        if (_sub_contexts = @sub_contexts).nil?
+          @sub_contexts = _from_sub_contexts.clone
+        else
+          _sub_contexts.merge(_from_sub_contexts)
         end
-
-        if finalize && !((token_value = context.token_results[:_]?).nil?)
-          puts "ABA"
-          pp @token_results
-          (@token_results[sym] ||= [] of MatchedToken).concat(token_value)
-          pp @token_results
-        elsif !context.token_results.empty?
-          puts "ABB"
-          pp @token_results
-          @token_results.merge!(context.token_results)
-          pp @token_results
-        end
-      else
-        puts "BXX"
-        update(sym, context)
       end
-      puts "}"
+
+      unless (_from_nodes = from.@nodes).nil? || _from_nodes.empty?
+        if (_nodes = @nodes).nil?
+          @nodes = _from_nodes.dup
+        else
+          _nodes.concat(_from_nodes)
+        end
+      end
+
+      unless (_from_tokens = from.@tokens).nil? || _from_tokens.empty?
+        if (_tokens = @tokens).nil?
+          @tokens = _from_tokens.dup
+        else
+          _tokens.concat(_from_tokens)
+        end
+      end
     end
 
-    def merge_context(context : InterpreterContext | MutableInterpreterContext)
-      @node_results.merge!(context.node_results) unless context.node_results.empty?
-      @token_results.merge!(context.token_results) unless context.token_results.empty?
-      @sub_contexts.merge!(context.sub_contexts) unless context.sub_contexts.empty?
+    def add(key : Symbol, value : Context)
+      (@sub_contexts ||= Hash(Symbol, Context).new)[key] = value
     end
 
-    def update(name : Symbol, value : Node)
-      (@node_results[name] ||= [] of Node) << value
-    end
-    def update(name : Symbol, value : Array(Node))
-      (@node_results[name] ||= [] of Node).concat(value)
-    end
-    def update(value : Node)
-      (@node_results[@rule_name] ||= [] of Node) << value
-    end
-    def update(value : Array(Node))
-      (@node_results[@rule_name] ||= [] of Node).concat(value)
+    def add(value : Node)
+      (@nodes ||= Array(Node).new) << value
     end
 
-    def update(name : Symbol, value : MatchedToken)
-      (@token_results[name] ||= [] of MatchedToken) << value
-    end
-    def update(name : Symbol, value : Array(MatchedToken))
-      (@token_results[name] ||= [] of MatchedToken).concat(value)
-    end
-    def update(value : MatchedToken)
-      (@token_results[@rule_name] ||= [] of MatchedToken) << value
-    end
-    def update(value : Array(MatchedToken))
-      (@token_results[@rule_name] ||= [] of MatchedToken).concat(value)
+    def add(values : Array(Node))
+      (@nodes ||= Array(Node).new).concat(values)
     end
 
-    def update(name : Symbol, value : InterpreterContext)
-      (@sub_contexts[name] ||= [] of InterpreterContext) << value
+    def add(value : MatchedToken)
+      (@tokens ||= Array(MatchedToken).new) << value
     end
-    def update(name : Symbol, value : Array(InterpreterContext))
-      (@sub_contexts[name] ||= [] of InterpreterContext).concat(value)
+
+    def add(values : Array(MatchedToken))
+      (@tokens ||= Array(MatchedToken).new).concat(values)
     end
-    def update(value : InterpreterContext)
-      (@sub_contexts[@rule_name] ||= [] of InterpreterContext) << value
+
+    def add(
+        key : Symbol,
+        value : Node | Array(Node) | MatchedToken | Array(MatchedToken))
+      sub_context = Context.new(key)
+      sub_context.add(value)
+      add(key, sub_context)
     end
-    def update(value : Array(InterpreterContext))
-      (@sub_contexts[@rule_name] ||= [] of InterpreterContext).concat(value)
+
+
+    # Querying
+    # ---
+
+    def []?(key : Symbol) : Context?
+      if key == @name
+        self
+      else
+        _sub_contexts = @sub_contexts
+        _sub_contexts.nil? ? nil : _sub_contexts[key]?
+      end
+    end
+
+    def [](key : Symbol) : Context
+      self.[]?(key) || raise Error::Internal.new("Expected subcontext :#{key} for :#{@name} not found. #{self.pretty_inspect}.")
+    end
+
+    def node?(index : Int32 = 0) : Node?
+      @nodes.try(&.[index]?)
+    end
+
+    def node(index : Int32 = 0) : Node
+      node?(index) || raise Error::Internal.new("Expected node for :#{@name} not found. #{self.pretty_inspect}.")
+    end
+
+    def nodes? : Array(Node)?
+      @nodes.try(&.dup)
+    end
+
+    def nodes : Array(Node)
+      nodes? || raise Error::Internal.new("Expected nodes for :#{@name} not found. #{self.pretty_inspect}.")
+    end
+
+    def token?(index : Int32 = 0) : MatchedToken?
+      @tokens.try(&.[index]?)
+    end
+
+    def token(index : Int32 = 0) : MatchedToken
+      token?(index) || raise Error::Internal.new("Expected token for :#{@name} not found. #{self.pretty_inspect}.")
+    end
+
+    def tokens? : Array(MatchedToken)?
+      @tokens.try(&.dup)
+    end
+
+    def tokens : Array(MatchedToken)
+      tokens? || raise Error::Internal.new("Expected tokens for :#{@name} not found. #{self.pretty_inspect}.")
+    end
+
+    # Root result
+    def result : Node
+      _tokens = @tokens
+      _nodes = @nodes
+      _sub_contexts = @sub_contexts
+      unless _tokens.nil? || _tokens.empty?
+        raise Error::Internal.new("Root must return no tokens. #{@tokens.pretty_inspect}")
+      end
+      unless _sub_contexts.nil? || _sub_contexts.empty?
+        raise Error::Internal.new("Root must return no subcontexts. #{@sub_contexts.pretty_inspect}")
+      end
+
+      if _nodes.nil? || _nodes.size < 1
+        raise Error::Internal.new("Root returned no Nodes. #{@nodes.pretty_inspect}")
+      end
+      if _nodes.size > 1
+        raise Error::Internal.new("Root returned more than one Node. #{@nodes.pretty_inspect}")
+      end
+
+      return _nodes.first
     end
   end
 end

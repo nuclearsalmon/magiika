@@ -5,57 +5,57 @@ module Magiika::Lang::Syntax
 
     group(:fn_param) do
       rule(:NAME, :DEFINE, :NAME, :ASSIGN, :value) do |context|
-        _type = context.token(:NAME, 0)
-        name = context.token(:NAME, 1)
-        value = context.node(:value)
-        
-        Node::FnParam.new(
-          name.pos,
-          name.value, 
-          Node::Constraint.new(Node::RetrieveVar.new(_type.pos, _type)),
-          value.as(Node))
-      end
-      
-      rule(:NAME, :DEFINE, :NAME) do |context|
-        _type = context.token(:NAME, 0)
-        name = context.token(:NAME, 1)
+        _type = context[:NAME].token(0)
+        name = context[:NAME].token(1)
+        value = context[:value].node
 
         Node::FnParam.new(
           name.pos,
-          name.value, 
+          name.value,
+          Node::Constraint.new(Node::RetrieveVar.new(_type.pos, _type)),
+          value.as(Node))
+      end
+
+      rule(:NAME, :DEFINE, :NAME) do |context|
+        _type = context[:NAME].token(0)
+        name = context[:NAME].token(0)
+
+        Node::FnParam.new(
+          name.pos,
+          name.value,
           Node::Constraint.new(Node::RetrieveVar.new(_type.pos, _type)))
       end
 
       rule(:NAME, :ASSIGN, :value) do |context|
-        name = context.token(:NAME)
-        value = context.node(:value)
+        name = context[:NAME].token
+        value = context[:value].node
 
         Node::FnParam.new(
           name.pos,
-          name.value, 
+          name.value,
           Node::Constraint.new,
           value)
       end
 
       rule(:NAME) do |context|
-        name = context.token(:NAME)
+        name = context[:NAME].token
 
         Node::FnParam.new(
           name.pos,
-          name.value, 
+          name.value,
           Node::Constraint.new)
       end
     end
 
     group(:fn_params) do
       rule(:fn_param, :SEP, :fn_params) do |context|
-        param = context.node(:fn_param)
-        params = context.nodes(:fn_params)
+        param = context[:fn_param].node
+        params = context[:fn_params].nodes
 
         params << param
-        
+
         context.clear
-        context.update(params)
+        context.add(params)
         nil
       end
 
@@ -66,28 +66,28 @@ module Magiika::Lang::Syntax
       ignore(:NEWLINE)
 
       rule(:L_BRC, :stmts, :R_BRC) do |context|
-        stmts = context.nodes(:stmts)
+        stmts = context[:stmts].nodes
 
         context.clear
-        context.update(:stmts, stmts)
+        context.add(:stmts, stmts)
         nil
       end
     end
 
     group(:fn_def_ident) do
       rule(:FN_TYP, :DEFINE, :NAME) do |context|
-        name = context.token(:NAME)
+        name = context[:NAME].token
 
         context.clear
-        context.update(:name, name)
+        context.add(:name, name)
         nil
       end
 
       rule(:DEFINE, :NAME) do |context|
-        name = context.token(:NAME)
+        name = context[:NAME].token
 
         context.clear
-        context.update(:name, name)
+        context.add(:name, name)
         nil
       end
     end
@@ -95,58 +95,58 @@ module Magiika::Lang::Syntax
     group(:fn_def_params) do
       rule(:PAR) do |context|
         context.clear
-        context.update(:params, Array(Node::FnParam).new)
+        context.add(:params, Array(Node::FnParam).new)
         nil
       end
 
       rule(:L_PAR, :fn_params, :R_PAR) do |context|
-        params = context.nodes(:fn_params)
-        
+        params = context[:fn_params].nodes()
+
         context.clear
-        context.update(:params, params)
+        context.add(:params, params)
         nil
       end
     end
 
     group(:fn_def_lspec) do
       rule(:fn_def_ident, :fn_def_params) do |context|
-        name = context.token(:name!)
-        params = context.nodes(:fn_def_params)
+        name = context[:name!].token
+        params = context[:fn_def_params].nodes
 
         context.clear
-        context.update(:name, name)
-        context.update(:params, params)
+        context.add(:name, name)
+        context.add(:params, params)
         nil
       end
       rule(:fn_def_ident) do |context|
-        name = context.token(:fn_def_ident)
+        name = context[:fn_def_ident].token
 
         context.clear
-        context.update(:name, name)
+        context.add(:name, name)
         nil
       end
     end
 
     group(:fn_def_rspec) do
       rule(:IMPL, :NAME) do |context|
-        ret_type = context.token(:NAME)
-        
+        ret_type = context[:NAME].token
+
         context.clear
-        context.update(:ret_type, ret_type)
+        context.add(:ret_type, ret_type)
         nil
       end
     end
 
     group(:fn_def_spec) do
       rule(:fn_def_lspec, :fn_def_rspec) do |context|
-        name = context.token(:NAME!)
-        params = context.nodes?(:params!)
-        ret_type = context.token(:RET_TYPE!)
+        name = context[:NAME].token
+        params = context[:params].nodes?
+        ret_type = context[:RET_TYPE].token
 
         context.clear
-        context.update(:name, name)
-        context.update(:params, params) unless params.nil?
-        context.update(:ret_type, ret_type)
+        context.add(:name, name)
+        context.add(:params, params) unless params.nil?
+        context.add(:ret_type, ret_type)
         nil
       end
 
@@ -155,10 +155,10 @@ module Magiika::Lang::Syntax
 
     group(:fn_def_abstract) do
       rule(:ABSTRACT, :fn_def_spec) do |context|
-        name = context.token(:NAME!)
-        params = context.nodes(:params!)
-        ret_type = context.token(:RET_TYPE!)
-        stmts = context.nodes(:stmts)
+        name = context[:NAME].token
+        params = context[:params].nodes
+        ret_type = context[:RET_TYPE].token
+        stmts = context[:stmts].nodes
 
         context.clear
         #Node::StatementFn.new(
@@ -173,10 +173,10 @@ module Magiika::Lang::Syntax
 
     group(:fn_def_immediate) do
       rule(:fn_def_spec, :fn_stmt_body) do |context|
-        name = context.token(:NAME!)
-        params = context.nodes?(:params!)
-        ret_type = context.token(:RET_TYPE!)
-        stmts = context.nodes(:stmts!)
+        name = context[:NAME].token
+        params = context[:params].nodes?
+        ret_type = context[:RET_TYPE].token
+        stmts = context[:stmts].nodes
 
         context.clear
         #Node::StatementFunction.new(
@@ -200,40 +200,40 @@ module Magiika::Lang::Syntax
 
     group(:fn_arg) do
       rule(:NAME, :ASSIGN, :value) do |context|
-        name = context.token(:NAME)
-        value = context.node(:value)
+        name = context[:NAME].token
+        value = context[:value].node
 
         context.clear
-        context.update(:name, name)
-        context.update(:value, value)
+        context.add(:name, name)
+        context.add(:value, value)
         nil
       end
 
       rule(:value) do |context|
-        value = context.node(:value)
+        value = context[:value].node
 
         context.clear
-        context.update(:value, value)
+        context.add(:value, value)
         nil
       end
     end
 
     group(:fn_args) do
       rule(:fn_arg, :SEP, :fn_args) do |context|
-        arg = context.node(:fn_arg)
-        args = context.nodes(:fn_args)
+        arg = context[:fn_arg].node
+        args = context[:fn_args].nodes
 
         args << arg
 
         context.clear
-        context.update(:args, args)
+        context.add(:args, args)
         nil
       end
       rule(:fn_arg) do |context|
-        arg = context.node(:fn_arg)
+        arg = context[:fn_arg].node
 
         context.clear
-        context.update(:args, [arg])
+        context.add(:args, [arg])
         nil
       end
     end
@@ -244,7 +244,7 @@ module Magiika::Lang::Syntax
 
       rule(:NAME, :L_PAR, :fn_args, :R_PAR) do |context|
       end
-      
+
       rule(:NAME) do |context|
       end
     end
