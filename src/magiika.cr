@@ -46,7 +46,7 @@ module Magiika
   
   
 
-  # API AND RUNTIME
+  # API
   # --------------------------------------------------------
 
   def interpreter
@@ -56,15 +56,4 @@ module Magiika
   def run
     interpreter.interactive
   end
-
-  def main
-    if ARGV.size == 0
-      Magiika.run
-    else
-      raise NotImplementedError.new("")
-    end
-  end
-
-  # call main
-  main()
 end
