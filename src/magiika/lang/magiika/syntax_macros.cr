@@ -1,7 +1,10 @@
 module Magiika::Lang::Syntax
   private macro bin_expr(l, op, r)
     context.clear
-    context.add(Node::BinaryExpr.new({{l}}.position, {{l}}, {{op}}.value, {{r}}))
+
+    pos = {{l}}.position
+    obj = Node::BinaryExpr.new(pos, {{l}}, {{op}}.value, {{r}})
+    context.add(obj)
   end
 
   private macro bin_expr_rule(l_s, op_s, r_s)

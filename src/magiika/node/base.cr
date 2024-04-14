@@ -5,7 +5,7 @@ module Magiika
     macro methods
       {{ @type.methods.map &.name.stringify }}
     end
-    
+
     def eval(scope : Scope) : Node
       self
     end
@@ -25,7 +25,7 @@ module Magiika
     def type_id : Int32
       self.class.type_id
     end
-  
+
     def node_is_a?(_type : Node.class) : ::Bool
       self.type_id == _type.type_id
     end
@@ -43,7 +43,7 @@ module Magiika
     getter position : Lang::Position
 
     macro inherited
-      def self.inherited_superclass : Node.class
+      def self.inherited_superclass
         {{ @type.superclass }}
       end
 
@@ -62,7 +62,7 @@ module Magiika
     def self.methods_list
       Node.methods # This calls the macro at the class level
     end
-  
+
     def node_is_a_inh?(_type : Node.class) : ::Bool
       klass = self.class
       while klass

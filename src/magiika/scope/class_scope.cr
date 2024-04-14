@@ -10,21 +10,21 @@ module Magiika
 
   class Scope::ClassScope < Scope::NestedScope
     def set(
-        ident : String, 
-        node : Node, 
+        ident : String,
+        node : Node,
         visibility : Visibility = Visibility::Private,
         is_static : Bool = false) : Nil
-      meta = Node::Meta.new(node, [] of Node::Constraint, visibility, is_static)
+      meta = Node::Meta.new(node, nil, visibility, is_static)
       super(ident, meta)
     end
 
     # overriding get? to handle visibility and static members
     def get?(
-        ident : String, 
-        request_visibility : Visibility = Visibility::Private, 
-        request_static : Bool = false) : Node?
+        ident : String,
+        request_visibility : Visibility = Visibility::Private,
+        request_static : Bool = false) : Node::Meta?
       meta = find_variable_in_scope(ident, request_visibility, request_static)
-      return meta.node if meta
+      return meta unless meta.nil?
 
       # Delegate to parent scope if not found
       if parent.is_a?(ClassScope)
@@ -36,17 +36,17 @@ module Magiika
 
     # overriding get to handle visibility, static members, and parent scope
     def get(
-        ident : String, 
-        request_visibility : Visibility = Visibility::Private, 
-        request_static : Bool = false) : Node
+        ident : String,
+        request_visibility : Visibility = Visibility::Private,
+        request_static : Bool = false) : Node::Meta
       var = get?(ident, request_visibility, request_static)
       return var if var
       raise Error::Internal.new("Not found")
     end
 
     private def find_variable_in_scope(
-        ident : String, 
-        request_visibility : Visibility, 
+        ident : String,
+        request_visibility : Visibility,
         request_static : ::Bool) : Node::Meta?
       meta = @variables[ident]?
       return nil unless meta
@@ -59,7 +59,7 @@ module Magiika
     end
 
     private def visibility_permitted?(
-        member_visibility : Visibility, 
+        member_visibility : Visibility,
         request_visibility : Visibility) : ::Bool
       case request_visibility
       when Visibility::Public

@@ -21,10 +21,10 @@ module Magiika::Lang
   class MagiikaInterpreter
     private class Builder < Parser::Builder
       include Syntax
-  
+
       def initialize
         super
-  
+
         # register builtins
         register_tokens
         register_commons
@@ -45,7 +45,7 @@ module Magiika::Lang
     private ANSI_RELAXED_STYLE     = "\x1b[38;2;150;178;195m"
 
     @parser : Parser
-    
+
     @display_tokenization = false
     @display_parsing = false
 
@@ -64,7 +64,7 @@ module Magiika::Lang
       print(ANSI_ACCENT_STYLE +
         "   a ⊹₊magical₊+ language~   " +
         ANSI_RESET + "\n\n")
-      
+
       notify("(type `##h' for debug commands ₊+)")
     end
 
@@ -113,7 +113,7 @@ module Magiika::Lang
       }
 
       join_str = "\n    "
-      warn(ex.to_s + "\n   Traceback:" + 
+      warn(ex.to_s + "\n   Traceback:" +
         join_str + filtered_backtrace.join(join_str))
       print("\n")
     end
@@ -172,7 +172,7 @@ module Magiika::Lang
         inform(parsed_result)
       end
 
-      return parsed_result.eval(scope) unless parsed_result.nil? 
+      return parsed_result.eval(scope) unless parsed_result.nil?
       return nil
     end
 

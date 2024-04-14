@@ -5,7 +5,7 @@ module Magiika
   class Node::BinaryExpr < NodeClassBase
     def initialize(
         position : Lang::Position,
-        @left : Node, 
+        @left : Node,
         @oper : String,
         @right : Node)
       super(position)
@@ -14,7 +14,7 @@ module Magiika
     def eval(scope : Scope) : Node
       left = @left.eval(scope)
       right = @right.eval(scope)
-      node = left[":"+@oper]?
+      node = left[@oper]?
 
       if node.nil?
         raise Error::Internal.new("unknown method `:#{@oper}'.")

@@ -1,9 +1,12 @@
-module Magiika::Node::Constraints
+require "../util/typing.cr"
+
+
+module Magiika::Constraints
   module Nilable
     property nilable : ::Bool = false
 
     def validate_nilable(node : Node) : MatchResult
-      return MatchResult.new(true) if @nilable || !node.is_a?(Node::Nil)
+      return MatchResult.new(true) if @nilable || node.is_a?(Node::Nil)
       MatchResult.new(false, ["Node is not nilable"])
     end
   end
@@ -16,11 +19,11 @@ module Magiika::Node::Constraints
       _min_len = min_len
       _max_len = max_len
       if _min_len && node.length < _min_len
-        return MatchResult.new(false, 
+        return MatchResult.new(false,
           ["Length of node is less than the minimum length of #{_min_len}"])
       end
       if _max_len && node.length > _max_len
-        return MatchResult.new(false, 
+        return MatchResult.new(false,
           ["Length of node is greater than the maximum length of #{_max_len}"])
       end
       MatchResult.new(true)
@@ -35,11 +38,11 @@ module Magiika::Node::Constraints
 #      _min_value = min_value
 #      _max_value = max_value
 #      if _min_value && node < _min_value
-#        return MatchResult.new(false, 
+#        return MatchResult.new(false,
 #          ["Range of node is less than the minimum range of #{_min_value}"])
 #      end
 #      if _max_value && node > _max_value
-#        return MatchResult.new(false, 
+#        return MatchResult.new(false,
 #          ["Range of node is greater than the maximum range of #{_max_value}"])
 #      end
 #      MatchResult.new(true)
@@ -55,7 +58,7 @@ module Magiika::Node::Constraints
         value = node.value
         if value.is_a?(String)
           value = value.as(String)
-          
+
           _chr_blacklist = chr_blacklist
           _chr_whitelist = chr_blacklist
           if _chr_blacklist && value.chars.any? { |char| _chr_blacklist.includes?(char) }
@@ -66,7 +69,7 @@ module Magiika::Node::Constraints
           end
         end
       end
-      
+
       MatchResult.new(true)
     end
   end
@@ -75,9 +78,9 @@ end
 
 module Magiika
   class Node::Constraint
-    property _type : Node | Node.class | ::Nil
+    property _type : NodeType?
 
-    def initialize(@_type : Node | Node.class | ::Nil = nil)
+    def initialize(@_type : NodeType? = nil)
     end
 
     def validate(node : Node) : MatchResult
@@ -112,11 +115,11 @@ module Magiika
       result
     end
   end
-  
+
   class Node::NumberConstraint < Node::Constraint
     include Constraints::Nilable
 #    include Constraints::Range
-    
+
     def validate(node : Node) : MatchResult
       result = MatchResult.new(true)
       result.merge!(validate_nilable(node))

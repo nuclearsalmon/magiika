@@ -1,16 +1,16 @@
 module Magiika
   class MatchResult
     property errors : Array(String)
-  
+
     def initialize(
-        @matched : Bool, 
+        @matched : Bool,
         @errors : Array(String) = [] of String)
     end
-  
+
     def add_error(error : String)
       @errors << error
     end
-  
+
     def merge!(other : MatchResult)
       @errors.concat(other.errors)
     end

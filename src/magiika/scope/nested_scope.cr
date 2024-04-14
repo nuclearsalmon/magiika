@@ -24,7 +24,7 @@ module Magiika
 
         value
       else
-        Node::Meta.new(value, [] of Node::Constraint)
+        Node::Meta.new(value)
       end
     end
 
@@ -33,7 +33,7 @@ module Magiika
         # check if the existing variable is a constant
         existing_value = @variables[ident]?
         raise "Cannot modify a constant value." if existing_value && existing_value.is_const?
-        
+
         # update variable in the current scope
         @variables[ident] = prepare_value(value)
       elsif exist_elsewhere?(ident)
