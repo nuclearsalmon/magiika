@@ -5,14 +5,10 @@ module Magiika
     end
 
     def self.instance
-      @@instance ||= new(Lang::Position.new)
+      @@instance ||= new(Lang::Position.default)
     end
 
-    def to_s
-      return "nil"
-    end
-    
-    def self.to_s
+    def to_s_internal : String
       return "nil"
     end
 

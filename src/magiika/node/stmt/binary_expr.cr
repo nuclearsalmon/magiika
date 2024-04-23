@@ -1,17 +1,14 @@
-require "../base.cr"
-
-
 module Magiika
   class Node::BinaryExpr < NodeClassBase
     def initialize(
         position : Lang::Position,
-        @left : Node,
+        @left : NodeD,
         @oper : String,
-        @right : Node)
+        @right : NodeD)
       super(position)
     end
 
-    def eval(scope : Scope) : Node
+    def eval(scope : Scope) : NodeD
       left = @left.eval(scope)
       right = @right.eval(scope)
       node = left[@oper]?

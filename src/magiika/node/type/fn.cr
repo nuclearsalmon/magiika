@@ -1,7 +1,7 @@
 require "../../util/match_result.cr"
 
 module Magiika
-  struct Node::FnParam < NodeStructBase
+  class Node::FnParam < NodeClassBase
     getter name : String
     getter constraints : Set(Node::Constraint)?
     getter value : Node?
@@ -31,7 +31,7 @@ module Magiika
       constraints = Set(Node::Constraint).new
       constraints << constraint
       @constraints = constraints
-      super(Lang::Position.new)
+      super()
     end
 
     def initialize(
@@ -46,7 +46,7 @@ module Magiika
       super(position)
     end
 
-    def validate(node : Node) : MatchResult
+    def validate(node : NodeType) : MatchResult
       constraints = @constraints
       unless constraints.nil?
         constraints.each { |constraint|
@@ -62,7 +62,7 @@ module Magiika
 
   record FnArg,
     name : String?,
-    value : Node
+    value : NodeD
 
   alias FnArgs = Array(FnArg)
 
@@ -75,7 +75,7 @@ module Magiika
         @name : String,
         @params : FnParams,
         @returns : Array(Constraint))
-      super(Lang::Position.new)
+      super(nil)
     end
 
     def initialize(
@@ -86,7 +86,7 @@ module Magiika
       super(position)
     end
 
-    def eval(scope : Scope) : Node
+    def eval(scope : Scope) : NodeD
       self
     end
 
@@ -102,7 +102,7 @@ module Magiika
         if param.name.starts_with?("*")
           var_args = regular_args.dup
           regular_args.clear
-          var_args_node = List.new(var_args.map(&.value), Lang::Position.new) # Wrap var_args in ListNode
+          var_args_node = List.new(var_args.map(&.value)) # Wrap var_args in ListNode
           arg_to_param_mapping[param.name.lstrip('*')] = var_args_node
         elsif param.name.starts_with?("**")
           # Skip handling here, will process after regular args
@@ -191,7 +191,7 @@ module Magiika
         (@returns == Node::Nil.class ? "" : "-> #{@returns}")
     end
 
-    def to_s
+    def to_s_internal : String
       "fn #{pretty_sig}"
     end
   end
@@ -216,7 +216,7 @@ module Magiika
       raise Error::Internal.new("Abst fn is not callable.")
     end
 
-    def to_s
+    def to_s_internal : String
       "abst fn #{pretty_sig}"
     end
   end
@@ -232,7 +232,7 @@ module Magiika
 
     def call(args : Hash(String, Node), scope : Scope) : Node
       # Inject args into scope
-      method_scope = Scope::MethodScope.new(@name, @position, scope)
+      method_scope = Scope::MethodScope.new(@name, position, scope)
       args.each do |name, value|
         method_scope.set(name, value)
       end
@@ -249,7 +249,7 @@ module Magiika
       return result
     end
 
-    def to_s
+    def to_s_internal : String
       "native fn #{pretty_sig}"
     end
   end
@@ -277,10 +277,6 @@ module Magiika
       # handle compiler error
       raise Error::Internal.new("Unexpected nil.") if result.nil?
       return result
-    end
-
-    def to_s
-      "fn #{pretty_sig}"
     end
   end
 end

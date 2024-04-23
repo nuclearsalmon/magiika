@@ -3,16 +3,16 @@ module Magiika
     def initialize(
         position : Lang::Position,
         @ident : Lang::MatchedToken,
-        @value : Node,
+        @value : NodeD,
         @oper : String = "=")
       super(position)
     end
 
-    def eval(scope : Scope) : Node
+    def eval(scope : Scope) : NodeD
       value = @value.eval(scope)
       case @oper
       when "="
-        if scope.exist?(@ident) 
+        if scope.exist?(@ident)
           raise Error::Internal.new("Variable exists already: \'#{@ident}\'")
         end
         scope.set(@ident, value)
@@ -32,16 +32,16 @@ module Magiika
     def initialize(
         position : Lang::Position,
         @ident : Lang::MatchedToken,
-        @value : Node,
+        @value : NodeD,
         @oper : String = "=")
       super(position)
     end
 
-    def eval(scope : Scope) : Node
+    def eval(scope : Scope) : NodeD
       value = @value.eval(scope)
       case @oper
       when "="
-        if !scope.exist?(@ident) 
+        if !scope.exist?(@ident)
           raise Error::Internal.new("Variable does not exist: \'#{@ident}\'")
         end
         scope.set(@ident, value)
@@ -60,13 +60,13 @@ module Magiika
   class Node::AssignMember < NodeClassBase
     def initialize(
         position : Lang::Position,
-        @dest : Node,
-        @value : Node,
+        @dest : NodeD,
+        @value : NodeD,
         @oper : String)
       super(position)
     end
 
-    def eval(scope : Scope) : Node
+    def eval(scope : Scope) : NodeD
       value = @value.eval(scope)
       return value
     end

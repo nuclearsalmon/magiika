@@ -5,10 +5,10 @@ module Magiika
     @members = Hash(String, Node::Function).new
 
     def add(other : Node::Int) : Node::Int
-      return Int.new(@value + other.value, Lang::Position.new)
+      return Int.new(@value + other.value)
     end
 
-    def initialize(@value : ::Int32, position : Lang::Position)
+    def initialize(@value : ::Int32, position : Lang::Position? = nil)
       super(position)
       @members["+"] = NativeFn.new(
         "+",
@@ -18,9 +18,8 @@ module Magiika
           meta = scope.get("obj")
           node = meta.data
 
-
-          if node.is_a?(Node::Int) || node.is_a?(Flt)
-            Node::Int.new(@value + node.value.to_i, Lang::Position.new).as(Node)
+          if node.is_a?(Node::Int) || node.is_a?(Node::Flt)
+            Node::Int.new(@value + node.value.to_i).as(Node)
           else
             raise Error::Internal.new("wrong type: #{node.class} in #{self}.");
           end
@@ -32,7 +31,7 @@ module Magiika
       return @members[ident]?
     end
 
-    def to_s
+    def to_s_internal : String
       return @value.to_s
     end
 

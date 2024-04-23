@@ -25,6 +25,10 @@ module Magiika::Lang
       })
     end
 
+    def self.default
+      self.new
+    end
+
     def initialize
       @filename = ""
       @row = -1
@@ -35,6 +39,15 @@ module Magiika::Lang
         @filename : String,
         @row : Int32,
         @col : Int32)
+    end
+
+    def to_s
+      filename = @filename
+      if filename = ""
+        "<Interpreted>"
+      else
+        "<\"#{ filename }\", row #{ @row }, col #{ @col }>"
+      end
     end
   end
 end

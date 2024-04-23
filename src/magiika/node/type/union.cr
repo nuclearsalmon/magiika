@@ -3,10 +3,10 @@ module Magiika
     property types : Array(Node.class)
 
     def initialize(@types : Array(Node.class))
-      super(Lang::Position.new)
+      super
     end
 
-    def eval(scope : Scope) : Node
+    def eval(scope : Scope) : NodeD
       self
     end
 

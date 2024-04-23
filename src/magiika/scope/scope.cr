@@ -9,7 +9,7 @@ module Magiika
     end
 
     abstract def get?(ident : String) : Node::Meta?
-    
+
     def get?(ident : Lang::MatchedToken) : Node::Meta?
       get?(ident.value)
     end
@@ -17,9 +17,9 @@ module Magiika
     def get(ident : String) : Node::Meta
       obj = get?(ident)
       return obj unless obj.nil?
-      raise Error::UndefinedVariable.new(ident, self, Lang::Position.new)
+      raise Error::UndefinedVariable.new(ident, self, Lang::Position.default)
     end
-    
+
     def get(ident : Lang::MatchedToken) : Node::Meta
       obj = get?(ident.value)
       return obj unless obj.nil?
@@ -28,7 +28,7 @@ module Magiika
 
     def get_fn?(
         ident : String,
-        args : FnArgs, 
+        args : FnArgs,
         deep_analysis : Bool = false) \
           : {MatchResult, {Function, Hash(String, Node)}?}?
       variable = get?(ident)
@@ -36,13 +36,13 @@ module Magiika
 
       match_result, param_hash \
         = variable.match_args(args, deep_analysis);
-      
+
       return match_result.error? ? nil : {match_result, {variable, param_hash}}
     end
 
     def get_fn?(
-        ident : Lang::MatchedToken, 
-        args : FnArgs, 
+        ident : Lang::MatchedToken,
+        args : FnArgs,
         deep_analysis : Bool = false) \
           : {MatchResult, {Function, Hash(String, Node)}?}?
       get_fn?(ident.value, args, deep_analysis)
@@ -50,17 +50,17 @@ module Magiika
 
     def get_fn(
         ident : String,
-        args : FnArgs, 
+        args : FnArgs,
         deep_analysis : Bool = false) \
           : {MatchResult, {Function, Hash(String, Node)}?}
       function = get_fn?(ident, args, deep_analysis)
       return function if function
-      raise Error::UndefinedVariable.new(ident, self, Position.new)
+      raise Error::UndefinedVariable.new(ident, self, Position.default)
     end
 
     def get_fn(
         ident : Lang::MatchedToken,
-        args : FnArgs, 
+        args : FnArgs,
         deep_analysis : Bool = false) \
           : {MatchResult, {Function, Hash(String, Node)}?}
       function = get_fn?(ident, args, deep_analysis)

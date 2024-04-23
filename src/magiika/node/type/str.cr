@@ -5,10 +5,10 @@ module Magiika
     end
 
     def initialize(@value : ::String)
-      super(Lang::Position.new)
+      super
     end
 
-    def to_s
+    def to_s_internal : String
       return @value.to_s
     end
 

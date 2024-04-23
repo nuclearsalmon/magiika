@@ -1,12 +1,12 @@
 module Magiika
   class Node::RetrieveVar < NodeClassBase
     def initialize(
-        position : Lang::Position,
+        position : Lang::Position?,
         @ident : Lang::MatchedToken)
       super(position)
     end
 
-    def eval(scope : Scope) : Node
+    def eval(scope : Scope) : NodeD
       scope.get(@ident).eval(scope)
     end
 
@@ -17,13 +17,13 @@ module Magiika
 
   class Node::RetrieveMember < NodeClassBase
     def initialize(
-        position : Lang::Position,
+        position : Lang::Position?,
         @source : Node,
         @action : Node)
       super(position)
     end
 
-    def eval(scope : Scope) : Node
+    def eval(scope : Scope) : NodeD
       return @source.eval(scope)
     end
 

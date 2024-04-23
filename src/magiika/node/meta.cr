@@ -1,17 +1,17 @@
 module Magiika
   # Meta is a holder of Constraints
   class Node::Meta < NodeClassBase
-    property data : Node
+    property data : NodeD
     property constraints : Set(Constraint)?
     property visibility : Visibility
     property static : ::Bool
 
     def initialize(
-        @data : Node,
+        @data : NodeD,
         @constraints : Set(Constraint)? = nil,
         @visibility : Visibility = Visibility::Public,
         @static : ::Bool = false)
-      super(Lang::Position.new)
+      super(nil)
     end
 
     def is_const? : ::Bool
@@ -24,7 +24,7 @@ module Magiika
       @static
     end
 
-    def eval(scope : Scope) : Node
+    def eval(scope : Scope) : NodeD
       @data.eval(scope)
     end
   end

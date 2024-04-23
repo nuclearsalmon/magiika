@@ -11,24 +11,24 @@ module Magiika::Constraints
     end
   end
 
-  module Length
-    property min_len : Int32?
-    property max_len : Int32?
-
-    def validate_length(node : Node) : MatchResult
-      _min_len = min_len
-      _max_len = max_len
-      if _min_len && node.length < _min_len
-        return MatchResult.new(false,
-          ["Length of node is less than the minimum length of #{_min_len}"])
-      end
-      if _max_len && node.length > _max_len
-        return MatchResult.new(false,
-          ["Length of node is greater than the maximum length of #{_max_len}"])
-      end
-      MatchResult.new(true)
-    end
-  end
+#  module Length
+#    property min_len : Int32?
+#    property max_len : Int32?
+#
+#    def validate_length(node : Node) : MatchResult
+#      _min_len = min_len
+#      _max_len = max_len
+#      if _min_len && node.length < _min_len
+#        return MatchResult.new(false,
+#          ["Length of node is less than the minimum length of #{_min_len}"])
+#      end
+#      if _max_len && node.length > _max_len
+#        return MatchResult.new(false,
+#          ["Length of node is greater than the maximum length of #{_max_len}"])
+#      end
+#      MatchResult.new(true)
+#    end
+#  end
 
 #  module Range
 #    property min_value : Int32?
@@ -78,12 +78,12 @@ end
 
 module Magiika
   class Node::Constraint
-    property _type : NodeType?
+    property _type : NodeAny?
 
-    def initialize(@_type : NodeType? = nil)
+    def initialize(@_type : NodeAny? = nil)
     end
 
-    def validate(node : Node) : MatchResult
+    def validate(node : NodeType) : MatchResult
       MatchResult.new(@_type.nil? || node.class == @_type)
     end
 
@@ -97,20 +97,20 @@ module Magiika
       super(Node.class)  # All types of nodes can be const
     end
 
-    def validate(node : Node) : MatchResult
+    def validate(node : NodeType) : MatchResult
       MatchResult.new(true)
     end
   end
 
   class Node::StringConstraint < Node::Constraint
     include Constraints::Nilable
-    include Constraints::Length
+    #include Constraints::Length
     include Constraints::Characters
 
-    def validate(node : Node) : MatchResult
+    def validate(node : NodeType) : MatchResult
       result = MatchResult.new(true)
       result.merge!(validate_nilable(node))
-      result.merge!(validate_length(node))
+      #result.merge!(validate_length(node))
       result.merge!(validate_characters(node))
       result
     end
@@ -120,7 +120,7 @@ module Magiika
     include Constraints::Nilable
 #    include Constraints::Range
 
-    def validate(node : Node) : MatchResult
+    def validate(node : NodeType) : MatchResult
       result = MatchResult.new(true)
       result.merge!(validate_nilable(node))
 #      result.merge!(validate_range(node))
@@ -130,7 +130,7 @@ module Magiika
 
   class Node::ListConstraint < Node::Constraint
     include Constraints::Nilable
-    include Constraints::Length
+    #include Constraints::Length
 
     getter element_constraints : Array(Constraint)
 
@@ -139,10 +139,10 @@ module Magiika
       super(List)
     end
 
-    def validate(node : Node) : MatchResult
+    def validate(node : NodeType) : MatchResult
       result = MatchResult.new(true)
       result.merge!(validate_nilable(node))
-      result.merge!(validate_length(node))
+      #result.merge!(validate_length(node))
       result
     end
   end

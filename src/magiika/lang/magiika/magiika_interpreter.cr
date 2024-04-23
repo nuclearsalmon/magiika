@@ -7,7 +7,8 @@ require "../parser/misc/token.cr"
 require "./syntax_macros.cr"
 require "./syntax/*"
 
-require "../../node/base.cr"
+require "../../node/node.cr"
+require "../../node/desc/typing/type_registry.cr"
 require "../../node/constraint.cr"
 require "../../node/meta.cr"
 require "../../node/type/list.cr"
@@ -44,14 +45,11 @@ module Magiika::Lang
     private ANSI_WARNING_STYLE     = "\x1b[38;2;235;59;47m"
     private ANSI_RELAXED_STYLE     = "\x1b[38;2;150;178;195m"
 
-    @parser : Parser
+    @parser : Parser = Builder.new.build
 
     @display_tokenization = false
     @display_parsing = false
-
-    def initialize
-      @parser = Builder.new.build
-    end
+    @display_eval = false
 
 
     # decorative
@@ -132,6 +130,9 @@ module Magiika::Lang
         to_level = is_debug ? ::Log::Severity::Info : ::Log::Severity::Debug
         Magiika.change_log_level(to_level)
         notify("show debug_logs: #{cond_to_tg(!is_debug)}.")
+      when 'e'
+        @display_eval = !@display_eval
+        notify("show detailed eval result: #{cond_to_tg(@display_eval)}.")
       when 'h'
         notify(
           ANSI_UNDERLINE_ON +
@@ -140,6 +141,7 @@ module Magiika::Lang
           "   `t' : toggle showing tokenization result\n" +
           "   `p' : toggle showing parsing result\n" +
           "   `l' : toggle showing debug logs\n" +
+          "   `e' : toggle showing detailed eval result\n" +
           "   `h' : this help menu")
       else
         warn("unknown command. try `##h'.")
@@ -152,31 +154,29 @@ module Magiika::Lang
     # ------------------------------------------------------
 
     def parse(parsing_tokens : Array(MatchedToken)) \
-        : Tuple(Array(MatchedToken), Array(Node))?
+        : Tuple(Array(MatchedToken), Array(NodeD))?
       @parser.parse(parsing_tokens)
     end
 
     def execute(
         instructions : String,
         scope : Scope,
-        filename : String) : Node?
+        filename : String) : NodeD?
       tokens = @parser.tokenize(instructions, filename)
-
-      if @display_tokenization
-        inform(tokens)
-      end
+      inform(tokens) if @display_tokenization
 
       parsed_result = @parser.parse(tokens)
+      inform(parsed_result.to_s) if @display_parsing
 
-      if @display_parsing
-        inform(parsed_result)
-      end
+      return nil if parsed_result.nil?
 
-      return parsed_result.eval(scope) unless parsed_result.nil?
-      return nil
+      eval_result = parsed_result.eval(scope)
+      inform(eval_result.to_s) if @display_eval
+
+      eval_result
     end
 
-    def execute(instructions : String) : Node?
+    def execute(instructions : String) : NodeD?
       filename = "interpreted"
       pos = Lang::Position.new(filename, 1, 1)
       scope = Scope::Global.new("global", pos)
@@ -203,7 +203,7 @@ module Magiika::Lang
             operator_command(input[2])
           else
             unless (result = execute(input, scope, filename)).nil?
-              print "⭐ #{result.to_s}\n"
+              print "⭐ #{result.to_s_internal}\n"
             end
             print "\n"
           end
