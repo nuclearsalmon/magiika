@@ -8,7 +8,6 @@ require "./syntax_macros.cr"
 require "./syntax/*"
 
 require "../../node/node.cr"
-require "../../node/desc/typing/type_registry.cr"
 require "../../node/constraint.cr"
 require "../../node/meta.cr"
 require "../../node/type/list.cr"

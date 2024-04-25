@@ -1,6 +1,3 @@
-require "../util/typing.cr"
-
-
 module Magiika::Constraints
   module Nilable
     property nilable : ::Bool = false

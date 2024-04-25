@@ -1,4 +1,5 @@
-require "./desc/typing/type_registry.cr"
+require "../typing/typing.cr"
+
 
 module Magiika
   # Node as a type representation
@@ -64,12 +65,24 @@ module Magiika
     abstract def type_id : Int32
 
     abstract def type_name : String
+
+    def exact_type?(_type : NodeType) : ::Bool
+      Typing.exact_type?(self, _type)
+    end
+
+    def type?(_type : NodeType) : ::Bool
+      Typing.exact_type?(self, _type)
+    end
   end
 
   # Abstract base class for Node
   abstract class NodeClassBase
     include Node
     Node.base_define
+
+    def inherits_type?(_type : NodeType) : ::Bool
+      Typing.inherits_type?(self, _type)
+    end
 
     macro inherited
       @@type_id = Magiika::Typing.register_type(self)

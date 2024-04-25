@@ -5,7 +5,7 @@ authors:
   - Gustav Dersjö <gustav.dersjo@gmail.com>
 
 description: |
-  A magical language. 
+  A magical language.
 
 targets:
   magiika:
@@ -14,3 +14,7 @@ targets:
 crystal: 1.8.2
 
 license: AGPLv3
+
+dependencies:
+  dotenv:
+    github: drum445/dotenv

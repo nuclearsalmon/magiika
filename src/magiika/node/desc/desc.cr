@@ -11,8 +11,6 @@ module Magiika
         name : String,
         @properties : Hash(String, NodeObj)? = nil,
         @constraint : Node::Function? = nil)
-
-
       super(name, params, returns)
     end
 
