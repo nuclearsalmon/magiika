@@ -5,7 +5,7 @@ module Magiika::Constraints
   module Nilable
     property nilable : ::Bool = false
 
-    def validate_nilable(node : Node) : MatchResult
+    def validate_nilable(node : NodeObj) : MatchResult
       return MatchResult.new(true) if @nilable || node.is_a?(Node::Nil)
       MatchResult.new(false, ["Node is not nilable"])
     end
@@ -15,7 +15,7 @@ module Magiika::Constraints
 #    property min_len : Int32?
 #    property max_len : Int32?
 #
-#    def validate_length(node : Node) : MatchResult
+#    def validate_length(node : NodeObj) : MatchResult
 #      _min_len = min_len
 #      _max_len = max_len
 #      if _min_len && node.length < _min_len
@@ -34,7 +34,7 @@ module Magiika::Constraints
 #    property min_value : Int32?
 #    property max_value : Int32?
 #
-#    def validate_range(node : Node) : MatchResult
+#    def validate_range(node : NodeObj) : MatchResult
 #      _min_value = min_value
 #      _max_value = max_value
 #      if _min_value && node < _min_value
@@ -53,7 +53,7 @@ module Magiika::Constraints
     property chr_whitelist : Set(Char)? = nil
     property chr_blacklist : Set(Char)? = nil
 
-    def validate_characters(node : Node) : MatchResult
+    def validate_characters(node : NodeObj) : MatchResult
       if node.responds_to?(:value)
         value = node.value
         if value.is_a?(String)
@@ -83,7 +83,7 @@ module Magiika
     def initialize(@_type : NodeAny? = nil)
     end
 
-    def validate(node : NodeType) : MatchResult
+    def validate(node : NodeObj) : MatchResult
       MatchResult.new(@_type.nil? || node.class == @_type)
     end
 
@@ -97,7 +97,7 @@ module Magiika
       super(Node.class)  # All types of nodes can be const
     end
 
-    def validate(node : NodeType) : MatchResult
+    def validate(node : NodeObj) : MatchResult
       MatchResult.new(true)
     end
   end
@@ -107,7 +107,7 @@ module Magiika
     #include Constraints::Length
     include Constraints::Characters
 
-    def validate(node : NodeType) : MatchResult
+    def validate(node : NodeObj) : MatchResult
       result = MatchResult.new(true)
       result.merge!(validate_nilable(node))
       #result.merge!(validate_length(node))
@@ -120,7 +120,7 @@ module Magiika
     include Constraints::Nilable
 #    include Constraints::Range
 
-    def validate(node : NodeType) : MatchResult
+    def validate(node : NodeObj) : MatchResult
       result = MatchResult.new(true)
       result.merge!(validate_nilable(node))
 #      result.merge!(validate_range(node))
@@ -139,7 +139,7 @@ module Magiika
       super(List)
     end
 
-    def validate(node : NodeType) : MatchResult
+    def validate(node : NodeObj) : MatchResult
       result = MatchResult.new(true)
       result.merge!(validate_nilable(node))
       #result.merge!(validate_length(node))

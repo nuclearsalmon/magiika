@@ -11,7 +11,7 @@ module Magiika
   class Scope::ClassScope < Scope::NestedScope
     def set(
         ident : String,
-        node : Node,
+        node : NodeObj,
         visibility : Visibility = Visibility::Private,
         is_static : Bool = false) : Nil
       meta = Node::Meta.new(node, nil, visibility, is_static)

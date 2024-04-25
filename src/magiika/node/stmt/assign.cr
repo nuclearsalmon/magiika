@@ -3,12 +3,12 @@ module Magiika
     def initialize(
         position : Lang::Position,
         @ident : Lang::MatchedToken,
-        @value : NodeD,
+        @value : NodeObj,
         @oper : String = "=")
       super(position)
     end
 
-    def eval(scope : Scope) : NodeD
+    def eval(scope : Scope) : NodeObj
       value = @value.eval(scope)
       case @oper
       when "="
@@ -32,12 +32,12 @@ module Magiika
     def initialize(
         position : Lang::Position,
         @ident : Lang::MatchedToken,
-        @value : NodeD,
+        @value : NodeObj,
         @oper : String = "=")
       super(position)
     end
 
-    def eval(scope : Scope) : NodeD
+    def eval(scope : Scope) : NodeObj
       value = @value.eval(scope)
       case @oper
       when "="
@@ -60,13 +60,13 @@ module Magiika
   class Node::AssignMember < NodeClassBase
     def initialize(
         position : Lang::Position,
-        @dest : NodeD,
-        @value : NodeD,
+        @dest : NodeObj,
+        @value : NodeObj,
         @oper : String)
       super(position)
     end
 
-    def eval(scope : Scope) : NodeD
+    def eval(scope : Scope) : NodeObj
       value = @value.eval(scope)
       return value
     end

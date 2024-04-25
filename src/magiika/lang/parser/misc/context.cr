@@ -5,7 +5,7 @@ module Magiika::Lang
   class Context
     property name : Symbol
 
-    protected getter nodes : Array(NodeD)?
+    protected getter nodes : Array(NodeObj)?
     protected getter tokens : Array(MatchedToken)?
     protected getter sub_contexts : Hash(Symbol, Context)?
 
@@ -13,7 +13,7 @@ module Magiika::Lang
     end
 
     def initialize(@name : Symbol,
-        @nodes : Array(NodeD)?,
+        @nodes : Array(NodeObj)?,
         @tokens : Array(MatchedToken)?,
         @sub_contexts : Hash(Symbol, Context)?)
     end
@@ -89,12 +89,12 @@ module Magiika::Lang
       (@sub_contexts ||= Hash(Symbol, Context).new)[key] = value
     end
 
-    def add(value : NodeD)
-      (@nodes ||= Array(NodeD).new) << value
+    def add(value : NodeObj)
+      (@nodes ||= Array(NodeObj).new) << value
     end
 
-    def add(values : Array(NodeD))
-      (@nodes ||= Array(NodeD).new).concat(values)
+    def add(values : Array(NodeObj))
+      (@nodes ||= Array(NodeObj).new).concat(values)
     end
 
     def add(value : MatchedToken)
@@ -107,7 +107,7 @@ module Magiika::Lang
 
     def add(
         key : Symbol,
-        value : NodeD | Array(NodeD) | MatchedToken | Array(MatchedToken))
+        value : NodeObj | Array(NodeObj) | MatchedToken | Array(MatchedToken))
       sub_context = Context.new(key)
       sub_context.add(value)
       add(key, sub_context)
@@ -130,19 +130,19 @@ module Magiika::Lang
       self.[]?(key) || raise Error::Internal.new("Expected subcontext :#{key} for :#{@name} not found. #{self.pretty_inspect}.")
     end
 
-    def node?(index : Int32 = 0) : NodeD?
+    def node?(index : Int32 = 0) : NodeObj?
       @nodes.try(&.[index]?)
     end
 
-    def node(index : Int32 = 0) : NodeD
-      node?(index) || raise Error::Internal.new("Expected NodeD for :#{@name} not found. #{self.pretty_inspect}.")
+    def node(index : Int32 = 0) : NodeObj
+      node?(index) || raise Error::Internal.new("Expected NodeObj for :#{@name} not found. #{self.pretty_inspect}.")
     end
 
-    def nodes? : Array(NodeD)?
+    def nodes? : Array(NodeObj)?
       @nodes.try(&.dup)
     end
 
-    def nodes : Array(NodeD)
+    def nodes : Array(NodeObj)
       nodes? || raise Error::Internal.new("Expected nodes for :#{@name} not found. #{self.pretty_inspect}.")
     end
 
@@ -163,7 +163,7 @@ module Magiika::Lang
     end
 
     # Root result
-    def result : NodeD
+    def result : NodeObj
       _tokens = @tokens
       _nodes = @nodes
       _sub_contexts = @sub_contexts

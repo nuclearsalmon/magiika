@@ -3,12 +3,12 @@ module Magiika
     def initialize(
         position : Lang::Position,
         @oper : String,
-        @obj : NodeD,
+        @obj : NodeObj,
         @r_side : ::Bool)
       super(position)
     end
 
-    def eval(scope : Scope) : NodeD
+    def eval(scope : Scope) : NodeObj
       obj = @obj.eval(scope)
       node = obj[@oper]?
 

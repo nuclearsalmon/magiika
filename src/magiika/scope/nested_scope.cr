@@ -16,7 +16,7 @@ module Magiika
       @parent.get?(ident).as(Node::Meta?)
     end
 
-    private def prepare_value(value : Node) : Node::Meta
+    private def prepare_value(value : NodeObj) : Node::Meta
       if value.is_a?(Node::Meta)
         if value.is_const?
           raise Error::Internal.new("Cannot modify a constant value.")
@@ -28,7 +28,7 @@ module Magiika
       end
     end
 
-    def set(ident : String, value : Node) : Nil
+    def set(ident : String, value : NodeObj) : Nil
       if exist_here?(ident)
         # check if the existing variable is a constant
         existing_value = @variables[ident]?

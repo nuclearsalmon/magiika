@@ -2,13 +2,13 @@ module Magiika
   class Node::BinaryExpr < NodeClassBase
     def initialize(
         position : Lang::Position,
-        @left : NodeD,
+        @left : NodeObj,
         @oper : String,
-        @right : NodeD)
+        @right : NodeObj)
       super(position)
     end
 
-    def eval(scope : Scope) : NodeD
+    def eval(scope : Scope) : NodeObj
       left = @left.eval(scope)
       right = @right.eval(scope)
       node = left[@oper]?

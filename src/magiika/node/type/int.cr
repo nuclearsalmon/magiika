@@ -19,7 +19,7 @@ module Magiika
           node = meta.data
 
           if node.is_a?(Node::Int) || node.is_a?(Node::Flt)
-            Node::Int.new(@value + node.value.to_i).as(Node)
+            Node::Int.new(@value + node.value.to_i).as(NodeObj)
           else
             raise Error::Internal.new("wrong type: #{node.class} in #{self}.");
           end
@@ -27,7 +27,7 @@ module Magiika
       )
     end
 
-    def []?(ident) : Node?
+    def []?(ident) : NodeObj?
       return @members[ident]?
     end
 

@@ -30,7 +30,7 @@ module Magiika
         ident : String,
         args : FnArgs,
         deep_analysis : Bool = false) \
-          : {MatchResult, {Function, Hash(String, Node)}?}?
+          : {MatchResult, {Function, Hash(String, NodeObj)}?}?
       variable = get?(ident)
       return nil unless variable.is_a?(Node::Function)
 
@@ -44,7 +44,7 @@ module Magiika
         ident : Lang::MatchedToken,
         args : FnArgs,
         deep_analysis : Bool = false) \
-          : {MatchResult, {Function, Hash(String, Node)}?}?
+          : {MatchResult, {Function, Hash(String, NodeObj)}?}?
       get_fn?(ident.value, args, deep_analysis)
     end
 
@@ -52,7 +52,7 @@ module Magiika
         ident : String,
         args : FnArgs,
         deep_analysis : Bool = false) \
-          : {MatchResult, {Function, Hash(String, Node)}?}
+          : {MatchResult, {Function, Hash(String, NodeObj)}?}
       function = get_fn?(ident, args, deep_analysis)
       return function if function
       raise Error::UndefinedVariable.new(ident, self, Position.default)
@@ -62,14 +62,14 @@ module Magiika
         ident : Lang::MatchedToken,
         args : FnArgs,
         deep_analysis : Bool = false) \
-          : {MatchResult, {Function, Hash(String, Node)}?}
+          : {MatchResult, {Function, Hash(String, NodeObj)}?}
       function = get_fn?(ident, args, deep_analysis)
       return function if function
       raise Error::UndefinedVariable.new(ident.value, self, ident.position)
     end
 
-    abstract def set(ident : String, value : Node) : Nil
-    def set(ident : Lang::MatchedToken, value : Node) : Nil
+    abstract def set(ident : String, value : NodeObj) : Nil
+    def set(ident : Lang::MatchedToken, value : NodeObj) : Nil
       set(ident.value, value)
     end
 

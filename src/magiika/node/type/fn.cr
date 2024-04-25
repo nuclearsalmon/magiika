@@ -4,12 +4,12 @@ module Magiika
   class Node::FnParam < NodeClassBase
     getter name : String
     getter constraints : Set(Node::Constraint)?
-    getter value : Node?
+    getter value : NodeObj?
 
     def initialize(
         @name : String,
         @constraints : Set(Node::Constraint)? = nil,
-        @value : Node? = nil)
+        @value : NodeObj? = nil)
 
       super(nil)
     end
@@ -18,7 +18,7 @@ module Magiika
         position : Lang::Position,
         @name : String,
         @constraints : Set(Node::Constraint)? = nil,
-        @value : Node? = nil)
+        @value : NodeObj? = nil)
 
       super(position)
     end
@@ -26,7 +26,7 @@ module Magiika
     def initialize(
         @name : String,
         constraint : Node::Constraint,
-        @value : Node? = nil)
+        @value : NodeObj? = nil)
 
       constraints = Set(Node::Constraint).new
       constraints << constraint
@@ -38,7 +38,7 @@ module Magiika
         position : Lang::Position,
         @name : String,
         constraint : Node::Constraint,
-        @value : Node? = nil)
+        @value : NodeObj? = nil)
 
       constraints = Set(Node::Constraint).new
       constraints << constraint
@@ -46,7 +46,7 @@ module Magiika
       super(position)
     end
 
-    def validate(node : NodeType) : MatchResult
+    def validate(node : NodeObj) : MatchResult
       constraints = @constraints
       unless constraints.nil?
         constraints.each { |constraint|
@@ -62,7 +62,7 @@ module Magiika
 
   record FnArg,
     name : String?,
-    value : NodeD
+    value : NodeObj
 
   alias FnArgs = Array(FnArg)
 
@@ -86,17 +86,17 @@ module Magiika
       super(position)
     end
 
-    def eval(scope : Scope) : NodeD
+    def eval(scope : Scope) : NodeObj
       self
     end
 
     def match_args(args : FnArgs, deep_analysis : ::Bool = false) \
-        : {MatchResult, Hash(String, Node)?}
+        : {MatchResult, Hash(String, NodeObj)?}
       regular_args = args.dup
-      var_args = [] of Node
-      keyword_args = {} of String => Node
+      var_args = [] of NodeObj
+      keyword_args = {} of String => NodeObj
       match_result = MatchResult.new(true)
-      arg_to_param_mapping = {} of String => Node
+      arg_to_param_mapping = {} of String => NodeObj
 
       @params.each do |param|
         if param.name.starts_with?("*")
@@ -150,12 +150,12 @@ module Magiika
       end
     end
 
-    abstract def call(args : Hash(String, Node), scope : Scope) : Node
+    abstract def call(args : Hash(String, NodeObj), scope : Scope) : NodeObj
 
     def call_safe(
         args : FnArgs,
         scope : Scope,
-        deep_analysis : ::Bool = false) : MatchResult | Node
+        deep_analysis : ::Bool = false) : MatchResult | NodeObj
       match_result, args_hash = match_args(args, deep_analysis)
       return match_result unless match_result.matched?
 
@@ -167,11 +167,11 @@ module Magiika
     def call_safe_raise(
         args : FnArgs,
         scope : Scope,
-        deep_analysis : ::Bool = false) : Node
+        deep_analysis : ::Bool = false) : NodeObj
       result = call_safe(args, scope, deep_analysis)
 
       result.as(MatchResult).raise if result.is_a?(MatchResult)
-      return result.as(Node)
+      return result.as(NodeObj)
     end
 
     def pretty_sig
@@ -205,14 +205,14 @@ module Magiika
       super(position, name, params, returns)
     end
 
-    def call(args : Hash(String, Node), scope : Scope) : Node
+    def call(args : Hash(String, NodeObj), scope : Scope) : NodeObj
       raise Error::Internal.new("Abst fn is not callable.")
     end
 
     def call_safe(
         args : FnArgs,
         scope : Scope,
-        deep_analysis : ::Bool = false) : MatchResult | Node
+        deep_analysis : ::Bool = false) : MatchResult | NodeObj
       raise Error::Internal.new("Abst fn is not callable.")
     end
 
@@ -226,11 +226,11 @@ module Magiika
         name : String,
         params : FnParams,
         returns : Array(Constraint),
-        @proc : Proc(Scope, Node))
+        @proc : Proc(Scope, NodeObj))
       super(name, params, returns)
     end
 
-    def call(args : Hash(String, Node), scope : Scope) : Node
+    def call(args : Hash(String, NodeObj), scope : Scope) : NodeObj
       # Inject args into scope
       method_scope = Scope::MethodScope.new(@name, position, scope)
       args.each do |name, value|
@@ -260,11 +260,11 @@ module Magiika
         name : String,
         params : FnParams,
         returns : Constraint,
-        @statements : Array(Node))
+        @statements : Array(NodeObj))
       super(position, name, params, returns)
     end
 
-    def call(args : Hash(String, Node), scope : Scope) : Node
+    def call(args : Hash(String, NodeObj), scope : Scope) : NodeObj
       # TODO inject args into scope
 
       result = @statements.each { |stmt|

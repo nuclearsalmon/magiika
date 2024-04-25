@@ -6,11 +6,11 @@ module Magiika
       super
     end
 
-    def eval(scope : Scope) : NodeD
+    def eval(scope : Scope) : NodeObj
       self
     end
 
-    def validate(node : Node) : ::Bool
+    def validate(node : NodeObj) : ::Bool
       return true if node.is_a?(Node::Union)
       return @types.includes?(node.class)
     end

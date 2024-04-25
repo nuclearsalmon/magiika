@@ -1,9 +1,12 @@
 require "./desc/typing/type_registry.cr"
 
 module Magiika
+  # Node as a type representation
   alias NodeType = NodeClassBase.class | NodeStructBase.class # | Node::Class
-  alias NodeD = NodeClassBase | NodeStructBase
-  alias NodeAny = Node | NodeType
+  # Node as an instance
+  alias NodeObj = NodeClassBase | NodeStructBase
+  # Node as either a type representation or an instance
+  alias NodeAny = NodeObj | NodeType
 
   module Node
     # ✨ Macros
@@ -21,7 +24,7 @@ module Magiika
 
     # ✨ Base functionality
 
-    def eval(scope : Scope) : NodeD
+    def eval(scope : Scope) : NodeObj
       self
     end
 
@@ -30,7 +33,7 @@ module Magiika
     end
 
     # get a member node, a function, variable, etc
-    def []?(sig : String) : Node?
+    def []?(sig : String) : NodeObj?
       nil
     end
 

@@ -154,14 +154,14 @@ module Magiika::Lang
     # ------------------------------------------------------
 
     def parse(parsing_tokens : Array(MatchedToken)) \
-        : Tuple(Array(MatchedToken), Array(NodeD))?
+        : Tuple(Array(MatchedToken), Array(NodeObj))?
       @parser.parse(parsing_tokens)
     end
 
     def execute(
         instructions : String,
         scope : Scope,
-        filename : String) : NodeD?
+        filename : String) : NodeObj?
       tokens = @parser.tokenize(instructions, filename)
       inform(tokens) if @display_tokenization
 
@@ -176,7 +176,7 @@ module Magiika::Lang
       eval_result
     end
 
-    def execute(instructions : String) : NodeD?
+    def execute(instructions : String) : NodeObj?
       filename = "interpreted"
       pos = Lang::Position.new(filename, 1, 1)
       scope = Scope::Global.new("global", pos)

@@ -6,7 +6,7 @@ module Magiika
       super(position)
     end
 
-    def eval(scope : Scope) : NodeD
+    def eval(scope : Scope) : NodeObj
       scope.get(@ident).eval(scope)
     end
 
@@ -18,12 +18,12 @@ module Magiika
   class Node::RetrieveMember < NodeClassBase
     def initialize(
         position : Lang::Position?,
-        @source : Node,
-        @action : Node)
+        @source : NodeObj,
+        @action : NodeObj)
       super(position)
     end
 
-    def eval(scope : Scope) : NodeD
+    def eval(scope : Scope) : NodeObj
       return @source.eval(scope)
     end
 

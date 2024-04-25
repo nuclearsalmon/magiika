@@ -13,7 +13,7 @@ module Magiika::Lang::Syntax
           name.pos,
           name.value,
           Node::Constraint.new(Node::RetrieveVar.new(_type.pos, _type)),
-          value.as(Node))
+          value.as(NodeObj))
       end
 
       rule(:NAME, :DEFINE, :NAME) do |context|
