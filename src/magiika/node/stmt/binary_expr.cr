@@ -18,8 +18,8 @@ module Magiika
       else
         node = node.eval(scope)
 
-        if node.node_is_a_inh?(Function)
-          return node.as(Function).call_safe_raise(
+        if node.type?(Node::Function)
+          return node.as(Node::Function).call_safe_raise(
             [FnArg.new(nil, right)], scope)
         else
           return node

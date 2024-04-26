@@ -2,14 +2,8 @@ require "../type/fn.cr"
 
 module Magiika
   # Descriptor
-  module Desc
-    abstract def []?(ident : String) : NodeObj?
-    abstract def has_properties? : ::Bool
-    abstract def validate : ::MatchResult
-  end
-
-  abstract class Node::NativeDesc < NodeClassBase
-    include Descriptor
+  abstract class Node::Desc < NodeClassBase
+    include Desc
 
     @properties : Hash(String, NodeObj)?
 
@@ -31,7 +25,7 @@ module Magiika
     abstract def validate : ::MatchResult
   end
 
-  class Node::FnDesc < NativeDesc
+  class Node::FnDesc < Node::Desc
     @properties : Hash(String, NodeObj)?
     @constraint : Node::Function?
 

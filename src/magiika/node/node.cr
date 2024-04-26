@@ -66,12 +66,20 @@ module Magiika
 
     abstract def type_name : String
 
+    def self.exact_type?(_type : NodeType) : ::Bool
+      Typing.exact_type?(self, _type)
+    end
+
     def exact_type?(_type : NodeType) : ::Bool
       Typing.exact_type?(self, _type)
     end
 
+    def self.type?(_type : NodeType) : ::Bool
+      Typing.type?(self, _type)
+    end
+
     def type?(_type : NodeType) : ::Bool
-      Typing.exact_type?(self, _type)
+      Typing.type?(self, _type)
     end
   end
 
@@ -79,6 +87,10 @@ module Magiika
   abstract class NodeClassBase
     include Node
     Node.base_define
+
+    def self.inherits_type?(_type : NodeType) : ::Bool
+      Typing.inherits_type?(self, _type)
+    end
 
     def inherits_type?(_type : NodeType) : ::Bool
       Typing.inherits_type?(self, _type)
@@ -107,19 +119,11 @@ module Magiika
       def self.superclass
         {{ @type.superclass }}
       end
-    end
 
-    private macro delayed_def
-      def node_is_a_inh?(_type : Node.class) : ::Bool
-        klass = self.class
-        while klass
-          return true if klass.type_id == _type.type_id
-          klass = klass.superclass
-        end
-        false
+      def superclass
+        self.class.superclass
       end
     end
-    delayed_def
   end
 
   abstract struct NodeStructBase
@@ -146,8 +150,6 @@ module Magiika
       def type_name : String
         self.class.type_name
       end
-
-      pp to_s
     end
   end
 end

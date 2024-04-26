@@ -1,0 +1,3 @@
+module Magiika
+
+end

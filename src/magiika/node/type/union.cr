@@ -1,8 +1,8 @@
 module Magiika
   class Node::Union < NodeClassBase
-    property types : Array(Node.class)
+    property types : Array(NodeType)
 
-    def initialize(@types : Array(Node.class))
+    def initialize(@types : Array(NodeType))
       super
     end
 

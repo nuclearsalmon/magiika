@@ -66,24 +66,25 @@ module Magiika
 
     def type?(target : NodeAny, _type : NodeType) : ::Bool
       return true if exact_type?(target, _type)
-      inherits_type?(target, _type)
+      inherits_type?(target, _type, false)
     end
 
-    def inherits_type?(target : NodeAny, _type : NodeType) : ::Bool
+    def inherits_type?(target : NodeAny, _type : NodeType, error : ::Bool = true) : ::Bool
       if !target.is_a?(NodeClassBase)
         raise Error::Internal.new("Target must be a #{NodeClassBase.class}.")
       end
 
-      klass = target.superclass
+      klass = target
       it_count = 0
       while klass.is_a?(NodeClassBase)
+        klass = klass.superclass
+
+        return true if exact_type?(klass, _type)
+
+        it_count += 1
         if it_count > Magiika::INHERITANCE_LIMIT
           raise Error::Internal.new("Exceeded inheritance limit when looking up #{target}.")
         end
-        it_count += 1
-
-        klass = target.superclass
-        return true if exact_type?(_type)
       end
       false
     end

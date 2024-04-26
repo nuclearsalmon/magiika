@@ -91,7 +91,7 @@ module Magiika
 
   class Node::ConstConstraint < Node::Constraint
     def initialize()
-      super(Node.class)  # All types of nodes can be const
+      super(NodeType)  # All types of nodes can be const
     end
 
     def validate(node : NodeObj) : MatchResult
