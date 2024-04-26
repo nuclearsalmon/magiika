@@ -5,7 +5,7 @@ module Magiika
         @errors : Array(String)? = nil)
     end
 
-    private def errors
+    def errors
       errors = @errors
       if errors.nil?
         errors = Array(String).new
@@ -30,15 +30,21 @@ module Magiika
       @errors
     end
 
-    def has_errors? : ::Boool
-      errors = @errors
-      !errors.nil? || errors.empty?
+    def has_errors? : ::Bool
+      _errors = @errors
+      if _errors.nil?
+        false
+      elsif _errors.empty?
+        false
+      else
+        true
+      end
     end
 
     def defer_raise : Error::InternalMatchFail?
       return if matched?
       errors << "Failed to match" if !has_errors?
-      return Error::InternalMatchFail.new(@errors)
+      return Error::InternalMatchFail.new(errors)
     end
 
     def raise : Nil

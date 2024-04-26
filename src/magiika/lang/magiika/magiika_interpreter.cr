@@ -7,6 +7,7 @@ require "../parser/misc/token.cr"
 require "./syntax_macros.cr"
 require "./syntax/*"
 
+require "../../util/visibility.cr"
 require "../../node/node.cr"
 require "../../node/constraint.cr"
 require "../../node/meta.cr"

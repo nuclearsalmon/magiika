@@ -2,12 +2,6 @@ require "./nested_scope.cr"
 
 
 module Magiika
-  enum Visibility
-    Public
-    Protected
-    Private
-  end
-
   class Scope::ClassScope < Scope::NestedScope
     def set(
         ident : String,
