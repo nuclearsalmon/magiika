@@ -27,6 +27,20 @@ module Magiika::Lang::Syntax
     end
 
     group(:literal) do
+      rule(:FLT) do |context|
+        token = context.token
+
+        context.clear
+        context.add(Node::Flt.new(token.value.to_f32, token.pos))
+      end
+
+      rule(:INT) do |context|
+        token = context.token
+
+        context.clear
+        context.add(Node::Int.new(token.value.to_i32, token.pos))
+      end
+
       rule(:BOOL) do |context|
         token = context.token
 
@@ -43,20 +57,6 @@ module Magiika::Lang::Syntax
         end
 
         context.add(Node::Bool.new(bool_value, token.pos))
-      end
-
-      rule(:INT) do |context|
-        token = context.token
-
-        context.clear
-        context.add(Node::Int.new(token.value.to_i32, token.pos))
-      end
-
-      rule(:FLT) do |context|
-        token = context.token
-
-        context.clear
-        context.add(Node::Flt.new(token.value.to_f32, token.pos))
       end
     end
 

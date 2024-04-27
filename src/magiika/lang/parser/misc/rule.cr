@@ -43,7 +43,7 @@ module Magiika::Lang
         else
           Log.debug { "  - symbol: #{sym}@#{@pattern}" }
           Log.debug { "  - parsing_pos: #{parser.parsing_pos}" }
-          Log.debug { "  - cache:\n" + parser.cache.pretty_inspect }
+          #Log.debug { "  - cache:\n" + parser.cache.pretty_inspect }
 
           # attempt cache-match before group-match
           cache_data = parser.cache[parser.parsing_pos]?.try(&.[sym]?)
@@ -54,7 +54,7 @@ module Magiika::Lang
 
             # update context
             if @pattern.size > 1
-              context.add(sym, cached_context.clone)
+              context.add!(sym, cached_context.clone)
             else
               context.merge(cached_context)
             end
@@ -84,7 +84,7 @@ module Magiika::Lang
 
               # update context
               if @pattern.size > 1
-                context.add(sym, new_context)
+                context.add!(sym, new_context)
               else
                 context.merge(new_context)
               end

@@ -38,8 +38,28 @@ module Magiika::Lang
           unless block.nil?
             Log.debug { "Executing block for rule #{rule.pattern}@#{@name} ..." }
 
-            context.merge(context_for_lr) unless context_for_lr.nil?
+            #p "context:"
+            #pp context
+            #p "---"
+
+            unless context_for_lr.nil?
+              #p "merging contexts"
+              #p "context_for_lr:"
+              #pp context_for_lr
+              #p "---"
+
+              context.merge(context_for_lr)# unless context_for_lr.nil?
+
+              #p "context after merge"
+              #pp context
+              #p "---"
+            end
+
             block.call(context)
+
+            #p "context after call:"
+            #pp context
+            #p "---"
           end
 
           return context
@@ -57,18 +77,15 @@ module Magiika::Lang
         return nil
       end
 
-      # try lr until fail.
-      # this will replace a successful rl with the last successful lr,
-      # otherwise go with regular if there were no successful lr.
-      lr_context : Context? = nil
+      # try lr until fail
       loop do
-        new_lr_context = try_rules(parser, context_for_lr=context)
-        break if new_lr_context.nil?
-        lr_context = new_lr_context
+        new_context = try_rules(parser, context_for_lr=context)
+        break if new_context.nil?
+        context = new_context
       end
 
       Log.debug { "... :#{name} succeeded" }
-      return lr_context.nil? ? context : lr_context
+      return context
     end
   end
 end

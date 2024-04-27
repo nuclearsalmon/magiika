@@ -18,7 +18,8 @@ module Magiika::Lang
         @sub_contexts : Hash(Symbol, Context)?)
     end
 
-    def copy_with(name : Symbol = @name,
+    def copy_with(
+        name : Symbol = @name,
         nodes = @nodes,
         tokens = @tokens,
         sub_contexts = @sub_contexts)
@@ -59,6 +60,7 @@ module Magiika::Lang
       @name = name
     end
 
+    # safe merge, will clone and duplicate
     def merge(from : Context)
       unless (_from_sub_contexts = from.@sub_contexts).nil? || _from_sub_contexts.empty?
         if (_sub_contexts = @sub_contexts).nil?
@@ -85,7 +87,8 @@ module Magiika::Lang
       end
     end
 
-    def add(key : Symbol, value : Context)
+    # unsafe add, will NOT clone and duplicate
+    def add!(key : Symbol, value : Context)
       (@sub_contexts ||= Hash(Symbol, Context).new)[key] = value
     end
 
@@ -110,7 +113,7 @@ module Magiika::Lang
         value : NodeObj | Array(NodeObj) | MatchedToken | Array(MatchedToken))
       sub_context = Context.new(key)
       sub_context.add(value)
-      add(key, sub_context)
+      add!(key, sub_context)
     end
 
 
