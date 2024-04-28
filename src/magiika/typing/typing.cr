@@ -65,8 +65,19 @@ module Magiika
     end
 
     def type?(target : NodeAny, _type : NodeType) : ::Bool
-      return true if exact_type?(target, _type)
-      inherits_type?(target, _type, false)
+      if _type.is_a?(Node::Union)
+        union_type?(target, _type)
+      else
+        return true if exact_type?(target, _type)
+        inherits_type?(target, _type, false)
+      end
+    end
+
+    def union_type?(target : NodeAny, _union : Node::Union) : ::Bool
+      _union.types.each { |_type|
+        return true if type?(target, _type)
+      }
+      false
     end
 
     def inherits_type?(target : NodeAny, _type : NodeType, error : ::Bool = true) : ::Bool

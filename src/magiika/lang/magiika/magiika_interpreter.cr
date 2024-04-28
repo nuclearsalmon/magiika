@@ -1,3 +1,5 @@
+require "../../util/error.cr"
+
 require "../parser/parser.cr"
 require "../parser/builder.cr"
 

@@ -47,7 +47,7 @@ module Magiika
 
       # Check visibility and static status
       return nil unless visibility_permitted?(meta.visibility, request_visibility)
-      return nil if meta.is_static? != request_static
+      return nil if meta.static? != request_static
 
       meta
     end

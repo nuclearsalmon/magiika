@@ -1,7 +1,6 @@
 #!/usr/bin/env -S crystal run
 require "log"
 require "dotenv"
-require "./magiika/error.cr"
 require "./magiika/lang/MODULE.cr"
 
 

@@ -17,7 +17,7 @@ module Magiika
 
     private def prepare_value(value : NodeObj) : Node::Meta
       if value.is_a?(Node::Meta)
-        if value.is_const?
+        if value.const?
           raise Error::Internal.new("Cannot modify a constant value.")
         end
 
@@ -31,7 +31,7 @@ module Magiika
       if exist_here?(ident)
         # check if the existing variable is a constant
         existing_value = @variables[ident]?
-        raise "Cannot modify a constant value." if existing_value && existing_value.is_const?
+        raise "Cannot modify a constant value." if existing_value && existing_value.const?
 
         # update variable in the current scope
         @variables[ident] = prepare_value(value)

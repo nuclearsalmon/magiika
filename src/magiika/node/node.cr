@@ -66,6 +66,10 @@ module Magiika
 
     abstract def type_name : String
 
+    def type? : NodeType?
+      self.class
+    end
+
     def self.exact_type?(_type : NodeType) : ::Bool
       Typing.exact_type?(self, _type)
     end
@@ -130,6 +134,14 @@ module Magiika
     include Node
     Node.base_define
     Util.def_clone_methods
+
+    def self.type_id : Int32
+      raise Error::Internal.new("Undefined")
+    end
+
+    def self.type_name : String
+      raise Error::Internal.new("Undefined")
+    end
 
     macro inherited
       @@type_id = Magiika::Typing.register_type(self)

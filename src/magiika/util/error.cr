@@ -1,4 +1,4 @@
-require "./util/algo.cr"
+require "./algo.cr"
 
 
 module Magiika::Error
@@ -27,7 +27,7 @@ module Magiika::Error
 
   class SevereParserError < Exception
     def initialize(parser : Lang::Parser, cause : Exception, message : String? = nil)
-      new_message = "An error occured during parsing." + 
+      new_message = "An error occured during parsing." +
         ((message.nil?) ? "" : " #{message}") + \
         "\n---\nParser cache: \n#{parser.cache.pretty_inspect}\n---\n"
       super(new_message, cause)
