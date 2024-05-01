@@ -1,10 +1,6 @@
-require "../type/fn.cr"
-
 module Magiika
   # Descriptor
   abstract class Node::Desc < NodeClassBase
-    include Desc
-
     @properties : Hash(String, NodeObj)?
 
     getter name
@@ -15,45 +11,47 @@ module Magiika
     end
 
     def []?(ident : String) : NodeObj?
-      @properties[ident]?
+      properties = @properties
+      properties[ident]? unless properties.nil?
     end
 
     def has_properties? : ::Bool
       !@properties.nil?
     end
 
-    abstract def validate : ::MatchResult
+    abstract def validate(node : NodeObj) : MatchResult
+    abstract def validate!(node : NodeObj) : MatchResult
   end
 
-  class Node::FnDesc < Node::Desc
-    @properties : Hash(String, NodeObj)?
-    @constraint : Node::Function?
-
-    getter name
-
-    forward_missing_to @constraint
-
-    def initialize(
-        name : String,
-        properties : Hash(String, NodeObj)? = nil,
-        @constraint : Node::Function? = nil)
-      super(name, properties)
-    end
-
-    def can_be_validated? : ::Bool
-      !@constraint.nil?
-    end
-
-    def validate : ::MatchResult
-      constraint = @constraint
-      return MatchResult.new(true) if constraint.nil?
-      constraint.validate
-    end
-
-    def validate! : ::MatchResult
-      constraint = @constraint
-      raise Error::Internal.new("no constraint") if constraint.nil?
-      constraint.validate
-    end
-  end
+  #class Node::FnDesc < Node::Desc
+  #  @properties : Hash(String, NodeObj)?
+  #  @fn : Node::Function?
+  #
+  #  getter name
+  #
+  #  forward_missing_to @fn
+  #
+  #  def initialize(
+  #      name : String,
+  #      properties : Hash(String, NodeObj)? = nil,
+  #      @fn : Node::Function? = nil)
+  #    super(name, properties)
+  #  end
+  #
+  #  def can_be_validated? : ::Bool
+  #    !@fn.nil?
+  #  end
+  #
+  #  def validate(node : NodeObj) : MatchResult
+  #    fn = @fn
+  #    return MatchResult.new(true) if fn.nil?
+  #    fn.validate
+  #  end
+  #
+  #  def validate!(node : NodeObj) : MatchResult
+  #    fn = @fn
+  #    raise Error::Internal.new("no fn") if fn.nil?
+  #    fn.validate
+  #  end
+  #end
 end

@@ -8,7 +8,7 @@ module Magiika
         node : NodeObj,
         visibility : Visibility = Visibility::Private,
         is_static : Bool = false) : Nil
-      meta = Node::Meta.new(node, nil, visibility, is_static)
+      meta = Node::Meta.new(node, nil, nil, visibility, is_static)
       super(ident, meta)
     end
 

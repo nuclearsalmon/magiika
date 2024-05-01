@@ -11,11 +11,12 @@ require "./syntax/*"
 
 require "../../util/visibility.cr"
 require "../../node/node.cr"
-require "../../node/constraint.cr"
-require "../../node/meta.cr"
-require "../../node/type/list.cr"
 require "../../node/type/**"
+require "../../typing/typing.cr"
+require "../../node/desc/desc.cr"
+require "../../node/meta.cr"
 require "../../node/stmt/**"
+
 require "../../scope/scope.cr"
 require "../../scope/**"
 

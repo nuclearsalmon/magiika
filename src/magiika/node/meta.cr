@@ -2,13 +2,13 @@ module Magiika
   # Metadata for a stored Node
   class Node::Meta < NodeClassBase
     property data : NodeObj
-    property constraints : Set(Constraint)?
+    property descriptors : Set(Node::Desc)?
     property visibility : Visibility
 
     def initialize(
         @data : NodeObj,
         @_type : NodeType? = nil,
-        #@constraints : Set(Constraint)? = nil,
+        @descriptors : Set(Node::Desc)? = nil,
         @visibility : Visibility = Visibility::Public,
         @static : ::Bool = false)
       verify_type!
@@ -41,11 +41,15 @@ module Magiika
       @_type.nil?
     end
 
+    def nilable? : ::Bool
+      true
+    end
+
     def const? : ::Bool
       false
-      #constraints = @constraints
-      #return false if constraints.nil?
-      #constraints.any? { |constraint| constraint.is_a?(ConstConstraint) }
+      #descriptors = @descriptors
+      #return false if descriptors.nil?
+      #descriptors.any? { |descriptor| descriptor.is_a?(ConstConstraint) }
     end
 
     def static? : ::Bool

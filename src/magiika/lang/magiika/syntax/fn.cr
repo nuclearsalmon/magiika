@@ -10,10 +10,11 @@ module Magiika::Lang::Syntax
         value = context[:value].node
 
         Node::FnParam.new(
-          name.pos,
           name.value,
-          Node::Constraint.new(Node::RetrieveVar.new(_type.pos, _type)),
-          value.as(NodeObj))
+          Node::RetrieveVar.new(_type.pos, _type),
+          nil,
+          value,
+          name.pos)
       end
 
       rule(:NAME, :DEFINE, :NAME) do |context|
@@ -21,9 +22,11 @@ module Magiika::Lang::Syntax
         name = context[:NAME].token(0)
 
         Node::FnParam.new(
-          name.pos,
           name.value,
-          Node::Constraint.new(Node::RetrieveVar.new(_type.pos, _type)))
+          Node::RetrieveVar.new(_type.pos, _type),
+          nil,
+          nil,
+          name.pos)
       end
 
       rule(:NAME, :ASSIGN, :value) do |context|
@@ -31,19 +34,22 @@ module Magiika::Lang::Syntax
         value = context[:value].node
 
         Node::FnParam.new(
-          name.pos,
           name.value,
-          Node::Constraint.new,
-          value)
+          value.class,
+          nil,
+          value,
+          name.pos)
       end
 
       rule(:NAME) do |context|
         name = context[:NAME].token
 
         Node::FnParam.new(
-          name.pos,
           name.value,
-          Node::Constraint.new)
+          nil,
+          nil,
+          nil,
+          name.pos)
       end
     end
 

@@ -3,54 +3,38 @@ require "../../util/match_result.cr"
 module Magiika
   class Node::FnParam < NodeClassBase
     getter name : String
-    getter constraints : Set(Node::Constraint)?
+    getter _type : NodeAny?
+    getter descriptors : Set(Node::Desc)?
     getter value : NodeObj?
 
     def initialize(
         @name : String,
-        @constraints : Set(Node::Constraint)? = nil,
-        @value : NodeObj? = nil)
-
-      super(nil)
-    end
-
-    def initialize(
-        position : Lang::Position,
-        @name : String,
-        @constraints : Set(Node::Constraint)? = nil,
-        @value : NodeObj? = nil)
-
+        @_type : NodeAny? = nil,
+        @descriptors : Set(Node::Desc)? = nil,
+        @value : NodeObj? = nil,
+        position : Lang::Position? = nil)
       super(position)
     end
 
     def initialize(
         @name : String,
-        constraint : Node::Constraint,
-        @value : NodeObj? = nil)
-
-      constraints = Set(Node::Constraint).new
-      constraints << constraint
-      @constraints = constraints
-      super()
-    end
-
-    def initialize(
-        position : Lang::Position,
-        @name : String,
-        constraint : Node::Constraint,
-        @value : NodeObj? = nil)
-
-      constraints = Set(Node::Constraint).new
-      constraints << constraint
-      @constraints = constraints
+        @_type : NodeAny? = nil,
+        descriptor : Node::Desc? = nil,
+        @value : NodeObj? = nil,
+        position : Lang::Position? = nil)
+      unless descriptor.nil?
+        descriptors = Set(Node::Desc).new
+        descriptors << descriptor
+        @descriptors = descriptors
+      end
       super(position)
     end
 
     def validate(node : NodeObj) : MatchResult
-      constraints = @constraints
-      unless constraints.nil?
-        constraints.each { |constraint|
-          result = constraint.validate(node)
+      descriptors = @descriptors
+      unless descriptors.nil?
+        descriptors.each { |descriptor|
+          result = descriptor.validate(node)
           return result unless result.matched?
         }
       end
@@ -66,15 +50,19 @@ module Magiika
 
   alias FnArgs = Array(FnArg)
 
+  record FnRet,
+    _type : NodeType? = nil,
+    descs : Set(Node::Desc)? = nil
+
   abstract class Node::Function < NodeClassBase
     getter name : String
     getter params : FnParams
-    getter returns : Array(Constraint)
+    getter returns : FnRet?
 
     def initialize(
         @name : String,
         @params : FnParams,
-        @returns : Array(Constraint))
+        @returns : FnRet? = nil)
       super(nil)
     end
 
@@ -82,7 +70,7 @@ module Magiika
         position : Lang::Position,
         @name : String,
         @params : FnParams,
-        @returns : Array(Constraint))
+        @returns : FnRet? = nil)
       super(position)
     end
 
@@ -114,9 +102,9 @@ module Magiika
             next
           end
 
-          constraint_result = param.validate(arg.value)
-          unless constraint_result.matched?
-            match_result.merge!(constraint_result)
+          descriptor_result = param.validate(arg.value)
+          unless descriptor_result.matched?
+            match_result.merge!(descriptor_result)
             break unless deep_analysis
           end
           arg_to_param_mapping[param.name] = arg.value
@@ -127,13 +115,13 @@ module Magiika
       keyword_args.each do |name, arg|
         kwarg_param = @params.find { |p| p.name == name }
         if kwarg_param
-          constraint_result = kwarg_param.validate(arg)
-          unless constraint_result.matched?
-            match_result.merge!(constraint_result)
+          descriptor_result = kwarg_param.validate(arg)
+          unless descriptor_result.matched?
+            match_result.merge!(descriptor_result)
             break unless deep_analysis
           end
         else
-          match_result.add_error("No constraint found for keyword argument '#{name}'")
+          match_result.add_error("No descriptor found for keyword argument '#{name}'")
         end
         arg_to_param_mapping[name] = arg
       end
@@ -178,10 +166,10 @@ module Magiika
       "#{@name}(\n  " + \
         (@params.map { |p|
           cs_map_str = ":"
-          constraints = p.constraints
-          unless constraints.nil?
-            cs_map_str = constraints.map { |constraint|
-              "#{constraint.class.pretty_inspect}"
+          descriptors = p.descriptors
+          unless descriptors.nil?
+            cs_map_str = descriptors.map { |descriptor|
+              "#{descriptor.class.pretty_inspect}"
             }.join(separator='\n')
           end
 
@@ -201,7 +189,7 @@ module Magiika
         position : Lang::Position,
         name : String,
         params : FnParams,
-        returns : Array(Constraint))
+        returns : FnRet? = nil)
       super(position, name, params, returns)
     end
 
@@ -225,8 +213,8 @@ module Magiika
     def initialize(
         name : String,
         params : FnParams,
-        returns : Array(Constraint),
-        @proc : Proc(Scope, NodeObj))
+        @proc : Proc(Scope, NodeObj),
+        returns : FnRet? = nil)
       super(name, params, returns)
     end
 
@@ -239,13 +227,27 @@ module Magiika
 
       result = @proc.call(method_scope)
 
-      # typecheck
-      @returns.each do |constraint|
-        validation_result = constraint.validate(result)
-        unless validation_result.matched?
-          validation_result.raise
+      # validat result
+      returns = @returns
+      unless returns.nil?
+        # type check
+        _type = returns._type
+        if !_type.nil? && !result.type?(_type)
+          raise Error::Internal.new("Unexpected type")
+        end
+
+        # descriptor check
+        descs = returns.descs
+        unless descs.nil?
+          descs.each do |descriptor|
+            validation_result = descriptor.validate(result)
+            unless validation_result.matched?
+              validation_result.raise
+            end
+          end
         end
       end
+
       return result
     end
 
@@ -259,7 +261,7 @@ module Magiika
         position : Lang::Position,
         name : String,
         params : FnParams,
-        returns : Constraint,
+        returns : Node::Desc,
         @statements : Array(NodeObj))
       super(position, name, params, returns)
     end

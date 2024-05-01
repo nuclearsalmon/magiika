@@ -12,8 +12,7 @@ module Magiika
       super(position)
       @members["+"] = NativeFn.new(
         "+",
-        [FnParam.new("obj", Constraint.new(Node::Int))],
-        [Constraint.new(Node::Int)],
+        [FnParam.new("obj", Node::Int)],
         ->(scope : Scope){
           meta = scope.get("obj")
           node = meta.data
@@ -23,7 +22,8 @@ module Magiika
           else
             raise Error::Internal.new("wrong type: #{node.class} in #{self}.");
           end
-        }
+        },
+        FnRet.new(Node::Int),
       )
     end
 
