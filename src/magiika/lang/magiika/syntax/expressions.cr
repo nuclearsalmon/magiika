@@ -1,18 +1,7 @@
 module Magiika::Lang::Syntax
   protected def register_expressions
     group(:expr) do
-      #bin_expr_rule(:expr, :ADD, :term)
-      rule(:expr, :ADD, :term) do |context|
-        expr = context[:expr].node
-        op = context[:ADD].token
-        term = context[:term].node
-
-        context.clear
-
-        position = expr.position
-        obj = Node::BinaryExpr.new(position, expr, op.value, term)
-        context.add(obj)
-      end
+      bin_expr_rule(:expr, :ADD, :term)
       bin_expr_rule(:expr, :SUB, :term)
 
       rule(:term)
