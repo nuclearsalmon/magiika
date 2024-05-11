@@ -5,7 +5,7 @@ module Magiika::Util
     termination : Char = '.'
     result_string = ""
     capitalize_next = true
-  
+
     string_array.each do |word|
       if capitalize_next
         result_string += word.capitalize
@@ -17,20 +17,23 @@ module Magiika::Util
       if ['.', '!', '?'].any? { |char| word.ends_with?(char) }
         capitalize_next = true
       end
-  
+
       result_string += " "
     end
-  
+
     result_string.chomp(" ") + (termination unless result_string.ends_with?(termination)).to_s
   end
 
+  # FIXME: Just use the version that comes with crystal
+  #  https://crystal-lang.org/api/1.12.1/Levenshtein.html
+  #
   # Levenshtein distance
   # src: https://en.wikipedia.org/wiki/Levenshtein_distance#Computation
   def similarity(s : String, t : String) ::Float
     m, n = s.length, t.length
     return 1 if m.zero? && n.zero?
     return 0 if m.zero? || n.zero?
-    
+
     v0 = Array(Int32).new(n + 1)
     v1 = Array(Int32).new(n + 1)
 

@@ -25,7 +25,7 @@ module Magiika::Lang
     private def try_rules(parser : Parser, context_for_lr : Context?) : Context?
       rules = (context_for_lr.nil? ? @rules : @lr_rules)
       rules.each do |rule|
-        if parser.parsing_tokens[parser.parsing_pos ..].size < rule.pattern.size
+        if parser.parsing_tokens[parser.parsing_position ..].size < rule.pattern.size
           Log.debug { "Skipping rule #{rule.pattern}, not enough tokens." }
           next
         end

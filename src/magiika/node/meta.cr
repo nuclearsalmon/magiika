@@ -15,7 +15,7 @@ module Magiika
       super(nil)
     end
 
-    def type? : NodeType?
+    def inner_type? : NodeType?
       @_type
     end
 
@@ -23,14 +23,14 @@ module Magiika
       @_type = _type
     end
 
-    def verify_type(node : NodeObj) : ::Bool
+    def verify_type?(node : NodeObj) : ::Bool
       _type = @_type
       return Typing.type?(node, _type) unless _type.nil?
       true
     end
 
     def verify_type!(node : NodeObj)
-      raise Error::InternalType.new unless verify_type(node)
+      raise Error::InternalType.new unless verify_type?(node)
     end
 
     private def verify_type!

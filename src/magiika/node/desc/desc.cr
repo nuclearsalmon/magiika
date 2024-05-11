@@ -25,7 +25,7 @@ module Magiika
 
   #class Node::FnDesc < Node::Desc
   #  @properties : Hash(String, NodeObj)?
-  #  @fn : Node::Function?
+  #  @fn : Node::Fn?
   #
   #  getter name
   #
@@ -34,7 +34,7 @@ module Magiika
   #  def initialize(
   #      name : String,
   #      properties : Hash(String, NodeObj)? = nil,
-  #      @fn : Node::Function? = nil)
+  #      @fn : Node::Fn? = nil)
   #    super(name, properties)
   #  end
   #

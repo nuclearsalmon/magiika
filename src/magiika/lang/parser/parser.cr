@@ -14,8 +14,8 @@ module Magiika::Lang
     @tokens : Hash(Symbol, Token)
     getter groups, tokens
 
-    @parsing_pos = 0
-    property parsing_pos
+    @parsing_position = 0
+    property parsing_position
 
     @parsing_tokens = Array(MatchedToken).new
     getter parsing_tokens
@@ -47,23 +47,23 @@ module Magiika::Lang
       end
 
       if result_context.nil?
-        raise Error::Internal.new(
+        raise Error::SafeParsingError.new(
           "Parsing failed to match anything.")
       end
 
       result_node : NodeObj = result_context.result
 
       # verify that every token was consumed
-      pos = @parsing_pos
-      if @parsing_tokens.size > pos+1
-        raise Error::Internal.new( \
-          "Unconsumed tokens (#{@parsing_tokens.size-pos}" \
+      position = @parsing_position
+      if @parsing_tokens.size > position+1
+        raise Error::SafeParsingError.new( \
+          "Unconsumed tokens (#{@parsing_tokens.size-position}" \
           "/#{@parsing_tokens.size}):\n" +
-          @parsing_tokens[pos..].join("\n"))
+          @parsing_tokens[position..].join("\n"))
       end
 
       # restore before return
-      @parsing_pos = 0
+      @parsing_position = 0
       @cache.clear()
 
       return result_node
@@ -100,15 +100,15 @@ module Magiika::Lang
                    noignores : Array(Symbol)? = nil) \
                    : MatchedToken?
       loop do
-        pos = @parsing_pos
-        @parsing_pos += 1
+        position = @parsing_position
+        @parsing_position += 1
 
-        #@cache.delete(pos-1)
+        #@cache.delete(position-1)
 
-        if @parsing_tokens.size <= pos
+        if @parsing_tokens.size <= position
           return nil
         else
-          tok = @parsing_tokens[pos]
+          tok = @parsing_tokens[position]
           return tok unless should_ignore?(tok._type, ignores, noignores)
         end
       end

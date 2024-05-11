@@ -9,8 +9,8 @@ module Magiika::Lang::Syntax
 
         context.clear
 
-        pos = expr.position
-        obj = Node::BinaryExpr.new(pos, expr, op.value, term)
+        position = expr.position
+        obj = Node::BinaryExpr.new(position, expr, op.value, term)
         context.add(obj)
       end
       bin_expr_rule(:expr, :SUB, :term)

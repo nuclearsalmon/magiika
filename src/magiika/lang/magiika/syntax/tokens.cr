@@ -8,16 +8,6 @@ module Magiika::Lang::Syntax
     #token(:COMMENT, /\/\*([^*]|\r?\n|(\*+([^*\/]|\r?\n)))*\*+\//)
     #token(:DOC_COMMENT, /\/\*\*(\r?\n|(\*+([^*\/]|\r?\n)))*\*\*+\//)
 
-
-    # literals
-    # ------------------------------------------------------
-    #token(:STR, /"([^"\\]*(?:\\.[^"\\]*)*)"/)
-    #token(:STR, /'([^'\\]*(?:\\.[^'\\]*)*)'/)
-    token(:BOOL, /(true|false)/)
-    token(:FLT, /-?\d+\.\d+/)
-    token(:INT, /-?\d+/)
-    
-
     # keywords and types
     # ------------------------------------------------------
     token(:BOOL_TYP, /bool/)
@@ -117,5 +107,14 @@ module Magiika::Lang::Syntax
     token(:LINE_SEGMENT, /\\[\t ]*\r?\n/)
     token(:NEWLINE, /\r?\n/)
     token(:INLINE_NEWLINE, /;/)
+
+
+    # literals
+    # ------------------------------------------------------
+    #token(:STR, /"([^"\\]*(?:\\.[^"\\]*)*)"/)
+    #token(:STR, /'([^'\\]*(?:\\.[^'\\]*)*)'/)
+    token(:BOOL, /(true|false)/)
+    token(:FLT, /-?\d+\.\d+/)
+    token(:INT, /-?\d+/)
   end
 end

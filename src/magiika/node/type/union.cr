@@ -3,7 +3,12 @@ module Magiika
     getter types : Set(NodeType)
 
     def initialize(@types : Set(NodeType))
-      super
+      super(nil)
+    end
+
+    def initialize(*types : NodeType)
+      @types = Set(NodeType).new([*types])
+      super(nil)
     end
   end
 end

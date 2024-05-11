@@ -1,34 +1,13 @@
 module Magiika
   class Node::Int < NodeClassBase
-    protected getter value
+    include Node::Psuedo::Number
 
-    @members = Hash(String, Node::Function).new
+    getter value : InternalNumberType
 
-    def add(other : Node::Int) : Node::Int
-      return Int.new(@value + other.value)
-    end
-
-    def initialize(@value : ::Int32, position : Lang::Position? = nil)
+    def initialize(
+        @value : InternalIntegerType,
+        position : Lang::Position? = nil)
       super(position)
-      @members["+"] = NativeFn.new(
-        "+",
-        [FnParam.new("obj", Node::Int)],
-        ->(scope : Scope){
-          meta = scope.get("obj")
-          node = meta.data
-
-          if node.is_a?(Node::Int) || node.is_a?(Node::Flt)
-            Node::Int.new(@value + node.value.to_i).as(NodeObj)
-          else
-            raise Error::Internal.new("wrong type: #{node.class} in #{self}.");
-          end
-        },
-        FnRet.new(Node::Int),
-      )
-    end
-
-    def []?(ident) : NodeObj?
-      return @members[ident]?
     end
 
     def to_s_internal : String
@@ -42,5 +21,44 @@ module Magiika
     def eval_bool(scope : Scope) : ::Bool
       return @value != 0
     end
+
+
+    # ⭐ Members
+    # ---
+
+    # define members code
+    Magiika.def_members_feat
+
+    private def self._add(scope : Scope::MethodScope) : NodeObj
+      Magiika.def_scoped_vars self, other
+
+      {% begin %}
+        self_value = self_node.as(Node::Int).value.to_i32
+        other_value = other_node.as(Node::Psuedo::Number).value.to_i32
+
+        return Node::Int.new(self_value + other_value).as(NodeObj)
+      {% end %}
+    end
+
+    private def self._sub(scope : Scope::MethodScope) : NodeObj
+      Magiika.def_scoped_vars self, other
+
+      {% begin %}
+        self_value = self_node.as(Node::Int).value.to_i32
+        other_value = other_node.as(Node::Psuedo::Number).value.to_i32
+
+        return Node::Int.new(self_value - other_value).as(NodeObj)
+      {% end %}
+    end
+
+    Magiika.def_fn "+",
+      [FnParam.new("other", NumberUnion)],
+      _add,
+      Node::Int
+
+    Magiika.def_fn "-",
+      [FnParam.new("other", NumberUnion)],
+      _sub,
+      Node::Int
   end
 end

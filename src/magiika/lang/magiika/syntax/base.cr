@@ -31,14 +31,14 @@ module Magiika::Lang::Syntax
         token = context.token
 
         context.clear
-        context.add(Node::Flt.new(token.value.to_f32, token.pos))
+        context.add(Node::Flt.new(token.value.to_f32, token.position))
       end
 
       rule(:INT) do |context|
         token = context.token
 
         context.clear
-        context.add(Node::Int.new(token.value.to_i32, token.pos))
+        context.add(Node::Int.new(token.value.to_i32, token.position))
       end
 
       rule(:BOOL) do |context|
@@ -56,7 +56,7 @@ module Magiika::Lang::Syntax
           raise Error::Internal.new("Invalid bool value: \"#{token.value}\".")
         end
 
-        context.add(Node::Bool.new(bool_value, token.pos))
+        context.add(Node::Bool.new(bool_value, token.position))
       end
     end
 

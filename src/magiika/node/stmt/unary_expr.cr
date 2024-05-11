@@ -15,8 +15,8 @@ module Magiika
       if node.nil?
         raise Error::Internal.new("unknown method `:#{@oper}'.")
       else
-        if node.type?(Node::Function)
-          return node.as(Node::Function).call_safe_raise(FnArgs.new, scope)
+        if node.type?(Node::Fn)
+          return node.as(Node::Fn).call_safe_raise(FnArgs.new, scope)
         else
           return node
         end

@@ -17,13 +17,13 @@ module Magiika
     def get(ident : String) : Node::Meta
       obj = get?(ident)
       return obj unless obj.nil?
-      raise Error::UndefinedVariable.new(ident, self, Lang::Position.default)
+      raise Error::UndefinedVariable.new(ident, self)
     end
 
     def get(ident : Lang::MatchedToken) : Node::Meta
       obj = get?(ident.value)
       return obj unless obj.nil?
-      raise Error::UndefinedVariable.new(ident.value, self, ident.pos)
+      raise Error::UndefinedVariable.new(ident.value, self, ident.position)
     end
 
     def get_fn?(
@@ -32,7 +32,7 @@ module Magiika
         deep_analysis : Bool = false) \
           : {MatchResult, {Function, Hash(String, NodeObj)}?}?
       variable = get?(ident)
-      return nil unless variable.is_a?(Node::Function)
+      return nil unless variable.is_a?(Node::Fn)
 
       match_result, param_hash \
         = variable.match_args(args, deep_analysis);
@@ -55,7 +55,7 @@ module Magiika
           : {MatchResult, {Function, Hash(String, NodeObj)}?}
       function = get_fn?(ident, args, deep_analysis)
       return function if function
-      raise Error::UndefinedVariable.new(ident, self, Position.default)
+      raise Error::UndefinedVariable.new(ident, self)
     end
 
     def get_fn(

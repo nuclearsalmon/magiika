@@ -16,7 +16,7 @@ module Magiika::Lang
         noignores : Array(Symbol)?) : Context?
       # setup
       # store starting position
-      start_pos = parser.parsing_pos
+      start_position = parser.parsing_position
       # create data storage
       context = Context.new(self_name)
 
@@ -42,11 +42,11 @@ module Magiika::Lang
         # sym is group name
         else
           Log.debug { "  - symbol: #{sym}@#{@pattern}" }
-          Log.debug { "  - parsing_pos: #{parser.parsing_pos}" }
+          Log.debug { "  - parsing_position: #{parser.parsing_position}" }
           #Log.debug { "  - cache:\n" + parser.cache.pretty_inspect }
 
           # attempt cache-match before group-match
-          cache_data = parser.cache[parser.parsing_pos]?.try(&.[sym]?)
+          cache_data = parser.cache[parser.parsing_position]?.try(&.[sym]?)
           unless cache_data.nil?
             # cache-match
             cached_context, cached_token_length = cache_data
@@ -59,7 +59,7 @@ module Magiika::Lang
               context.merge(cached_context)
             end
 
-            parser.parsing_pos += cached_token_length
+            parser.parsing_position += cached_token_length
             matched_pattern_part = true
           else
             # group-match
@@ -67,7 +67,7 @@ module Magiika::Lang
             raise Error::Internal.new("Unknown group name `{sym}`.") if group.nil?
 
             # store pre-parsing position, then parse
-            pre_parsing_position = parser.parsing_pos
+            pre_parsing_position = parser.parsing_position
             new_context = group.parse(parser)
 
             # if parsing yielded result
@@ -75,7 +75,7 @@ module Magiika::Lang
               Log.debug { "Group-match :#{sym} in #{@pattern}@#{self_name}" }
 
               # update cache
-              number_of_tokens = parser.parsing_pos - pre_parsing_position
+              number_of_tokens = parser.parsing_position - pre_parsing_position
               cache_entry = {new_context, number_of_tokens}
               Log.debug { "Saving :#{sym} to #{pre_parsing_position}, " +
                           "comprising of #{number_of_tokens} tokens" }
@@ -96,7 +96,7 @@ module Magiika::Lang
 
         unless matched_pattern_part
           # no match
-          parser.parsing_pos = start_pos
+          parser.parsing_position = start_position
           return nil
         end
       end

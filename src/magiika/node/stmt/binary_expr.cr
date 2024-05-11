@@ -11,18 +11,18 @@ module Magiika
     def eval(scope : Scope) : NodeObj
       left = @left.eval(scope)
       right = @right.eval(scope)
-      node = left[@oper]?
+      left_oper = left[@oper]?
 
-      if node.nil?
+      if left_oper.nil?
         raise Error::Internal.new("unknown method `:#{@oper}'.")
       else
-        node = node.eval(scope)
+        left_oper = left_oper.eval(scope)
 
-        if node.type?(Node::Function)
-          return node.as(Node::Function).call_safe_raise(
-            [FnArg.new(nil, right)], scope)
+        if left_oper.type?(Node::Fn)
+          return left_oper.as(Node::Fn).call_safe_raise(
+            [FnArg.new("self", left), FnArg.new(nil, right)], scope)
         else
-          return node
+          raise Error::Internal.new("binary operation where operation is not a function")
         end
       end
     end

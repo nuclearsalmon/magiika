@@ -29,25 +29,27 @@ module Magiika
     end
 
     def position : Lang::Position
-      pos = position?
-      return Lang::Position.default if pos.nil?
-      pos
+      position = position?
+      return Lang::Position.default if position.nil?
+      position
     end
 
     def position! : Lang::Position
-      pos = position?
-      raise Error::Internal.new("No position specified.") if pos.nil?
-      pos
+      position = position?
+      if position.nil?
+        raise Error::Internal.new("No position specified.")
+      end
+      position
     end
 
     # ✨ String representation
 
     def to_s : String
-      "#{ type_name } @ #{ @position.to_s } ...\n#{ pretty_inspect }"
+      "#{ type_name } @ #{ position.to_s } ...\n#{ pretty_inspect }"
     end
 
     def to_s_internal : String
-      "#{ type_name } @ #{ @position.to_s }"
+      "#{ type_name } @ #{ position.to_s }"
     end
 
     # ✨ Typing
@@ -56,7 +58,7 @@ module Magiika
 
     abstract def type_name : String
 
-    def type? : NodeType?
+    def type : NodeType
       self.class
     end
 
@@ -64,16 +66,32 @@ module Magiika
       Typing.exact_type?(self, _type)
     end
 
+    def self.exact_type!(_type : NodeType)
+      Typing.exact_type!(self, _type)
+    end
+
     def exact_type?(_type : NodeType) : ::Bool
       Typing.exact_type?(self, _type)
+    end
+
+    def exact_type!(_type : NodeType)
+      Typing.exact_type!(self, _type)
     end
 
     def self.type?(_type : NodeType) : ::Bool
       Typing.type?(self, _type)
     end
 
+    def self.type!(_type : NodeType)
+      Typing.type!(self, _type)
+    end
+
     def type?(_type : NodeType) : ::Bool
       Typing.type?(self, _type)
+    end
+
+    def type!(_type : NodeType)
+      Typing.type!(self, _type)
     end
   end
 
@@ -86,8 +104,16 @@ module Magiika
       Typing.inherits_type?(self, _type)
     end
 
+    def self.inherits_type!(_type : NodeType)
+      Typing.inherits_type!(self, _type)
+    end
+
     def inherits_type?(_type : NodeType) : ::Bool
       Typing.inherits_type?(self, _type)
+    end
+
+    def inherits_type!(_type : NodeType) : ::Bool
+      Typing.inherits_type!(self, _type)
     end
 
     macro inherited

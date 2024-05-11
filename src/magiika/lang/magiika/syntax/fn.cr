@@ -11,10 +11,10 @@ module Magiika::Lang::Syntax
 
         Node::FnParam.new(
           name.value,
-          Node::RetrieveVar.new(_type.pos, _type),
+          Node::RetrieveVar.new(_type.position, _type),
           nil,
           value,
-          name.pos)
+          name.position)
       end
 
       rule(:NAME, :DEFINE, :NAME) do |context|
@@ -23,10 +23,10 @@ module Magiika::Lang::Syntax
 
         Node::FnParam.new(
           name.value,
-          Node::RetrieveVar.new(_type.pos, _type),
+          Node::RetrieveVar.new(_type.position, _type),
           nil,
           nil,
-          name.pos)
+          name.position)
       end
 
       rule(:NAME, :ASSIGN, :value) do |context|
@@ -38,7 +38,7 @@ module Magiika::Lang::Syntax
           value.class,
           nil,
           value,
-          name.pos)
+          name.position)
       end
 
       rule(:NAME) do |context|
@@ -49,7 +49,7 @@ module Magiika::Lang::Syntax
           nil,
           nil,
           nil,
-          name.pos)
+          name.position)
       end
     end
 
@@ -168,7 +168,7 @@ module Magiika::Lang::Syntax
 
         context.clear
         #Node::StatementFn.new(
-        #  name.pos,
+        #  name.position,
         #  name.value,
         #  params.as(Array(Node::FnParam)),
         #  ret_type,
@@ -186,7 +186,7 @@ module Magiika::Lang::Syntax
 
         context.clear
         #Node::StatementFunction.new(
-        #  name.pos,
+        #  name.position,
         #  name,
         #  params,
         #  ret_type,

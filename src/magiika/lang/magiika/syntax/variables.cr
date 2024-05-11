@@ -7,7 +7,7 @@ module Magiika::Lang::Syntax
         expr = context[:expr].node
 
         context.clear
-        context.add(Node::DeclareVar.new(define.pos, name, expr))
+        context.add(Node::DeclareVar.new(define.position, name, expr))
       end
 
       rule(:NAME, :ASSIGN, :expr) do |context|
@@ -15,7 +15,7 @@ module Magiika::Lang::Syntax
         expr = context[:expr].node
 
         context.clear
-        context.add(Node::AssignVar.new(name.pos, name, expr))
+        context.add(Node::AssignVar.new(name.position, name, expr))
       end
     end
 
@@ -24,7 +24,7 @@ module Magiika::Lang::Syntax
         name = context.token
 
         context.clear
-        context.add(Node::RetrieveVar.new(name.pos, name))
+        context.add(Node::RetrieveVar.new(name.position, name))
       end
     end
 

@@ -1,3 +1,5 @@
+require "../../util/object_extensions.cr"
+
 require "../../util/error.cr"
 
 require "../parser/parser.cr"
@@ -10,7 +12,15 @@ require "./syntax_macros.cr"
 require "./syntax/*"
 
 require "../../util/visibility.cr"
+require "../../util/match_result.cr"
+require "../../util/member_objects_helper.cr"
 require "../../node/node.cr"
+
+require "../../node/fn/supplementary.cr"
+require "../../node/fn/fn.cr"
+require "../../node/fn/**"
+
+require "../../node/type/psuedo/**"
 require "../../node/type/**"
 require "../../typing/typing.cr"
 require "../../node/desc/desc.cr"
@@ -106,7 +116,7 @@ module Magiika::Lang
       exit 0
     end
 
-    private def print_safe_ex(ex : Exception)
+    private def print_ex(ex : Exception)
       filtered_backtrace = [] of String
       ex.backtrace.each{ | line |
         break if line.ends_with?("in '__crystal_main'")
@@ -114,9 +124,11 @@ module Magiika::Lang
       }
 
       join_str = "\n    "
-      warn(ex.to_s + "\n   Traceback:" +
-        join_str + filtered_backtrace.join(join_str))
+      warn("#{ex.to_s}\n\n   Traceback:#{join_str}#{filtered_backtrace.join(join_str)}")
       print("\n")
+    end
+
+    private def print_safe_ex(ex : Exception)
     end
 
     private def operator_command(cmd : Char)
@@ -181,16 +193,16 @@ module Magiika::Lang
 
     def execute(instructions : String) : NodeObj?
       filename = "interpreted"
-      pos = Lang::Position.new(filename, 1, 1)
-      scope = Scope::Global.new("global", pos)
+      position = Lang::Position.new(filename, 1, 1)
+      scope = Scope::Global.new("global", position)
 
       return execute(instructions, scope, filename)
     end
 
     def interactive : Nil
       filename = "interpreted"
-      pos = Lang::Position.new(filename, 1, 1)
-      scope = Scope::Global.new("global", pos)
+      position = Lang::Position.new(filename, 1, 1)
+      scope = Scope::Global.new("global", position)
 
       Signal::INT.trap { print "\n"; exit }
 
@@ -201,6 +213,7 @@ module Magiika::Lang
           input = gets
 
           break if input.nil? || input == "exit"
+          next if input == ""
 
           if input.size == 3 && input[0] == '#' && input[1] == '#'
             operator_command(input[2])
@@ -215,7 +228,8 @@ module Magiika::Lang
         end
       end
     rescue ex : Exception
-      warn(ex.inspect_with_backtrace)
+      #warn(ex.inspect_with_backtrace)
+      print_ex(ex)
     ensure
       exit
     end

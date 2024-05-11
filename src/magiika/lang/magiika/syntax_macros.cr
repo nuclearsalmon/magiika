@@ -1,24 +1,21 @@
 module Magiika::Lang::Syntax
-  private macro bin_expr(l, op, r)
-    context.clear
-
-    pos = {{l}}.position
-    obj = Node::BinaryExpr.new(pos, {{l}}, {{op}}.value, {{r}})
-    context.add(obj)
-  end
-
   private macro bin_expr_rule(l_s, op_s, r_s)
     rule({{l_s}}, {{op_s}}, {{r_s}}) do |context|
       l = context[{{l_s}}].node
       op = context[{{op_s}}].token
       r = context[{{r_s}}].node
 
-      bin_expr(l, op, r)
+      context.clear
+
+      position = l.position
+      obj = Node::BinaryExpr.new(position, l, op.value, r)
+      context.add(obj)
     end
   end
 
   private macro un_expr_rule(l, r)
     rule({{l}}, {{r}}) do |context|
+      # FIXME: Operator is not always left
       op = context[{{l}}].token
       obj = context[{{r}}].node
 
@@ -28,7 +25,8 @@ module Magiika::Lang::Syntax
       {% end %}
 
       context.clear
-      context.add(Node::UnaryExpr.new(op.pos, op.value, obj, false))
+
+      context.add(Node::UnaryExpr.new(op.position, op.value, obj, false))
     end
   end
 end
