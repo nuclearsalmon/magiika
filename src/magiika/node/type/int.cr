@@ -36,7 +36,8 @@ module Magiika
         self_value = self_node.as(Node::Int).value.to_i32
         other_value = other_node.as(Node::Psuedo::Number).value.to_i32
 
-        return Node::Int.new(self_value + other_value).as(NodeObj)
+        result = self_value + other_value
+        return Node::Int.new(result.to_i32).as(NodeObj)
       {% end %}
     end
 
@@ -47,18 +48,53 @@ module Magiika
         self_value = self_node.as(Node::Int).value.to_i32
         other_value = other_node.as(Node::Psuedo::Number).value.to_i32
 
-        return Node::Int.new(self_value - other_value).as(NodeObj)
+        result = self_value - other_value
+        return Node::Int.new(result.to_i32).as(NodeObj)
+      {% end %}
+    end
+
+    private def self._mul(scope : Scope::MethodScope) : NodeObj
+      Magiika.def_scoped_vars self, other
+
+      {% begin %}
+        self_value = self_node.as(Node::Int).value.to_i32
+        other_value = other_node.as(Node::Psuedo::Number).value.to_i32
+
+        result = self_value * other_value
+        return Node::Int.new(result.to_i32).as(NodeObj)
+      {% end %}
+    end
+
+    private def self._div(scope : Scope::MethodScope) : NodeObj
+      Magiika.def_scoped_vars self, other
+
+      {% begin %}
+        self_value = self_node.as(Node::Int).value.to_i32
+        other_value = other_node.as(Node::Psuedo::Number).value.to_i32
+
+        result = self_value / other_value
+        return Node::Int.new(result.to_i32).as(NodeObj)
       {% end %}
     end
 
     Magiika.def_fn "+",
-      [FnParam.new("other", NumberUnion)],
+      [FnParam.new("other", NUMBER_UNION)],
       _add,
       Node::Int
 
     Magiika.def_fn "-",
-      [FnParam.new("other", NumberUnion)],
+      [FnParam.new("other", NUMBER_UNION)],
       _sub,
+      Node::Int
+
+    Magiika.def_fn "*",
+      [FnParam.new("other", NUMBER_UNION)],
+      _mul,
+      Node::Int
+
+    Magiika.def_fn "/",
+      [FnParam.new("other", NUMBER_UNION)],
+      _div,
       Node::Int
   end
 end
