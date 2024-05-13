@@ -28,9 +28,9 @@ end
   class Object
     include Magiika::ObjectExtensions
   end
-{% else %}
-  module Magiika::Util
-    include Magiika::ObjectExtensions
-    extend self
-  end
 {% end %}
+
+module Magiika::Util
+  include Magiika::ObjectExtensions
+  extend self
+end
