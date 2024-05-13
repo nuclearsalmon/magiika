@@ -78,7 +78,6 @@ module Magiika
     end
 
     private def self.__cash(scope : Scope::MethodScope) : NodeObj
-      Magiika.def_scoped_vars self
       return Node::Str.new("hi everyoneeee :DDD").as(NodeObj)
     end
 

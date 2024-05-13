@@ -11,6 +11,14 @@ module Magiika
       def position? : Lang::Position?
         @position
       end
+
+      def self.[]?(sig : String) : NodeObj?
+        nil
+      end
+
+      def []?(sig : String) : NodeObj?
+        self.class[sig]?
+      end
     end
 
     # ✨ Base functionality
@@ -24,9 +32,7 @@ module Magiika
     end
 
     # get a member node, a function, variable, etc
-    def []?(sig : String) : NodeObj?
-      nil
-    end
+    abstract def []?(sig : String) : NodeObj?
 
     def position : Lang::Position
       position = position?
@@ -117,7 +123,7 @@ module Magiika
     end
 
     macro inherited
-      @@type_id = Magiika::Typing.register_type(self)
+      @@type_id : Int32 = Magiika::Typing.register_type(self)
 
       def self.type_id : Int32
         # call at class level
@@ -160,7 +166,7 @@ module Magiika
     end
 
     macro inherited
-      @@type_id = Magiika::Typing.register_type(self)
+      @@type_id : Int32 = Magiika::Typing.register_type(self)
 
       def self.type_id : Int32
         # call at class level

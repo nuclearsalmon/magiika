@@ -25,8 +25,12 @@ module Magiika::Lang
       return Parser.new(root, @groups, @tokens)
     end
 
-    private def token(_type : Symbol, pattern : Regex)
-      @tokens[_type] = Token.new(_type, Regex.new("\\A" + pattern.source))
+    private def token(name : Symbol, pattern : Regex)
+      name_s = name.to_s
+      raise Error::Internal.new("name must be uppercase: #{name}") unless ObjectExtensions.upcase?(name_s)
+      raise Error::Internal.new("duplicate token: :#{name}") if @tokens[name]?
+
+      @tokens[name] = Token.new(name, Regex.new("\\A" + pattern.source))
     end
 
     private def root(&)
@@ -40,6 +44,7 @@ module Magiika::Lang
     private def group(name : Symbol, &)
       name_s = name.to_s
       raise Error::Internal.new("name must be lowercase: #{name}") unless ObjectExtensions.downcase?(name_s)
+      raise Error::Internal.new("duplicate group: :#{name}") if @groups[name]?
 
       builder = Group::Builder.new(name)
       with builder yield

@@ -1,5 +1,9 @@
 module Magiika
   class Node::StmtsFn < Node::Fn
+    include FnTemplates::DefaultCaller
+    include FnTemplates::DefaultInjector
+    include FnTemplates::DefaultValidator
+
     def initialize(
         position : Lang::Position,
         name : String,
@@ -9,19 +13,12 @@ module Magiika
       super(position, name, params, returns)
     end
 
-    def call(args : Hash(String, NodeObj), scope : Scope) : NodeObj
-      # TODO inject args into scope
-
-      result = @statements.each { |stmt|
-        next stmt.eval(scope)
+    protected def method_eval(method_scope : Scope::MethodScope) : NodeObj
+      result = Node::Nil.instance
+      @statements.each { |stmt|
+        result = stmt.eval(method_scope)
       }
-
-      # TODO typecheck
-      # TODO metawrap
-
-      # handle compiler error
-      raise Error::Internal.new("Unexpected nil.") if result.nil?
-      return result
+      result
     end
   end
 end

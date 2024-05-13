@@ -1,5 +1,5 @@
 module Magiika::Lang::Syntax
-  private def register_base
+  protected def register_root
     root do
       ignore(:LINE_SEGMENT)
       ignore(:SPACE)
@@ -11,19 +11,14 @@ module Magiika::Lang::Syntax
       ignore(:NEWLINE)
 
       rule(:stmt, :stmts) do |context|
-        stmt = context[:stmt].node
-        stmts = context[:stmts].nodes
-
-        context.clear
-        context.add(:stmts, stmts)
-        context.add(:stmts, stmt)
-        nil
+        context.absorb(:stmt)
       end
       rule(:stmt)
     end
 
     group(:stmt) do
       rule(:cond)
+      rule(:fn_def)
     end
 
     group(:literal) do
@@ -58,10 +53,20 @@ module Magiika::Lang::Syntax
 
         context.add(Node::Bool.new(bool_value, token.position))
       end
+
+      rule :STR do |context|
+        token = context.token
+        value = token.value
+        pos = token.position
+
+        context.clear
+        context.add(Node::Str.new(value, pos))
+      end
     end
 
     group(:value) do
       rule(:literal)
+      rule(:fn_call)
       rule(:member_access)
       rule(:L_PAR, :cond, :R_PAR)
     end

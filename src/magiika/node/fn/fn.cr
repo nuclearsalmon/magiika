@@ -126,9 +126,9 @@ module Magiika
     end
 
     def pretty_sig
-      "#{@name}(\n  " + \
+      "#{@name}(" + \
         (@params.map { |p|
-          cs_map_str = ":"
+          cs_map_str = "\n  :"
           descriptors = p.descriptors
           unless descriptors.nil?
             cs_map_str = descriptors.map { |descriptor|
@@ -139,7 +139,7 @@ module Magiika
           cs_map_str + " " + p.name.to_s
         }).join(separator=",\n  ") + \
         ")" + \
-        (@returns == Node::Nil.class ? "" : "-> #{@returns}")
+        (@returns.nil? ? "" : "-> #{@returns}")
     end
 
     def to_s_internal : String

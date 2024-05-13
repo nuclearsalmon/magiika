@@ -3,8 +3,8 @@ module Magiika
   macro def_members_feat
     @@members = Hash(String, Node::Fn).new
 
-    def []?(ident) : NodeObj?
-      return @@members[ident]?
+    def self.[]?(ident) : NodeObj?
+      @@members[ident]?
     end
 
     private def self.def_fn(

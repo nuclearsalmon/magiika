@@ -8,7 +8,7 @@ module Magiika
       super(position, name, params, returns)
     end
 
-    private macro raise_uncallable_error
+    def raise_uncallable_error
       raise Error::Internal.new("Abst fn is not callable.")
     end
 

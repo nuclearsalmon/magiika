@@ -2,8 +2,7 @@ require "./context.cr"
 
 
 module Magiika::Lang
-  private alias RuleReturn = Nil
-  private alias RuleBlock = Context -> RuleReturn
+  private alias RuleBlock = Proc(Context, Nil)
 
   private class Rule
     getter pattern, block
@@ -66,7 +65,7 @@ module Magiika::Lang
 
             # update context
             if @pattern.size > 1
-              context.add!(sym, cached_context.clone)
+              context.unsafe_add(sym, cached_context.clone)
             else
               context.merge(cached_context)
             end
@@ -77,7 +76,7 @@ module Magiika::Lang
           else
             # group-match
             group = parser.groups[sym]?
-            raise Error::Internal.new("Unknown group name `{sym}`.") if group.nil?
+            raise Error::Internal.new("Unknown group name `#{sym}`.") if group.nil?
 
             # store pre-parsing position, then parse
             pre_parsing_position = parser.parsing_position
@@ -97,7 +96,7 @@ module Magiika::Lang
 
               # update context
               if @pattern.size > 1
-                context.add!(sym, new_context)
+                context.unsafe_add(sym, new_context)
               else
                 context.merge(new_context)
               end

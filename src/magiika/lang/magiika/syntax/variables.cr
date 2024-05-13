@@ -19,18 +19,13 @@ module Magiika::Lang::Syntax
       end
     end
 
-    group(:get_var) do
+    group(:member) do
       rule(:NAME) do |context|
         name = context.token
 
         context.clear
         context.add(Node::RetrieveVar.new(name.position, name))
       end
-    end
-
-    group(:member) do
-      #rule(:fn_call)
-      rule(:get_var)
     end
 
     group(:members) do

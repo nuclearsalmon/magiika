@@ -15,12 +15,11 @@ module Magiika::Lang::Syntax
     token(:FLT_T, /flt/)
     token(:STR_T, /str/)
     token(:NIL_T, /nil/)
-    token(:BOOL_T, /bool/)
     token(:LIST_T, /list/)
     token(:FN_T, /fn/)
     token(:CLS_T, /cls/)
 
-    token(:ABSTRACT, /abst/)
+    token(:ABST, /abst/)
 
 
     # multi-character operators and tokens
@@ -95,18 +94,20 @@ module Magiika::Lang::Syntax
     token(:SEP, /,/)
 
 
+    # literals
+    # ------------------------------------------------------
+    # enable ONE string mode from below
+    token(:STR, /"([^"\\]*(?:\\.[^"\\]*)*)"/)
+    #token(:STR, /'([^'\\]*(?:\\.[^'\\]*)*)'/)
+    #token(:STR, /(?:"([^"\\]*(?:\\.[^"\\]*)*)")|(?:'([^'\\]*(?:\\.[^'\\]*)*)')/)
+    token(:BOOL, /(?:true)|(?:false)/)
+    token(:FLT, /\d+\.\d+/)
+    token(:INT, /\d+/)
+
+
     # identifiers
     # ------------------------------------------------------
     token(:NAME, /([A-Za-z_][A-Za-z0-9_]*)/)
-
-
-    # literals
-    # ------------------------------------------------------
-    #token(:STR, /"([^"\\]*(?:\\.[^"\\]*)*)"/)
-    #token(:STR, /'([^'\\]*(?:\\.[^'\\]*)*)'/)
-    token(:BOOL, /(true|false)/)
-    token(:FLT, /\d+\.\d+/)
-    token(:INT, /\d+/)
 
 
     # whitespace

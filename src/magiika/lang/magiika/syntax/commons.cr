@@ -19,5 +19,11 @@ module Magiika::Lang::Syntax
       rule(:spc, :spcs)
       rule(:spc)
     end
+
+    group(:def) do
+      rule(:DEFINE, :NAME) do |context|
+        context.become(:NAME)
+      end
+    end
   end
 end

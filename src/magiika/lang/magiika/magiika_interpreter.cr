@@ -8,15 +8,13 @@ require "../parser/builder.cr"
 require "../position.cr"
 require "../parser/misc/token.cr"
 
-require "./syntax_macros.cr"
-require "./syntax/*"
-
 require "../../util/visibility.cr"
 require "../../util/match_result.cr"
 require "../../util/member_objects_helper.cr"
 require "../../node/node.cr"
 
 require "../../node/fn/supplementary.cr"
+require "../../node/fn/templates/**"
 require "../../node/fn/fn.cr"
 require "../../node/fn/**"
 
@@ -30,6 +28,9 @@ require "../../node/stmt/**"
 require "../../scope/scope.cr"
 require "../../scope/**"
 
+require "./syntax_macros.cr"
+require "./syntax/**"
+
 
 module Magiika::Lang
   class MagiikaInterpreter
@@ -42,11 +43,12 @@ module Magiika::Lang
         # register builtins
         register_tokens
         register_commons
-        register_base
+        register_root
         register_expressions
         register_conditions
         register_variables
-        register_functions
+        register_function_defining
+        register_function_call
       end
     end
 

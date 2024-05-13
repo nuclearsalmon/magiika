@@ -5,9 +5,9 @@ module Magiika::Lang
   class Context
     property name : Symbol
 
-    protected getter nodes : Array(NodeObj)?
-    protected getter tokens : Array(MatchedToken)?
-    protected getter sub_contexts : Hash(Symbol, Context)?
+    #protected getter nodes : Array(NodeObj)?
+    #protected getter tokens : Array(MatchedToken)?
+    #protected getter sub_contexts : Hash(Symbol, Context)?
 
     def initialize(@name : Symbol)
     end
@@ -60,36 +60,91 @@ module Magiika::Lang
       @name = name
     end
 
-    # safe merge, will clone and duplicate
-    def merge(from : Context)
-      unless (_from_sub_contexts = from.@sub_contexts).nil? || _from_sub_contexts.empty?
-        if (_sub_contexts = @sub_contexts).nil?
-          @sub_contexts = _from_sub_contexts.clone
-        else
-          _sub_contexts.merge(_from_sub_contexts)
-        end
-      end
-
-      unless (_from_nodes = from.@nodes).nil? || _from_nodes.empty?
-        if (_nodes = @nodes).nil?
-          @nodes = _from_nodes.dup
-        else
-          _nodes.concat(_from_nodes)
-        end
-      end
-
-      unless (_from_tokens = from.@tokens).nil? || _from_tokens.empty?
-        if (_tokens = @tokens).nil?
-          @tokens = _from_tokens.dup
-        else
-          _tokens.concat(_from_tokens)
+    protected def drop_tokens(index : Int32 = -1)
+      if index == -1
+        clear_tokens
+      else
+        if !((tokens = @tokens).nil?) && index < tokens.size
+          tokens.delete_at(index)
         end
       end
     end
 
-    # unsafe add, will NOT clone and duplicate
-    def add!(key : Symbol, value : Context)
-      (@sub_contexts ||= Hash(Symbol, Context).new)[key] = value
+    protected def drop_nodes(index : Int32 = -1)
+      if index == -1
+        clear_nodes
+      else
+        if !((nodes = @nodes).nil?) && index < nodes.size
+          nodes.delete_at(index)
+        end
+      end
+    end
+
+    private def drop_context(key : Symbol)
+      @sub_contexts.try(&.delete(key))
+    end
+
+    def drop(key : Symbol, index : Int32 = -1)
+      context = self[key]?
+      return if context.nil?
+
+      if ObjectExtensions.upcase?(key)
+        context.drop_tokens(index)
+      else
+        context.drop_nodes(index)
+      end
+
+      if index == -1 && context.empty?
+        drop_context(key)
+      end
+    end
+
+    def absorb(key : Symbol)
+      context = self[key]
+      drop_context(key)
+      unsafe_merge(context)
+    end
+
+    def become(key : Symbol)
+      context = self[key]
+      clear
+      unsafe_merge(context)
+    end
+
+    private def internal_merge(from : Context, safe : ::Bool)
+      unless (from_sub_contexts = from.@sub_contexts).nil? || from_sub_contexts.empty?
+        if (sub_contexts = @sub_contexts).nil?
+          @sub_contexts = safe ? from_sub_contexts.clone : from_sub_contexts
+        else
+          sub_contexts.merge(from_sub_contexts)
+        end
+      end
+
+      unless (from_nodes = from.@nodes).nil? || from_nodes.empty?
+        if (nodes = @nodes).nil?
+          @nodes = safe ? from_nodes.dup : from_nodes
+        else
+          nodes.concat(from_nodes)
+        end
+      end
+
+      unless (from_tokens = from.@tokens).nil? || from_tokens.empty?
+        if (tokens = @tokens).nil?
+          @tokens = safe ? from_tokens.dup : from_tokens
+        else
+          tokens.concat(from_tokens)
+        end
+      end
+    end
+
+    # safe merge, will clone and duplicate
+    def merge(from : Context)
+      internal_merge(from, true)
+    end
+
+    # unsafe merge, will NOT clone and duplicate
+    def unsafe_merge(from : Context)
+      internal_merge(from, false)
     end
 
     def add(value : NodeObj)
@@ -108,12 +163,17 @@ module Magiika::Lang
       (@tokens ||= Array(MatchedToken).new).concat(values)
     end
 
+    # unsafe add, will NOT clone and duplicate
+    def unsafe_add(key : Symbol, value : Context)
+      (@sub_contexts ||= Hash(Symbol, Context).new)[key] = value
+    end
+
     def add(
         key : Symbol,
         value : NodeObj | Array(NodeObj) | MatchedToken | Array(MatchedToken))
       sub_context = Context.new(key)
       sub_context.add(value)
-      add!(key, sub_context)
+      unsafe_add(key, sub_context)
     end
 
 
@@ -165,23 +225,30 @@ module Magiika::Lang
       tokens? || raise Error::Internal.new("Expected tokens for :#{@name} not found. #{self.pretty_inspect}.")
     end
 
+    def empty? : ::Bool
+      return false unless (tokens = @tokens).nil? || tokens.empty?
+      return false unless (nodes = @nodes).nil? || nodes.empty?
+      return false unless (sub_contexts = @sub_contexts).nil? || sub_contexts.empty?
+      return true
+    end
+
     # Root result
     def result : NodeObj
       _tokens = @tokens
       _nodes = @nodes
       _sub_contexts = @sub_contexts
       unless _tokens.nil? || _tokens.empty?
-        raise Error::Internal.new("Root must return no tokens. #{@tokens.pretty_inspect}")
+        raise Error::Internal.new("Root must return no tokens. #{pretty_inspect}")
       end
       unless _sub_contexts.nil? || _sub_contexts.empty?
-        raise Error::Internal.new("Root must return no subcontexts. #{@sub_contexts.pretty_inspect}")
+        raise Error::Internal.new("Root must return no subcontexts. #{pretty_inspect}")
       end
 
       if _nodes.nil? || _nodes.size < 1
-        raise Error::Internal.new("Root returned no Nodes. #{@nodes.pretty_inspect}")
+        raise Error::Internal.new("Root returned no Nodes. #{pretty_inspect}")
       end
       if _nodes.size > 1
-        raise Error::Internal.new("Root returned more than one Node. #{@nodes.pretty_inspect}")
+        raise Error::Internal.new("Root returned more than one Node. #{pretty_inspect}")
       end
 
       return _nodes.first
