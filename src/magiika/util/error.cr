@@ -73,16 +73,23 @@ module Magiika::Error
 
   # user-facing, expected and potentially recoverable error
   class Safe < Exception
+    getter title, position
     def initialize(
         @title : String,
         @message : String,
         @position : Lang::Position? = nil)
-      super("#{message}\n")
+      super(message)
     end
 
     def to_s : String
       position = @position
-      position ? "#{@message}\n\n   #{@title} @ #{@position}" : @message.as(String)
+
+      message = @message.as(String)
+      #message = "#{@title}"
+      message += " @ #{position}" unless position.nil?
+      #message += "\n\n   #{@message}"
+
+      return message
     end
 
     def to_s(io : IO) : Nil
@@ -190,8 +197,18 @@ module Magiika::Error
       super(
         "UNDEFINED VARIABLE",
         "Undefined variable: '#{ident}'",
-        position
-      )
+        position)
+    end
+  end
+
+  class UndefinedMethod < Safe
+    def initialize(
+        ident : String,
+        position : Lang::Position? = nil)
+      super(
+        "UNDEFINED METHOD",
+        "Undefined method: '#{ident}'",
+        position)
     end
   end
 end

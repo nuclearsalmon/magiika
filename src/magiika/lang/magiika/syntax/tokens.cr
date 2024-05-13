@@ -77,6 +77,7 @@ module Magiika::Lang::Syntax
     token(:MULT, /\*/)
     token(:DIV, /\//)
     token(:MOD, /%/)
+    token(:CASH, /\$/)
 
     token(:NOT, /!|not/)
     token(:BNOT, /NOT/)

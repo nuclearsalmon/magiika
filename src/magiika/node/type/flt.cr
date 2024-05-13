@@ -78,23 +78,23 @@ module Magiika
     end
 
     Magiika.def_fn "+",
-      [FnParam.new("other", NUMBER_UNION)],
       _add,
+      [FnParam.new("other", NUMBER_UNION)],
       Node::Flt
 
     Magiika.def_fn "-",
-      [FnParam.new("other", NUMBER_UNION)],
       _sub,
+      [FnParam.new("other", NUMBER_UNION)],
       Node::Flt
 
     Magiika.def_fn "*",
-      [FnParam.new("other", NUMBER_UNION)],
       _mul,
+      [FnParam.new("other", NUMBER_UNION)],
       Node::Flt
 
     Magiika.def_fn "/",
-      [FnParam.new("other", NUMBER_UNION)],
       _div,
+      [FnParam.new("other", NUMBER_UNION)],
       Node::Flt
   end
 end

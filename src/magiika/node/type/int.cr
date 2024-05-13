@@ -77,34 +77,34 @@ module Magiika
       {% end %}
     end
 
-    private def self._silly(scope : Scope::MethodScope) : NodeObj
-      Magiika.def_scoped_vars self, _
-      return Node::Str.new("silly test").as(NodeObj)
+    private def self.__cash(scope : Scope::MethodScope) : NodeObj
+      Magiika.def_scoped_vars self
+      return Node::Str.new("hi everyoneeee :DDD").as(NodeObj)
     end
 
-    Magiika.def_fn "%",
-      [FnParam.new("_", NUMBER_UNION)],
-      _silly,
+    Magiika.def_fn "_$",
+      __cash,
+      nil,
       Node::Str
 
     Magiika.def_fn "+",
-      [FnParam.new("other", NUMBER_UNION)],
       _add,
+      [FnParam.new("other", NUMBER_UNION)],
       Node::Int
 
     Magiika.def_fn "-",
-      [FnParam.new("other", NUMBER_UNION)],
       _sub,
+      [FnParam.new("other", NUMBER_UNION)],
       Node::Int
 
     Magiika.def_fn "*",
-      [FnParam.new("other", NUMBER_UNION)],
       _mul,
+      [FnParam.new("other", NUMBER_UNION)],
       Node::Int
 
     Magiika.def_fn "/",
-      [FnParam.new("other", NUMBER_UNION)],
       _div,
+      [FnParam.new("other", NUMBER_UNION)],
       Node::Int
   end
 end

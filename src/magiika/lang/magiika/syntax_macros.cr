@@ -63,9 +63,6 @@ module Magiika::Lang::Syntax
 
       context.clear
 
-      pp op.value
-      pp obj
-
       expr = Node::UnaryExpr.new(pos, op.value, obj, side)
       context.add(expr)
     end

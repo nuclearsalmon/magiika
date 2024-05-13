@@ -9,25 +9,23 @@ module Magiika
 
     private def self.def_fn(
         name : String,
-        params : FnParams,
         body : Proc(Scope::MethodScope, NodeObj),
+        params : FnParams? = nil,
         ret_type : NodeType? = nil)
+      params = FnParams.new if params.nil?
       params << FnParam.new("self", self)
+
       fn_ret = ret_type.nil? ? nil : FnRet.new(ret_type)
 
       @@members[name] = NativeFn.new(name, params, body, fn_ret)
     end
   end
 
-  macro def_fn(name, params, body_fn, ret_type)
+  macro def_fn(name, body_fn, params, ret_type)
     self.def_fn(
       {{ name }},
-      {% if params.nil? %}
-        Array(FnParam).new,
-      {% else %}
-        {{ params }},
-      {% end %}
       ->(scope : Scope::MethodScope){ {{ body_fn }}(scope) },
+      {{ params }},
       {{ ret_type }})
   end
 

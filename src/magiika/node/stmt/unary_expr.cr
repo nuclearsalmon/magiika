@@ -10,10 +10,11 @@ module Magiika
 
     def eval(scope : Scope) : NodeObj
       obj = @obj.eval(scope)
-      obj_oper = obj[@oper]?
+      extended_oper = @r_side ? @oper : ("_" + @oper)
+      obj_oper = obj[extended_oper]?
 
       if obj_oper.nil?
-        raise Error::Internal.new("unknown method `:#{@oper}'.")
+        raise Error::UndefinedMethod.new(extended_oper)
       else
         obj_oper = obj_oper.eval(scope)
 

@@ -128,8 +128,9 @@ module Magiika::Lang
       print("\n")
     end
 
-    private def print_safe_ex(ex : Exception)
+    private def print_safe_ex(ex : Error::Safe)
       warn(ex.to_s)
+      print("\n")
     end
 
     private def operator_command(cmd : Char)
