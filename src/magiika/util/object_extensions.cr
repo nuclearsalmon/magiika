@@ -2,16 +2,16 @@ EXTEND_OBJECT = false
 
 module Magiika::ObjectExtensions
   def upcase?(obj)
-    s = to_s
+    s = obj.to_s
     s.upcase == s
   end
 
   def downcase?(obj)
-    s = to_s
+    s = obj.to_s
     s.downcase == s
   end
 
-  {% if EXTEND_OBJECT %}
+  {% if EXTEND_OBJECT == true %}
     def upcase?
       upcase?(self)
     end

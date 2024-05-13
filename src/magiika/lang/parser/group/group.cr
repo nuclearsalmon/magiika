@@ -11,55 +11,30 @@ module Magiika::Lang
     @name : Symbol
     @rules : Array(Rule)
     @lr_rules : Array(Rule)
-    @ignores : Array(Symbol)
+    @ignores : Array(Symbol)?
     @noignores : Array(Symbol)?
 
     def initialize(
         @name : Symbol,
         @rules : Array(Rule),
         @lr_rules : Array(Rule),
-        @ignores : Array(Symbol),
+        @ignores : Array(Symbol)? = nil,
         @noignores : Array(Symbol)? = nil)
     end
 
     private def try_rules(parser : Parser, context_for_lr : Context?) : Context?
       rules = (context_for_lr.nil? ? @rules : @lr_rules)
       rules.each do |rule|
-        if parser.parsing_tokens[parser.parsing_position ..].size < rule.pattern.size
-          Log.debug { "Skipping rule #{rule.pattern}, not enough tokens." }
-          next
-        end
-
         context = rule.try_patterns(@name, parser, @ignores, @noignores)
         if context.nil?
           next
         else
           block = rule.block
           unless block.nil?
+            context.merge(context_for_lr) unless context_for_lr.nil?
+
             Log.debug { "Executing block for rule #{rule.pattern}@#{@name} ..." }
-
-            #p "context:"
-            #pp context
-            #p "---"
-
-            unless context_for_lr.nil?
-              #p "merging contexts"
-              #p "context_for_lr:"
-              #pp context_for_lr
-              #p "---"
-
-              context.merge(context_for_lr)# unless context_for_lr.nil?
-
-              #p "context after merge"
-              #pp context
-              #p "---"
-            end
-
             block.call(context)
-
-            #p "context after call:"
-            #pp context
-            #p "---"
           end
 
           return context

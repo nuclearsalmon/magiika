@@ -1,7 +1,7 @@
 module Magiika::Lang::Tokenizer
   Log = ::Log.for("lang.tokenizer")
 
-  def tokenize(str : String, filename : String) : Array(MatchedToken)
+  def tokenize(str : String, filename : String? = nil) : Array(MatchedToken)
     tokens_found = Array(MatchedToken).new
     row, col = 1, 1
 
@@ -15,7 +15,7 @@ module Magiika::Lang::Tokenizer
 
           content = match[0]
 
-          position = Lang::Position.new(filename, row, col)
+          position = Lang::Position.new(row, col, filename)
           token = Lang::MatchedToken.new(token._type, content, position)
           tokens_found << token
 
@@ -37,7 +37,7 @@ module Magiika::Lang::Tokenizer
       end
 
       if tokens_found.empty?
-        raise Error::UnexpectedCharacter.new(str[0], Position.new(filename, row, col))
+        raise Error::UnexpectedCharacter.new(str[0], Position.new(row, col, filename))
       end
     end
 

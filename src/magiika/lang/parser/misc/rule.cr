@@ -5,15 +5,27 @@ module Magiika::Lang
   private alias RuleReturn = Nil
   private alias RuleBlock = Context -> RuleReturn
 
-  private record Rule, \
-    pattern : Array(Symbol), \
-    block : RuleBlock? do
+  private class Rule
+    getter pattern, block
+
+    def initialize(
+        @pattern : Array(Symbol),
+        @block : RuleBlock? = nil)
+      if @pattern.size < 1
+        raise Error::Internal.new("A Rule cannot have an empty pattern.")
+      end
+    end
 
     def try_patterns(
         self_name : Symbol,
         parser : Parser,
-        ignores : Array(Symbol),
+        ignores : Array(Symbol)?,
         noignores : Array(Symbol)?) : Context?
+      if parser.parsing_tokens[parser.parsing_position ..].size < @pattern.size
+        Log.debug { "Skipping rule #{@pattern}, not enough tokens." }
+        return nil
+      end
+
       # setup
       # store starting position
       start_position = parser.parsing_position
@@ -26,7 +38,9 @@ module Magiika::Lang
         matched_pattern_part = false
 
         # sym is token name
-        if sym_s == sym_s.upcase  # token
+        if ObjectExtensions.upcase?(sym_s)  # token
+          Log.debug { "  - token: :#{sym} in #{@pattern}@#{parser.parsing_position}" }
+
           new_tok = parser.expect(sym, ignores, noignores)
 
           unless new_tok.nil?
@@ -41,9 +55,7 @@ module Magiika::Lang
           end
         # sym is group name
         else
-          Log.debug { "  - symbol: #{sym}@#{@pattern}" }
-          Log.debug { "  - parsing_position: #{parser.parsing_position}" }
-          #Log.debug { "  - cache:\n" + parser.cache.pretty_inspect }
+          Log.debug { "  - group: :#{sym} in #{@pattern}@#{parser.parsing_position}" }
 
           # attempt cache-match before group-match
           cache_data = parser.cache[parser.parsing_position]?.try(&.[sym]?)
@@ -60,6 +72,7 @@ module Magiika::Lang
             end
 
             parser.parsing_position += cached_token_length
+
             matched_pattern_part = true
           else
             # group-match

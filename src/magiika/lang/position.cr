@@ -2,7 +2,7 @@ require "../util/clone_macros"
 
 module Magiika::Lang
   struct Position
-    getter filename : String
+    getter filename : String?
     getter row : Int32
     getter col : Int32
 
@@ -30,23 +30,23 @@ module Magiika::Lang
     end
 
     def initialize
-      @filename = ""
       @row = -1
       @col = -1
+      @filename = nil
     end
 
     def initialize(
-        @filename : String,
         @row : Int32,
-        @col : Int32)
+        @col : Int32,
+        @filename : String? = nil)
     end
 
     def to_s
       filename = @filename
-      if filename = ""
-        "<Interpreted>"
+      if filename.nil? || filename == ""
+        "<Row #{ @row }, Column #{ @col }>"
       else
-        "<\"#{ filename }\", row #{ @row }, col #{ @col }>"
+        "<(Row #{ @row }, Column #{ @col }) in \"#{ filename }\">"
       end
     end
   end

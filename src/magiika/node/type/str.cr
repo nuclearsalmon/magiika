@@ -1,11 +1,7 @@
 module Magiika
   class Node::Str < NodeClassBase
-    def initialize(@value : ::String, position : Lang::Position)
+    def initialize(@value : ::String, position : Lang::Position? = nil)
       super(position)
-    end
-
-    def initialize(@value : ::String)
-      super
     end
 
     def to_s_internal : String

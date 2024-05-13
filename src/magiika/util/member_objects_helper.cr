@@ -22,7 +22,11 @@ module Magiika
   macro def_fn(name, params, body_fn, ret_type)
     self.def_fn(
       {{ name }},
-      {{ params }},
+      {% if params.nil? %}
+        Array(FnParam).new,
+      {% else %}
+        {{ params }},
+      {% end %}
       ->(scope : Scope::MethodScope){ {{ body_fn }}(scope) },
       {{ ret_type }})
   end

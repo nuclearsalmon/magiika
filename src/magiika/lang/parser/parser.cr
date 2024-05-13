@@ -31,13 +31,18 @@ module Magiika::Lang
       )).new
     getter cache
 
-    def initialize(@root : Group,
-                   @groups : Hash(Symbol, Group),
-                   @tokens : Hash(Symbol, Token))
+    def initialize(
+        @root : Group,
+        @groups : Hash(Symbol, Group),
+        @tokens : Hash(Symbol, Token))
       validate_group_rules
     end
 
     def parse(@parsing_tokens : Array(MatchedToken)) : NodeObj
+      # clear before parsing
+      @parsing_position = 0
+      @cache.clear()
+
       # parse
       result_context : Context?
       begin
@@ -55,72 +60,63 @@ module Magiika::Lang
 
       # verify that every token was consumed
       position = @parsing_position
-      if @parsing_tokens.size > position+1
+      if position < @parsing_tokens.size
         raise Error::SafeParsingError.new( \
           "Unconsumed tokens (#{@parsing_tokens.size-position}" \
           "/#{@parsing_tokens.size}):\n" +
-          @parsing_tokens[position..].join("\n"))
+          @parsing_tokens[position..].map(&.to_s).join("\n"))
       end
-
-      # restore before return
-      @parsing_position = 0
-      @cache.clear()
 
       return result_node
     end
 
-    def should_ignore?(_type : Symbol,
-                       ignores : Array(Symbol),
-                       noignores : Array(Symbol)? = nil) \
-        : Bool
+    private def resolve_ignores(
+        ignores : Array(Symbol)? = nil,
+        noignores : Array(Symbol)? = nil) : Array(Symbol)
       root = @root
       raise Error::Internal.new("root should not be nil") if root.nil?
 
       final_ignores = Array(Symbol).new
+      root_ignores = root.ignores
 
       if noignores.nil?
-        final_ignores.concat(root.ignores)
-      else
-        if noignores.size > 0
-          root.ignores.each { |ig_sym|
-            next if noignores.includes?(ig_sym)
+        final_ignores.concat(root_ignores) unless root_ignores.nil?
+      elsif noignores.size > 0
+        unless root_ignores.nil?
+          root_ignores.each { |ig_sym|
+            next if !(noignores.nil?) && noignores.includes?(ig_sym)
             final_ignores << ig_sym
           }
         end
       end
-      final_ignores.concat(ignores)
+      final_ignores.concat(ignores) unless ignores.nil?
 
-      final_ignores.each { |ig_sym|
-        return true if _type == ig_sym
-      }
-      return false
+      return final_ignores
     end
 
-    def next_token(ignores : Array(Symbol),
-                   noignores : Array(Symbol)? = nil) \
-                   : MatchedToken?
+    private def next_token(
+        ignores : Array(Symbol)? = nil,
+        noignores : Array(Symbol)? = nil) : MatchedToken?
+      resolved_ignores = resolve_ignores(ignores, noignores)
       loop do
         position = @parsing_position
         @parsing_position += 1
 
         #@cache.delete(position-1)
 
-        if @parsing_tokens.size <= position
-          return nil
-        else
-          tok = @parsing_tokens[position]
-          return tok unless should_ignore?(tok._type, ignores, noignores)
-        end
+        tok = @parsing_tokens[position]?
+        return tok if tok.nil? || !(resolved_ignores.includes?(tok._type))
       end
       return nil
     end
 
-    def expect(expected_token_type : Symbol,
-               ignores : Array(Symbol) = Array(Symbol).new,
-               noignores : Array(Symbol)? = nil) \
-               : MatchedToken?
+    def expect(
+        expected_token_type : Symbol,
+        ignores : Array(Symbol)? = nil,
+        noignores : Array(Symbol)? = nil) : MatchedToken?
       tok = next_token(ignores, noignores)
-      return tok unless tok.nil? || expected_token_type != tok._type
+
+      return tok if tok.nil? || tok._type == expected_token_type
       return nil
     end
   end

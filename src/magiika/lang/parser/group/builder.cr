@@ -3,7 +3,7 @@ module Magiika::Lang
     @name : Symbol
     @rules = Array(Rule).new
     @lr_rules = Array(Rule).new
-    @ignores = Array(Symbol).new
+    @ignores : Array(Symbol)? = nil
     @noignores : Array(Symbol)? = nil
 
     def self.new(name : Symbol, &)
@@ -51,10 +51,6 @@ module Magiika::Lang
       rule(Rule.new(pattern.to_a, block))
     end
 
-    private def ignore(pattern : Symbol)
-      @ignores << pattern
-    end
-
     private def noignore()
       noignores = @noignores
       @noignores = Array(Symbol).new if noignores.nil?
@@ -67,6 +63,15 @@ module Magiika::Lang
         @noignores = noignores
       end
       noignores << pattern
+    end
+
+    private def ignore(pattern : Symbol)
+      ignores = @ignores
+      if ignores.nil?
+        ignores = Array(Symbol).new
+        @ignores = ignores
+      end
+      ignores << pattern
     end
   end
 end

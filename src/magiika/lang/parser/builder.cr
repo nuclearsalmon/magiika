@@ -21,7 +21,7 @@ module Magiika::Lang
     def build : Parser
       root = @root
       raise Error::Internal.new("Undefined root") if root.nil?
-      
+
       return Parser.new(root, @groups, @tokens)
     end
 
@@ -31,7 +31,7 @@ module Magiika::Lang
 
     private def root(&)
       raise Error::Internal.new("root already defined") unless @root.nil?
-      
+
       builder = Group::Builder.new(:root)
       with builder yield
       @root = builder.build
@@ -39,7 +39,7 @@ module Magiika::Lang
 
     private def group(name : Symbol, &)
       name_s = name.to_s
-      raise Error::Internal.new("name must be lowercase") unless name_s == name_s.downcase
+      raise Error::Internal.new("name must be lowercase: #{name}") unless ObjectExtensions.downcase?(name_s)
 
       builder = Group::Builder.new(name)
       with builder yield

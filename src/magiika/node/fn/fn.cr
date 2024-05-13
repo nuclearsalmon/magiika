@@ -88,10 +88,10 @@ module Magiika
 
       # Check if there are unmatched arguments
       unless anon_args.empty?
-        match_result.add_error("Unmatched anonymous arguments remaining")
+        match_result.add_error("Unmatched anonymous arguments remaining: #{anon_args}")
       end
       unless kw_args.empty?
-        match_result.add_error("Unmatched keyword arguments remaining")
+        match_result.add_error("Unmatched keyword arguments remaining: #{kw_args}")
       end
 
       if match_result.matched?

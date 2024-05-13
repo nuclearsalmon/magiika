@@ -10,15 +10,15 @@ module Magiika::Lang::Syntax
 
     # keywords and types
     # ------------------------------------------------------
-    token(:BOOL_TYP, /bool/)
-    token(:INT_TYP, /int/)
-    token(:FLT_TYP, /flt/)
-    token(:STR_TYP, /str/)
-    token(:NIL_TYP, /nil/)
-    token(:BOOL_TYP, /bool/)
-    token(:LIST_TYP, /list/)
-    token(:FN_TYP, /fn/)
-    token(:CLS_TYP, /cls/)
+    token(:BOOL_T, /bool/)
+    token(:INT_T, /int/)
+    token(:FLT_T, /flt/)
+    token(:STR_T, /str/)
+    token(:NIL_T, /nil/)
+    token(:BOOL_T, /bool/)
+    token(:LIST_T, /list/)
+    token(:FN_T, /fn/)
+    token(:CLS_T, /cls/)
 
     token(:ABSTRACT, /abst/)
 
@@ -99,6 +99,15 @@ module Magiika::Lang::Syntax
     token(:NAME, /([A-Za-z_][A-Za-z0-9_]*)/)
 
 
+    # literals
+    # ------------------------------------------------------
+    #token(:STR, /"([^"\\]*(?:\\.[^"\\]*)*)"/)
+    #token(:STR, /'([^'\\]*(?:\\.[^'\\]*)*)'/)
+    token(:BOOL, /(true|false)/)
+    token(:FLT, /\d+\.\d+/)
+    token(:INT, /\d+/)
+
+
     # whitespace
     # (ran last, to allow for whitespace-sensitive tokens)
     # ------------------------------------------------------
@@ -107,14 +116,5 @@ module Magiika::Lang::Syntax
     token(:LINE_SEGMENT, /\\[\t ]*\r?\n/)
     token(:NEWLINE, /\r?\n/)
     token(:INLINE_NEWLINE, /;/)
-
-
-    # literals
-    # ------------------------------------------------------
-    #token(:STR, /"([^"\\]*(?:\\.[^"\\]*)*)"/)
-    #token(:STR, /'([^'\\]*(?:\\.[^'\\]*)*)'/)
-    token(:BOOL, /(true|false)/)
-    token(:FLT, /-?\d+\.\d+/)
-    token(:INT, /-?\d+/)
   end
 end

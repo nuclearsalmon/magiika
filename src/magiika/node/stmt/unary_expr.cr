@@ -10,15 +10,18 @@ module Magiika
 
     def eval(scope : Scope) : NodeObj
       obj = @obj.eval(scope)
-      node = obj[@oper]?
+      obj_oper = obj[@oper]?
 
-      if node.nil?
+      if obj_oper.nil?
         raise Error::Internal.new("unknown method `:#{@oper}'.")
       else
-        if node.type?(Node::Fn)
-          return node.as(Node::Fn).call_safe_raise(FnArgs.new, scope)
+        obj_oper = obj_oper.eval(scope)
+
+        if obj_oper.type?(Node::Fn)
+          return obj_oper.as(Node::Fn).call_safe_raise(
+            [FnArg.new("self", obj)], scope)
         else
-          return node
+          return obj_oper
         end
       end
     end

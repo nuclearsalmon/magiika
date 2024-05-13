@@ -129,6 +129,7 @@ module Magiika::Lang
     end
 
     private def print_safe_ex(ex : Exception)
+      warn(ex.to_s)
     end
 
     private def operator_command(cmd : Char)
@@ -176,7 +177,7 @@ module Magiika::Lang
     def execute(
         instructions : String,
         scope : Scope,
-        filename : String) : NodeObj?
+        filename : String? = nil) : NodeObj?
       tokens = @parser.tokenize(instructions, filename)
       inform(tokens) if @display_tokenization
 
@@ -192,16 +193,14 @@ module Magiika::Lang
     end
 
     def execute(instructions : String) : NodeObj?
-      filename = "interpreted"
-      position = Lang::Position.new(filename, 1, 1)
+      position = Lang::Position.new(1, 1)
       scope = Scope::Global.new("global", position)
 
       return execute(instructions, scope, filename)
     end
 
     def interactive : Nil
-      filename = "interpreted"
-      position = Lang::Position.new(filename, 1, 1)
+      position = Lang::Position.new(1, 1)
       scope = Scope::Global.new("global", position)
 
       Signal::INT.trap { print "\n"; exit }
@@ -218,7 +217,7 @@ module Magiika::Lang
           if input.size == 3 && input[0] == '#' && input[1] == '#'
             operator_command(input[2])
           else
-            unless (result = execute(input, scope, filename)).nil?
+            unless (result = execute(input, scope)).nil?
               print "⭐ #{result.to_s_internal}\n"
             end
             print "\n"

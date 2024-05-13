@@ -81,7 +81,7 @@ module Magiika::Lang::Syntax
     end
 
     group(:fn_def_ident) do
-      rule(:FN_TYP, :DEFINE, :NAME) do |context|
+      rule(:FN_T, :DEFINE, :NAME) do |context|
         name = context[:NAME].token
 
         context.clear
