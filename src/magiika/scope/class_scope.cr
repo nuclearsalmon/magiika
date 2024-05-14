@@ -35,7 +35,7 @@ module Magiika
         request_static : Bool = false) : Node::Meta
       var = get?(ident, request_visibility, request_static)
       return var if var
-      raise Error::Internal.new("Not found")
+      raise Error::UndefinedVariable.new(ident, self)
     end
 
     private def find_variable_in_scope(

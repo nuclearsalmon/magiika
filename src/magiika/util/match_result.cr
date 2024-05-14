@@ -1,7 +1,7 @@
 module Magiika
   class MatchResult
     def initialize(
-        @matched : Bool,
+        @matched : Bool = true,
         @errors : Array(String)? = nil)
     end
 
@@ -16,6 +16,7 @@ module Magiika
 
     def add_error(error : String)
       errors << error
+      @matched = false
     end
 
     def merge!(other : MatchResult)
@@ -32,9 +33,7 @@ module Magiika
 
     def has_errors? : ::Bool
       _errors = @errors
-      if _errors.nil?
-        false
-      elsif _errors.empty?
+      if _errors.nil? || _errors.empty?
         false
       else
         true

@@ -41,8 +41,7 @@ module Magiika
       end
 
       arg_to_param_mapping = Hash(String, NodeObj).new
-      match_result = MatchResult.new(true)
-
+      match_result = MatchResult.new
 
       @params.each do |param|
         p_name = param.name
@@ -51,6 +50,7 @@ module Magiika
         # figure out what type of parameter this is
         # and handle the argument accordingly
         if p_name.starts_with?("**")
+          # FIXME: Implement kwargs, need hash node first
           raise Error::NotImplemented.new("kwargs not implemented")
         elsif p_name.starts_with?("*")
           arg_data = List.new(anon_args)

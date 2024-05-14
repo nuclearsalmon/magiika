@@ -1,6 +1,4 @@
 module Magiika::Util
-  extend self
-
   macro def_clone_methods
     # The `copy_with` method allows creating a new instance with altered properties.
     def copy_with(**properties)

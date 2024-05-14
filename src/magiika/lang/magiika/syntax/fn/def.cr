@@ -18,7 +18,7 @@ module Magiika::Lang::Syntax
     ret = nil
 
     fn = Node::StmtsFn.new(pos, name, params, body, ret)
-    Node::DeclareVar.new(pos, name_tok, fn)
+    Node::AssignVar.new(pos, name_tok, fn, AssignMode::Any)
   end
 
   protected def register_function_defining
