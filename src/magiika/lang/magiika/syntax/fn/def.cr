@@ -1,35 +1,9 @@
 module Magiika::Lang::Syntax
-  protected def define_fn(context : Context)
-    pos = Position.default
-    name_tok = context[:fn_ident].token
-    name = name_tok.value
-
-    node_params = context[:fn_params]?.try(&.nodes?)
-    params = Node::FnParams.new
-    unless node_params.nil?
-      node_params.each { |node|
-        node.type!(Node::FnParam)
-        params << node.as(Node::FnParam)
-      }
-    end
-
-    body = context[:fn_body].nodes
-    ret_tok = context[:fn_ret]?.try(&.token.value)
-    ret = nil  # FIXME
-
-    fn = Node::StmtsFn.new(pos, name, params, body, ret)
-    assign = Node::AssignVar.new(pos, name_tok, fn, AssignMode::Any)
-
-    context.clear
-    context.become(assign)
-  end
-
   protected def register_function_defining
     group :fn_ident do
       rule :FN_T, :def do |context|
         context.become(:def)
       end
-
       rule :def
     end
 
@@ -43,19 +17,14 @@ module Magiika::Lang::Syntax
       end
     end
 
-    group :fn_stmt do
-      rule :cond
-      rule :fn_def
-    end
-
     group :fn_stmts do
       ignore :NEWLINE
       ignore :INLINE_NEWLINE
 
-      rule :fn_stmt, :fn_stmts do |context|
+      rule :stmt, :fn_stmts do |context|
         context.flatten
       end
-      rule :fn_stmt
+      rule :stmt
     end
 
     group :fn_body do
@@ -87,5 +56,30 @@ module Magiika::Lang::Syntax
         define_fn(context)
       end
     end
+  end
+
+  protected def define_fn(context : Context)
+    pos = Position.default
+    name_tok = context[:fn_ident].token
+    name = name_tok.value
+
+    node_params = context[:fn_params]?.try(&.nodes?)
+    params = Node::FnParams.new
+    unless node_params.nil?
+      node_params.each { |node|
+        node.type!(Node::FnParam)
+        params << node.as(Node::FnParam)
+      }
+    end
+
+    body = context[:fn_body].nodes
+    ret_tok = context[:fn_ret]?.try(&.token.value)
+    ret = nil  # FIXME
+
+    fn = Node::StmtsFn.new(pos, name, params, body, ret)
+    assign = Node::AssignVar.new(pos, name_tok, fn, AssignMode::Any)
+
+    context.clear
+    context.become(assign)
   end
 end

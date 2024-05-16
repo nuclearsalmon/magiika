@@ -15,9 +15,9 @@ module Magiika
       ""
     end
 
-    def eval(scope : Scope) : Node::NoPrint
+    def eval(scope : Scope) : Node::Nil
       @statements.each { |stmt| stmt.eval(scope) }
-      return Node::NoPrint.instance
+      return Node::Nil.instance
     end
   end
 end

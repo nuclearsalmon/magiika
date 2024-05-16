@@ -266,5 +266,44 @@ module Magiika::Lang
 
       return _nodes.first
     end
+
+    def position : Lang::Position
+      lowest_position = nil
+
+      @tokens.try(&.each { |token|
+        token_position = token.position
+        if (lowest_position.nil? ||
+            (token_position.row <= lowest_position.row &&
+            token_position.col < lowest_position.col))
+          lowest_position = token_position
+        end
+      })
+
+      @nodes.try(&.each { |node|
+        node_position = node.position
+        if (lowest_position.nil? ||
+            (node_position.row <= lowest_position.row &&
+            node_position.col < lowest_position.col))
+          lowest_position = node_position
+        end
+      })
+
+      @sub_contexts.try(&.each { |sub_context|
+        sub_context_position = sub_context.position
+        if (lowest_position.nil? ||
+            (sub_context_position.row <= lowest_position.row &&
+            sub_context_position.col < lowest_position.col))
+          lowest_position = sub_context_position
+        end
+      })
+
+      if lowest_position.nil?
+        if empty?
+          raise Error::Internal.new("Could not find a context position, because it is empty.")
+        else
+          raise Error::Internal.new("Could not find a context position, yet context is not empty.")
+        end
+      end
+    end
   end
 end

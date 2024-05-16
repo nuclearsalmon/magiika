@@ -29,12 +29,12 @@ module Magiika
       {% begin %}
         puts Node::Str.new(self_node.to_s_internal).to_s_internal
       {% end %}
-      return Node::NoPrint.instance.as(NodeObj)
+      return Node::Nil.instance.as(NodeObj)
     end
 
     Magiika.def_fn "_$",
       __cash,
       nil,
-      Node::NoPrint
+      Node::Nil
   end
 end

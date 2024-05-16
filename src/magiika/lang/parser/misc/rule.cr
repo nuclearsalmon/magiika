@@ -71,10 +71,6 @@ module Magiika::Lang
         end
       end
 
-      #pp self_name
-      #pp @pattern
-      #pp context
-      #puts ""
       return context
     end
   end

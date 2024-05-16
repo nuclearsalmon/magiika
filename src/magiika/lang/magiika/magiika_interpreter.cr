@@ -20,7 +20,6 @@ require "../../node/fn/templates/**"
 require "../../node/fn/fn.cr"
 require "../../node/fn/**"
 
-require "../../node/no_print.cr"
 require "../../node/type/psuedo/**"
 require "../../node/type/**"
 require "../../typing/typing.cr"
@@ -46,8 +45,9 @@ module Magiika::Lang
 
         # register builtins
         register_tokens
-        register_commons
         register_root
+        register_commons
+        register_primitives
         register_expressions
         register_conditions
         register_variables
@@ -225,7 +225,7 @@ module Magiika::Lang
             operator_command(input[2])
           else
             result = execute(input, scope)
-            unless result.nil? || result.is_a?(Node::NoPrint)
+            unless result.nil? || result.is_a?(Node::Nil)
               print "⭐ #{result.to_s_internal}\n"
             end
             print "\n"

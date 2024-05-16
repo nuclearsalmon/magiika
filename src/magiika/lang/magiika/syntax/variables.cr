@@ -1,58 +1,72 @@
 module Magiika::Lang::Syntax
   protected def register_variables
-    group(:set_var) do
-      rule(:DEFINE, :NAME, :ASSIGN, :expr) do |context|
-        define = context[:DEFINE].token
-        name = context[:NAME].token
-        expr = context[:expr].node
-
-        context.clear
-        context.add(Node::AssignVar.new(define.position, name, expr, AssignMode::Declare))
-      end
-
-      rule(:NAME, :ASSIGN, :expr) do |context|
-        name = context[:NAME].token
-        expr = context[:expr].node
-
-        context.clear
-        context.add(Node::AssignVar.new(name.position, name, expr, AssignMode::Replace))
-      end
-    end
-
-    group(:member) do
-      rule(:NAME) do |context|
+    group :get_value do
+      rule :NAME do |context|
         name = context.token
 
-        context.clear
-        context.add(Node::RetrieveVar.new(name.position, name))
+        node = Node::RetrieveVar.new(name.position, name)
+        context.become(node)
       end
     end
 
-    group(:members) do
-      rule(:member, :MEMBER, :members) do |context|
-        src = context[:member].node
-        act = context[:members].node
-
-        Node::RetrieveMember.new(src.position, src, act)
-      end
-
-      rule(:member)
-    end
-
-    group(:member_set) do
-      rule(:set_var)
-      rule(:members, :ASSIGN, :expr) do |context|
-        dest = context[:members].node
+    group :def_value do
+      rule :def, :ASSIGN, :expr do |context|
+        name_t = context[:def].token
+        #name = name_t.value
+        #op = context[:ASSIGN].token.value
         value = context[:expr].node
-        op = context[:ASSIGN].token
+        pos = name_t.position
 
-        Node::AssignMember.new(dest.position, dest, value, op.value)
+        node = Node::AssignVar.new(
+          pos,
+          name_t,
+          value,
+          AssignMode::Declare)
+        context.become(node)
       end
     end
 
-    group(:member_access) do
-      rule(:member_set)
-      rule(:members)
+    group :set_value do
+      rule :NAME, :ASSIGN, :expr do |context|
+        name_t = context[:NAME].token
+        #name = name_t.value
+        #op = context[:ASSIGN].token.value
+        value = context[:expr].node
+        pos = name_t.position
+
+        node = Node::AssignVar.new(
+          pos,
+          name_t,
+          value,
+          AssignMode::Replace)
+        context.become(node)
+      end
+    end
+
+    group :get_member_value do
+      noignore :SPACE
+
+      rule :get_value, :MEMBER, :get_member_value do |context|
+        source = context[:get_value].node
+        action = context[:members].node
+        position = source.position
+
+        node = Node::RetrieveMember.new(position, source, action)
+        context.become(node)
+      end
+    end
+
+    group :set_member_value do
+      noignore :SPACE
+
+      rule :get_member_value, :MEMBER, :set_value do |context|
+        target = context[:get_member_value].node
+        action = context[:set_value].node
+        position = target.position
+
+        #node = Node::ScopedExpr.new(position, target, action)
+        #context.become(node)
+      end
     end
   end
 end

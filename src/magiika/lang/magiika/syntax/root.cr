@@ -1,77 +1,38 @@
 module Magiika::Lang::Syntax
   protected def register_root
     root do
-      ignore(:LINE_CONT)
-      ignore(:SPACE)
+      ignore :LINE_CONT
+      ignore :SPACE
 
-      rule(:stmts)
+      rule :stmts
     end
 
-    group(:stmts) do
-      ignore(:NEWLINE)
-      ignore(:INLINE_NEWLINE)
+    group :stmts do
+      ignore :NEWLINE
+      ignore :INLINE_NEWLINE
 
-      rule(:stmt, :stmts) do |context|
+      rule :stmt, :stmts do |context|
         context.flatten
         root_node = Node::Root.new(context.nodes)
         context.become(root_node)
       end
-      rule(:stmt)
+      rule :stmt
     end
 
-    group(:stmt) do
-      rule(:cond)
-      rule(:fn_def)
+    group :stmt do
+      rule :fn_def
+      rule :set_member_value
+      rule :def_value
+      rule :set_value
+      rule :cond
     end
 
-    group(:literal) do
-      rule(:FLT) do |context|
-        token = context.token
-
-        context.clear
-        context.add(Node::Flt.new(token.value.to_f32, token.position))
-      end
-
-      rule(:INT) do |context|
-        token = context.token
-
-        context.clear
-        context.add(Node::Int.new(token.value.to_i32, token.position))
-      end
-
-      rule(:BOOL) do |context|
-        token = context.token
-
-        context.clear
-
-        bool_value : Bool
-        case token.value
-        when "true"
-          bool_value = true
-        when "false"
-          bool_value = false
-        else
-          raise Error::Internal.new("Invalid bool value: \"#{token.value}\".")
-        end
-
-        context.add(Node::Bool.new(bool_value, token.position))
-      end
-
-      rule :STR do |context|
-        token = context.token
-        value = token.value
-        pos = token.position
-
-        context.clear
-        context.add(Node::Str.new(value, pos))
-      end
-    end
-
-    group(:value) do
-      rule(:literal)
-      rule(:fn_call)
-      rule(:member_access)
-      rule(:L_PAR, :cond, :R_PAR)
+    group :value do
+      rule :literal
+      rule :fn_call
+      rule :get_member_value
+      rule :get_value
+      rule :L_PAR, :cond, :R_PAR
     end
   end
 end
