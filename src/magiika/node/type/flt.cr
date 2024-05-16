@@ -77,6 +77,20 @@ module Magiika
       {% end %}
     end
 
+    private def self.__cash(scope : Scope::MethodScope) : NodeObj
+      Magiika.def_scoped_vars self
+
+      {% begin %}
+        puts Node::Str.new(self_node.to_s_internal).to_s_internal
+      {% end %}
+      return Node::NoPrint.instance.as(NodeObj)
+    end
+
+    Magiika.def_fn "_$",
+      __cash,
+      nil,
+      Node::NoPrint
+
     Magiika.def_fn "+",
       _add,
       [FnParam.new("other", NUMBER_UNION)],

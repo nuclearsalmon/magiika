@@ -12,24 +12,17 @@ module Magiika::Lang
     @root : Group
     @groups : Hash(Symbol, Group)
     @tokens : Hash(Symbol, Token)
-    getter groups, tokens
 
-    @parsing_position = 0
+    @parsing_position : Int32 = 0
     property parsing_position
 
     @parsing_tokens = Array(MatchedToken).new
-    getter parsing_tokens
 
-    @cache = Hash(
-      Int32,                   # start index
-      Hash(                    #
-        Symbol,                # ident
-        Tuple(                 #
-          Context,             # content
-          Int32                # end offset
-        )
-      )).new
-    getter cache
+    alias CacheData = Tuple(Context, Int32)         # content, end offset
+    private alias CacheContainer = Hash(Symbol, CacheData)  # identifier, data
+    private alias Cache = Hash(Int32, CacheContainer)       # start index, container
+
+    @parsing_group_cache = Cache.new
 
     def initialize(
         @root : Group,
@@ -41,7 +34,7 @@ module Magiika::Lang
     def parse(@parsing_tokens : Array(MatchedToken)) : NodeObj
       # clear before parsing
       @parsing_position = 0
-      @cache.clear()
+      @parsing_group_cache.clear()
 
       # parse
       result_context : Context?
@@ -94,30 +87,93 @@ module Magiika::Lang
       return final_ignores
     end
 
-    private def next_token(
-        ignores : Array(Symbol)? = nil,
-        noignores : Array(Symbol)? = nil) : MatchedToken?
-      resolved_ignores = resolve_ignores(ignores, noignores)
+    private def next_token(resolved_ignores : Array(Symbol)) : MatchedToken?
       loop do
-        position = @parsing_position
+        token = @parsing_tokens[@parsing_position]?
         @parsing_position += 1
-
-        #@cache.delete(position-1)
-
-        tok = @parsing_tokens[position]?
-        return tok if tok.nil? || !(resolved_ignores.includes?(tok._type))
+        if token.nil? || !(resolved_ignores.includes?(token._type))
+          return token
+        end
       end
       return nil
     end
 
-    def expect(
-        expected_token_type : Symbol,
+    def expect_token(
+        ident : Symbol,
         ignores : Array(Symbol)? = nil,
         noignores : Array(Symbol)? = nil) : MatchedToken?
-      tok = next_token(ignores, noignores)
+      computed_ignores = resolve_ignores(ignores, noignores)
 
-      return tok if tok.nil? || tok._type == expected_token_type
-      return nil
+      initial_parsing_position = @parsing_position
+      token = next_token(computed_ignores)
+
+      if token.nil? || token._type != ident
+        @parsing_position = initial_parsing_position
+        return nil
+      end
+      return token
+    end
+
+    private def expect_cache(sym : Symbol) : Context?
+      cache_data = @parsing_group_cache[@parsing_position]?.try(&.[sym]?)
+      return nil if cache_data.nil?
+
+      cached_context, cached_token_length = cache_data
+      @parsing_position += cached_token_length
+
+      return cached_context.clone
+    end
+
+    private def save_to_cache(
+        ident : Symbol,
+        context : Context,
+        start_position : Int32)
+      number_of_tokens = @parsing_position - start_position
+      cache_data = CacheData.new(context.clone, number_of_tokens)
+      #(@parsing_group_cache[start_position] ||= CacheContainer.new)[ident] = cache_data
+    end
+
+    def expect_group(
+        ident : Symbol,
+        ignores : Array(Symbol)? = nil,
+        noignores : Array(Symbol)? = nil) : Context?
+      initial_parsing_position = @parsing_position
+      computed_ignores = resolve_ignores(ignores, noignores)
+
+      context = nil
+      loop do
+        # try the cache
+        context = expect_cache(ident)
+        break unless context.nil? # break if we got a result
+        # try parsing
+        before_parsing_position = @parsing_position
+        context = @groups[ident].parse(self)
+        if context.nil?
+          # get the first token and check if it should be ignored
+          token = @parsing_tokens[@parsing_position]?
+          break if token.nil?
+          break unless computed_ignores.includes?(token._type)
+          @parsing_position += 1
+        else
+          save_to_cache(ident, context, before_parsing_position)
+          break
+        end
+      end
+
+      if context.nil?
+        # reset position if there's no match
+        @parsing_position = initial_parsing_position
+      end
+
+      return context
+    end
+
+    def not_enough_tokens?(min_amount : Int32) : Bool
+      @parsing_tokens[@parsing_position ..].size < min_amount
+    end
+
+    def inspect_cache : String
+      @parsing_group_cache.pretty_inspect
     end
   end
 end

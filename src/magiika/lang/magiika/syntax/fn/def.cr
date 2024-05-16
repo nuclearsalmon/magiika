@@ -1,10 +1,10 @@
 module Magiika::Lang::Syntax
-  protected def define_fn(context : Context) : NodeObj
+  protected def define_fn(context : Context)
     pos = Position.default
     name_tok = context[:fn_ident].token
     name = name_tok.value
 
-    node_params = context[:fn_params].nodes?
+    node_params = context[:fn_params]?.try(&.nodes?)
     params = Node::FnParams.new
     unless node_params.nil?
       node_params.each { |node|
@@ -14,11 +14,14 @@ module Magiika::Lang::Syntax
     end
 
     body = context[:fn_body].nodes
-    #ret = context[:fn_ret]?.token.value
-    ret = nil
+    ret_tok = context[:fn_ret]?.try(&.token.value)
+    ret = nil  # FIXME
 
     fn = Node::StmtsFn.new(pos, name, params, body, ret)
-    Node::AssignVar.new(pos, name_tok, fn, AssignMode::Any)
+    assign = Node::AssignVar.new(pos, name_tok, fn, AssignMode::Any)
+
+    context.clear
+    context.become(assign)
   end
 
   protected def register_function_defining
@@ -40,9 +43,19 @@ module Magiika::Lang::Syntax
       end
     end
 
-    group :fn_stmts do
+    group :fn_stmt do
       rule :cond
       rule :fn_def
+    end
+
+    group :fn_stmts do
+      ignore :NEWLINE
+      ignore :INLINE_NEWLINE
+
+      rule :fn_stmt, :fn_stmts do |context|
+        context.flatten
+      end
+      rule :fn_stmt
     end
 
     group :fn_body do
@@ -59,15 +72,19 @@ module Magiika::Lang::Syntax
 
     group :fn_def do
       rule :fn_ident, :fn_params, :fn_ret, :fn_body do |context|
-        fn_def = define_fn(context)
-        context.clear
-        context.add(fn_def)
+        define_fn(context)
       end
 
       rule :fn_ident, :fn_params, :fn_body do |context|
-        fn_def = define_fn(context)
-        context.clear
-        context.add(fn_def)
+        define_fn(context)
+      end
+
+      rule :fn_ident, :fn_ret, :fn_body do |context|
+        define_fn(context)
+      end
+
+      rule :fn_ident, :fn_body do |context|
+        define_fn(context)
       end
     end
   end

@@ -1,6 +1,9 @@
 require "../../util/object_extensions.cr"
 
-require "../../util/error.cr"
+require "../../util/algo.cr"
+require "../../misc/error.cr"
+require "../../misc/visibility.cr"
+require "../../misc/match_result.cr"
 
 require "../parser/parser.cr"
 require "../parser/builder.cr"
@@ -8,9 +11,8 @@ require "../parser/builder.cr"
 require "../position.cr"
 require "../parser/misc/token.cr"
 
-require "../../util/visibility.cr"
-require "../../util/match_result.cr"
-require "../../util/member_objects_helper.cr"
+require "../../node_members/member_objects_helper.cr"
+require "../../node_members/shared.cr"
 require "../../node/node.cr"
 
 require "../../node/fn/supplementary.cr"
@@ -18,6 +20,7 @@ require "../../node/fn/templates/**"
 require "../../node/fn/fn.cr"
 require "../../node/fn/**"
 
+require "../../node/no_print.cr"
 require "../../node/type/psuedo/**"
 require "../../node/type/**"
 require "../../typing/typing.cr"
@@ -28,6 +31,7 @@ require "../../node/stmt/**"
 require "../../scope/scope.cr"
 require "../../scope/**"
 
+require "../../node/root.cr"
 require "./syntax_macros.cr"
 require "./syntax/**"
 
@@ -220,7 +224,8 @@ module Magiika::Lang
           if input.size == 3 && input[0] == '#' && input[1] == '#'
             operator_command(input[2])
           else
-            unless (result = execute(input, scope)).nil?
+            result = execute(input, scope)
+            unless result.nil? || result.is_a?(Node::NoPrint)
               print "⭐ #{result.to_s_internal}\n"
             end
             print "\n"
@@ -230,7 +235,6 @@ module Magiika::Lang
         end
       end
     rescue ex : Exception
-      #warn(ex.inspect_with_backtrace)
       print_ex(ex)
     ensure
       exit

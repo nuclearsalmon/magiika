@@ -15,5 +15,26 @@ module Magiika
     def eval_bool(scope : Scope) : ::Bool
       return @value != ""
     end
+
+
+    # ⭐ Members
+    # ---
+
+    # define members code
+    Magiika.def_members_feat
+
+    private def self.__cash(scope : Scope::MethodScope) : NodeObj
+      Magiika.def_scoped_vars self
+
+      {% begin %}
+        puts Node::Str.new(self_node.to_s_internal).to_s_internal
+      {% end %}
+      return Node::NoPrint.instance.as(NodeObj)
+    end
+
+    Magiika.def_fn "_$",
+      __cash,
+      nil,
+      Node::NoPrint
   end
 end

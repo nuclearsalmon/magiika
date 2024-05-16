@@ -29,15 +29,9 @@ module Magiika::Lang
       self.new
     end
 
-    def initialize
-      @row = -1
-      @col = -1
-      @filename = nil
-    end
-
     def initialize(
-        @row : Int32,
-        @col : Int32,
+        @row : Int32 = -1,
+        @col : Int32 = -1,
         @filename : String? = nil)
     end
 

@@ -14,7 +14,7 @@ module Magiika
       obj_oper = obj[extended_oper]?
 
       if obj_oper.nil?
-        raise Error::UndefinedMethod.new(extended_oper)
+        raise Error::UndefinedMethod.new(extended_oper, obj)
       else
         obj_oper = obj_oper.eval(scope)
 

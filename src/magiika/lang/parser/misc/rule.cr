@@ -20,99 +20,61 @@ module Magiika::Lang
         parser : Parser,
         ignores : Array(Symbol)?,
         noignores : Array(Symbol)?) : Context?
-      if parser.parsing_tokens[parser.parsing_position ..].size < @pattern.size
+      if parser.not_enough_tokens?(@pattern.size)
         Log.debug { "Skipping rule #{@pattern}, not enough tokens." }
         return nil
       end
 
-      # setup
-      # store starting position
-      start_position = parser.parsing_position
+      # store initial parsing position
+      initial_parsing_position = parser.parsing_position
+
       # create data storage
       context = Context.new(self_name)
 
       # iterate over rule symbols, eg [:NAME, :EQ, :expr]
       @pattern.each do |sym|
-        sym_s = sym.to_s
-        matched_pattern_part = false
-
         # sym is token name
-        if ObjectExtensions.upcase?(sym_s)  # token
+        if ObjectExtensions.upcase?(sym)  # token
           Log.debug { "  - token: :#{sym} in #{@pattern}@#{parser.parsing_position}" }
 
-          new_tok = parser.expect(sym, ignores, noignores)
+          token = parser.expect_token(sym, ignores, noignores)
 
-          unless new_tok.nil?
-            if @pattern.size > 1
-              context.add(sym, new_tok)
-            else
-              context.add(new_tok)
-            end
+          if token.nil?
+            parser.parsing_position = initial_parsing_position
+            return nil
+          end
 
-            Log.debug { "Token-match :#{sym} in #{@pattern}@#{self_name}" }
-            matched_pattern_part = true
+          Log.debug { "Token-match :#{sym} in #{@pattern}@#{self_name}" }
+          if @pattern.size > 1
+            context.add(sym, token)
+          else
+            context.add(token)
           end
         # sym is group name
         else
           Log.debug { "  - group: :#{sym} in #{@pattern}@#{parser.parsing_position}" }
 
-          # attempt cache-match before group-match
-          cache_data = parser.cache[parser.parsing_position]?.try(&.[sym]?)
-          unless cache_data.nil?
-            # cache-match
-            cached_context, cached_token_length = cache_data
-            Log.debug { "Cache-match :#{sym} in #{@pattern}@#{self_name}: #{cached_context.pretty_inspect}" }
+          group_context = parser.expect_group(sym, ignores, noignores)
 
-            # update context
-            if @pattern.size > 1
-              context.unsafe_add(sym, cached_context.clone)
-            else
-              context.merge(cached_context)
-            end
-
-            parser.parsing_position += cached_token_length
-
-            matched_pattern_part = true
-          else
-            # group-match
-            group = parser.groups[sym]?
-            raise Error::Internal.new("Unknown group name `#{sym}`.") if group.nil?
-
-            # store pre-parsing position, then parse
-            pre_parsing_position = parser.parsing_position
-            new_context = group.parse(parser)
-
-            # if parsing yielded result
-            unless new_context.nil?
-              Log.debug { "Group-match :#{sym} in #{@pattern}@#{self_name}" }
-
-              # update cache
-              number_of_tokens = parser.parsing_position - pre_parsing_position
-              cache_entry = {new_context, number_of_tokens}
-              Log.debug { "Saving :#{sym} to #{pre_parsing_position}, " +
-                          "comprising of #{number_of_tokens} tokens" }
-              (parser.cache[pre_parsing_position] \
-                ||= Hash(Symbol, Tuple(Context, Int32)).new)[sym] = cache_entry
-
-              # update context
-              if @pattern.size > 1
-                context.unsafe_add(sym, new_context)
-              else
-                context.merge(new_context)
-              end
-
-              matched_pattern_part = true
-            end
+          if group_context.nil?
+            parser.parsing_position = initial_parsing_position
+            return nil
           end
-        end
 
-        unless matched_pattern_part
-          # no match
-          parser.parsing_position = start_position
-          return nil
+          Log.debug { "Group-match :#{sym} in #{@pattern}@#{self_name}" }
+          # update context
+          if @pattern.size > 1
+            context.unsafe_add(sym, group_context)
+          else
+            context.unsafe_merge(group_context)
+          end
         end
       end
 
+      #pp self_name
+      #pp @pattern
+      #pp context
+      #puts ""
       return context
     end
   end

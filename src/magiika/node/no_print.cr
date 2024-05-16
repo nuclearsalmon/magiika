@@ -1,5 +1,5 @@
 module Magiika
-  class Node::Nil < NodeClassBase
+  class Node::NoPrint < NodeClassBase
     private def initialize
       super(nil)
     end

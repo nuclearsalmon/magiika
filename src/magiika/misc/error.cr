@@ -1,6 +1,3 @@
-require "./algo.cr"
-
-
 module Magiika::Error
   # ✨ Internal, typically non-recoverable errors.
   # --------------------------------------------------------
@@ -62,7 +59,7 @@ module Magiika::Error
       new_message = (
         "An error occured during parsing." +
         (message.nil? ? "" : " #{message}") +
-        "\n---\nParser cache: \n#{parser.cache.pretty_inspect}\n---\n")
+        "\n---\nParser cache: \n#{parser.inspect_cache}\n---\n")
       super(new_message, cause)
     end
   end
@@ -204,10 +201,12 @@ module Magiika::Error
   class UndefinedMethod < Safe
     def initialize(
         ident : String,
+        target : NodeObj? = nil,
         position : Lang::Position? = nil)
       super(
         "UNDEFINED METHOD",
-        "Undefined method: '#{ident}'",
+        "Undefined method: '#{ident}'" +
+        (target.nil? ? "" : "on #{target.type_name}"),
         position)
     end
   end

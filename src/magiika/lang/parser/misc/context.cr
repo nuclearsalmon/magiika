@@ -5,14 +5,11 @@ module Magiika::Lang
   class Context
     property name : Symbol
 
-    #protected getter nodes : Array(NodeObj)?
-    #protected getter tokens : Array(MatchedToken)?
-    #protected getter sub_contexts : Hash(Symbol, Context)?
-
     def initialize(@name : Symbol)
     end
 
-    def initialize(@name : Symbol,
+    def initialize(
+        @name : Symbol,
         @nodes : Array(NodeObj)?,
         @tokens : Array(MatchedToken)?,
         @sub_contexts : Hash(Symbol, Context)?)
@@ -99,6 +96,13 @@ module Magiika::Lang
       end
     end
 
+    def flatten
+      @sub_contexts.try(&.each { |key, context|
+        drop_context(key)
+        unsafe_merge(context)
+      })
+    end
+
     def absorb(key : Symbol)
       context = self[key]
       drop_context(key)
@@ -111,10 +115,19 @@ module Magiika::Lang
       unsafe_merge(context)
     end
 
+    def become(data : NodeObj | MatchedToken)
+      clear
+      add(data)
+    end
+
     private def internal_merge(from : Context, safe : ::Bool)
       unless (from_sub_contexts = from.@sub_contexts).nil? || from_sub_contexts.empty?
+        if safe
+          from_sub_contexts = from_sub_contexts.clone
+        end
+
         if (sub_contexts = @sub_contexts).nil?
-          @sub_contexts = safe ? from_sub_contexts.clone : from_sub_contexts
+          @sub_contexts = from_sub_contexts
         else
           sub_contexts.merge(from_sub_contexts)
         end

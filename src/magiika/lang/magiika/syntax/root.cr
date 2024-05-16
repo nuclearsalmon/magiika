@@ -1,7 +1,7 @@
 module Magiika::Lang::Syntax
   protected def register_root
     root do
-      ignore(:LINE_SEGMENT)
+      ignore(:LINE_CONT)
       ignore(:SPACE)
 
       rule(:stmts)
@@ -9,9 +9,12 @@ module Magiika::Lang::Syntax
 
     group(:stmts) do
       ignore(:NEWLINE)
+      ignore(:INLINE_NEWLINE)
 
       rule(:stmt, :stmts) do |context|
-        context.absorb(:stmt)
+        context.flatten
+        root_node = Node::Root.new(context.nodes)
+        context.become(root_node)
       end
       rule(:stmt)
     end

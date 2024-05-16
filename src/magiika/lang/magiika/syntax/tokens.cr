@@ -113,9 +113,9 @@ module Magiika::Lang::Syntax
     # whitespace
     # (ran last, to allow for whitespace-sensitive tokens)
     # ------------------------------------------------------
-    token(:TAB, /\t| {2}+/)
+    token(:TAB, /\t| {2}/)
     token(:SPACE, / +/)
-    token(:LINE_SEGMENT, /\\[\t ]*\r?\n/)
+    token(:LINE_CONT, /\\ ?\r?\n[\t ]*/)
     token(:NEWLINE, /\r?\n/)
     token(:INLINE_NEWLINE, /;/)
   end
