@@ -1,6 +1,3 @@
-require "./context.cr"
-
-
 module Magiika::Lang
   private alias RuleBlock = Proc(Context, Nil)
 

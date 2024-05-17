@@ -1,7 +1,8 @@
 require "./tokenizer.cr"
 require "./validator.cr"
+require "./misc/rule.cr"
 require "./group/group.cr"
-require "./misc/context.cr"
+require "./context/context.cr"
 
 
 module Magiika::Lang

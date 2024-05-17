@@ -1,6 +1,3 @@
-require "../misc/rule.cr"
-
-
 module Magiika::Lang
   private class Group
     # required for functionality
