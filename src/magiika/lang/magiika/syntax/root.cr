@@ -36,13 +36,12 @@ module Magiika::Lang::Syntax
       rule :L_PAR, :enclosed_value, :R_PAR do |context|
         context.become(:enclosed_value)
       end
+      rule :cond
     end
 
     group :enclosed_value do
-      rule :set_member_value
       rule :def_value
-      rule :set_value
-      rule :cond
+      rule :value
     end
   end
 end
