@@ -1,8 +1,8 @@
 module Magiika
   class Node::RetrieveVar < NodeClassBase
     def initialize(
-        position : Lang::Position?,
-        @ident : Lang::MatchedToken)
+        @ident : String,
+        position : Lang::Position? = nil)
       super(position)
     end
 
@@ -17,9 +17,9 @@ module Magiika
 
   class Node::RetrieveMember < NodeClassBase
     def initialize(
-        position : Lang::Position?,
         @source : NodeObj,
-        @action : NodeObj)
+        @action : NodeObj,
+        position : Lang::Position? = nil)
       super(position)
     end
 

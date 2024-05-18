@@ -8,13 +8,17 @@ module Magiika::Lang::Syntax
     end
 
     group :stmts do
-      ignore :NEWLINE
-      ignore :INLINE_NEWLINE
+      rule :stmt, :nls, :stmts do |context|
+        context.drop(:nls)
 
-      rule :stmt, :stmts do |context|
+        pp context
         context.flatten
+        pp context
+
         root_node = Node::Root.new(context.nodes)
-        context.become(root_node)
+
+        context.drop_nodes
+        context.add(root_node)
       end
       rule :stmt
     end
@@ -32,7 +36,9 @@ module Magiika::Lang::Syntax
       rule :fn_call
       rule :get_member_value
       rule :get_value
-      rule :L_PAR, :cond, :R_PAR
+      rule :L_PAR, :cond, :R_PAR do |context|
+        context.become(:cond)
+      end
     end
   end
 end

@@ -4,8 +4,7 @@ module Magiika::Lang
       if key == @name
         self
       else
-        _sub_contexts = @sub_contexts
-        _sub_contexts.nil? ? nil : _sub_contexts[key]?
+        @sub_contexts.try(&.[key]?)
       end
     end
 
@@ -74,7 +73,7 @@ module Magiika::Lang
       return _nodes.first
     end
 
-    def position : Lang::Position
+    def position? : Lang::Position?
       lowest_position = nil
 
       @tokens.try(&.each { |token|
@@ -95,14 +94,27 @@ module Magiika::Lang
         end
       })
 
-      @sub_contexts.try(&.each { |sub_context|
-        sub_context_position = sub_context.position
-        if (lowest_position.nil? ||
-            (sub_context_position.row <= lowest_position.row &&
-            sub_context_position.col < lowest_position.col))
-          lowest_position = sub_context_position
-        end
-      })
+      sub_contexts = @sub_contexts
+      unless sub_contexts.nil?
+        sub_contexts.each { |_, sub_context|
+          next if sub_context.empty?
+
+          sub_context_position = sub_context.position?
+          next if sub_context_position.nil?
+
+          if (lowest_position.nil? ||
+              (sub_context_position.row <= lowest_position.row &&
+               sub_context_position.col < lowest_position.col))
+            lowest_position = sub_context_position
+          end
+        }
+      end
+
+      return lowest_position
+    end
+
+    def position : Lang::Position
+      lowest_position = position?
 
       if lowest_position.nil?
         if empty?
@@ -111,6 +123,8 @@ module Magiika::Lang
           raise Error::Internal.new("Could not find a context position, yet context is not empty.")
         end
       end
+
+      return lowest_position
     end
   end
 end

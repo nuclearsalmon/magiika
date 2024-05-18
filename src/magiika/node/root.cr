@@ -7,14 +7,6 @@ module Magiika
       super(position)
     end
 
-    def to_s : String
-      ""
-    end
-
-    def to_s_internal : String
-      ""
-    end
-
     def eval(scope : Scope) : Node::Nil
       @statements.each { |stmt| stmt.eval(scope) }
       return Node::Nil.instance

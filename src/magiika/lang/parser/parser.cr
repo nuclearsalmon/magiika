@@ -55,10 +55,11 @@ module Magiika::Lang
       # verify that every token was consumed
       position = @parsing_position
       if position < @parsing_tokens.size
-        raise Error::SafeParsingError.new( \
-          "Unconsumed tokens (#{@parsing_tokens.size-position}" \
-          "/#{@parsing_tokens.size}):\n" +
-          @parsing_tokens[position..].map(&.to_s).join("\n"))
+        raise Error::UnexpectedSymbol.new(@parsing_tokens[position])
+        #raise Error::SafeParsingError.new( \
+        #  "Unconsumed tokens (#{@parsing_tokens.size-position}" \
+        #  " / #{@parsing_tokens.size} total):\n" +
+        #  @parsing_tokens[position..].map(&.to_s).join("\n"))
       end
 
       return result_node
@@ -128,10 +129,10 @@ module Magiika::Lang
     private def save_to_cache(
         ident : Symbol,
         context : Context,
-        start_position : Int32)
+        start_position : Int32) : Nil
       number_of_tokens = @parsing_position - start_position
       cache_data = CacheData.new(context.clone, number_of_tokens)
-      #(@parsing_group_cache[start_position] ||= CacheContainer.new)[ident] = cache_data
+      (@parsing_group_cache[start_position] ||= CacheContainer.new)[ident] = cache_data
     end
 
     def expect_group(

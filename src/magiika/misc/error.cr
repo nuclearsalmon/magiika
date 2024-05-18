@@ -83,7 +83,7 @@ module Magiika::Error
 
       message = @message.as(String)
       #message = "#{@title}"
-      message += " @ #{position}" unless position.nil?
+      message += " @ #{position.to_s}" unless position.nil?
       #message += "\n\n   #{@message}"
 
       return message
@@ -146,28 +146,15 @@ module Magiika::Error
     end
   end
 
-  # FIXME: unused
-  # unexpected symbol when parsing
-  class UnexpectedSymbol < Safe
-    def initialize(
-        symbol : Symbol,
-        position : Lang::Position? = nil)
-      super(
-        "UNEXPECTED SYMBOL",
-        "Unexpected symbol: '#{symbol}'",
-        position)
-    end
-  end
-
-  # FIXME: unused
   # expected end when parsing
-  class ExpectedEnd < Safe
-    def initialize(
-        symbol : Symbol,
-        position : Lang::Position? = nil)
+  class UnexpectedSymbol < Safe
+    def initialize(token : Lang::MatchedToken)
+      _type = token._type
+      symbol = token.value
+      position = token.position
       super(
         "EXPECTED END",
-        "Expected end. Unexpected symbol: '#{symbol}'",
+        "Unexpected symbol: \"#{symbol}\" (:#{_type})",
         position)
     end
   end

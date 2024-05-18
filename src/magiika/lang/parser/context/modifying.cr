@@ -1,17 +1,5 @@
 module Magiika::Lang
   module ContextTemplate::Modifying
-    def clear_nodes
-      @nodes.try(&.clear)
-    end
-
-    def clear_tokens
-      @tokens.try(&.clear)
-    end
-
-    def clear_subcontexts
-      @sub_contexts.try(&.clear)
-    end
-
     def clear
       @nodes.try(&.clear)
       @tokens.try(&.clear)
@@ -23,28 +11,32 @@ module Magiika::Lang
       @name = name
     end
 
-    protected def drop_tokens(index : Int32 = -1)
-      if index == -1
-        clear_tokens
-      else
-        if !((tokens = @tokens).nil?) && index < tokens.size
-          tokens.delete_at(index)
-        end
+    def drop_token(index : Int32)
+      if !((tokens = @tokens).nil?) && index < tokens.size
+        tokens.delete_at(index)
       end
     end
 
-    protected def drop_nodes(index : Int32 = -1)
-      if index == -1
-        clear_nodes
-      else
-        if !((nodes = @nodes).nil?) && index < nodes.size
-          nodes.delete_at(index)
-        end
+    def drop_tokens
+      @tokens.try(&.clear)
+    end
+
+    def drop_node(index : Int32)
+      if !((nodes = @nodes).nil?) && index < nodes.size
+        nodes.delete_at(index)
       end
+    end
+
+    def drop_nodes
+      @nodes.try(&.clear)
     end
 
     private def drop_context(key : Symbol)
       @sub_contexts.try(&.delete(key))
+    end
+
+    def drop_contexts
+      @sub_contexts.try(&.clear)
     end
 
     def drop(key : Symbol, index : Int32 = -1)
@@ -52,9 +44,17 @@ module Magiika::Lang
       return if context.nil?
 
       if ObjectExtensions.upcase?(key)
-        context.drop_tokens(index)
+        if index == -1
+          context.drop_tokens
+        else
+          context.drop_token(index)
+        end
       else
-        context.drop_nodes(index)
+        if index == -1
+          context.drop_nodes
+        else
+          context.drop_node(index)
+        end
       end
 
       if index == -1 && context.empty?
@@ -65,6 +65,7 @@ module Magiika::Lang
     def flatten
       @sub_contexts.try(&.each { |key, context|
         drop_context(key)
+        context.flatten
         unsafe_merge(context)
       })
     end

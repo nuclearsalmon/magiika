@@ -189,12 +189,12 @@ module Magiika::Lang
       inform(tokens) if @display_tokenization
 
       parsed_result = @parser.parse(tokens)
-      inform(parsed_result.to_s) if @display_parsing
+      inform(parsed_result) if @display_parsing
 
       return nil if parsed_result.nil?
 
       eval_result = parsed_result.eval(scope)
-      inform(eval_result.to_s) if @display_eval
+      inform(eval_result) if @display_eval
 
       eval_result
     end
