@@ -20,7 +20,11 @@ module Magiika
 
         if left_oper.type?(Node::Fn)
           return left_oper.as(Node::Fn).call_safe_raise(
-            [FnArg.new("self", left), FnArg.new(nil, right)], scope)
+            [
+              FnArg.new(left, "self"),
+              Node::FnArg.new(right, nil)
+            ],
+            scope)
         else
           raise Error::Internal.new("binary operation where operation is not a function")
         end

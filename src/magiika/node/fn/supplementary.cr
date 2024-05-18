@@ -42,11 +42,19 @@ module Magiika
 
   alias Node::FnParams = Array(Node::FnParam)
 
-  record FnArg,
-    name : String?,
-    value : NodeObj
+  #record FnArg,
+  #  name : String?,
+  #  value : NodeObj
 
-  alias FnArgs = Array(FnArg)
+  class Node::FnArg < NodeClassBase
+    getter name : String?
+    getter value : NodeObj
+
+    def initialize(@value : NodeObj, @name : String? = nil)
+    end
+  end
+
+  alias FnArgs = Array(Node::FnArg)
 
   record FnRet,
     _type : NodeType? = nil,

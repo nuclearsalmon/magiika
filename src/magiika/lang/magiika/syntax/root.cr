@@ -10,10 +10,7 @@ module Magiika::Lang::Syntax
     group :stmts do
       rule :stmt, :nls, :stmts do |context|
         context.drop(:nls)
-
-        pp context
         context.flatten
-        pp context
 
         root_node = Node::Root.new(context.nodes)
 
@@ -36,9 +33,16 @@ module Magiika::Lang::Syntax
       rule :fn_call
       rule :get_member_value
       rule :get_value
-      rule :L_PAR, :cond, :R_PAR do |context|
-        context.become(:cond)
+      rule :L_PAR, :enclosed_value, :R_PAR do |context|
+        context.become(:enclosed_value)
       end
+    end
+
+    group :enclosed_value do
+      rule :set_member_value
+      rule :def_value
+      rule :set_value
+      rule :cond
     end
   end
 end

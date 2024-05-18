@@ -11,7 +11,7 @@ module Magiika::Lang
       @name = name
     end
 
-    def drop_token(index : Int32)
+    protected def drop_token(index : Int32)
       if !((tokens = @tokens).nil?) && index < tokens.size
         tokens.delete_at(index)
       end
@@ -21,7 +21,7 @@ module Magiika::Lang
       @tokens.try(&.clear)
     end
 
-    def drop_node(index : Int32)
+    protected def drop_node(index : Int32)
       if !((nodes = @nodes).nil?) && index < nodes.size
         nodes.delete_at(index)
       end
@@ -57,7 +57,7 @@ module Magiika::Lang
         end
       end
 
-      if index == -1 && context.empty?
+      if index == -1
         drop_context(key)
       end
     end

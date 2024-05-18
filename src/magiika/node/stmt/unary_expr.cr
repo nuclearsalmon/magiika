@@ -20,7 +20,7 @@ module Magiika
 
         if obj_oper.type?(Node::Fn)
           return obj_oper.as(Node::Fn).call_safe_raise(
-            [FnArg.new("self", obj)], scope)
+            [FnArg.new(obj, "self")], scope)
         else
           return obj_oper
         end

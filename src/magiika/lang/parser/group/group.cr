@@ -41,7 +41,7 @@ module Magiika::Lang
     end
 
     def parse(parser : Parser) : Context?
-      Log.debug { "[Trying] :#{@name} ..." }
+      Log.debug { "... trying rules for :#{@name} ..." }
 
       context = try_rules(parser, context_for_lr=nil)
       if context.nil?

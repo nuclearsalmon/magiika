@@ -60,9 +60,14 @@ module Magiika
           if arg_data.nil?
             arg_data = anon_args.pop?
             if arg_data.nil?
-              match_result.add_error("Missing argument for parameter '#{p_name}'")
-              break unless deep_analysis
-              next
+              p_value = param.value
+              if p_value.nil?
+                match_result.add_error("Missing argument for parameter \"#{p_name}\"")
+                break unless deep_analysis
+                next
+              else
+                arg_data = p_value
+              end
             end
           end
         end
@@ -77,7 +82,7 @@ module Magiika
 
         # check for duplicate
         unless arg_to_param_mapping[p_name]?.nil?
-          match_result.add_error("Duplicate argument for parameter '#{p_name}'")
+          match_result.add_error("Duplicate argument for parameter \"#{p_name}\"")
           break unless deep_analysis
           next
         end
@@ -88,10 +93,10 @@ module Magiika
 
       # Check if there are unmatched arguments
       unless anon_args.empty?
-        match_result.add_error("Unmatched anonymous arguments remaining: #{anon_args}")
+        match_result.add_error("Unmatched anonymous arguments remaining:\n  #{anon_args}")
       end
       unless kw_args.empty?
-        match_result.add_error("Unmatched keyword arguments remaining: #{kw_args}")
+        match_result.add_error("Unmatched keyword arguments remaining:\n  #{kw_args}")
       end
 
       if match_result.matched?
@@ -127,17 +132,19 @@ module Magiika
 
     def pretty_sig
       "#{@name}(" + \
-        (@params.map { |p|
-          cs_map_str = "\n  :"
-          descriptors = p.descriptors
-          unless descriptors.nil?
-            cs_map_str = descriptors.map { |descriptor|
-              "#{descriptor.class.pretty_inspect}"
-            }.join(separator='\n')
-          end
+        (@params.map { |param|
+          param_value = param.value
+          cs_map_str = ""
+          param.descriptors.try(&.map { |descriptor|
+            "#{descriptor.class.pretty_inspect}"
+          }.join(separator='\n'))
 
-          cs_map_str + " " + p.name.to_s
-        }).join(separator=",\n  ") + \
+          "\n  :" +
+          cs_map_str +
+          (cs_map_str == "" ? "" : " ") +
+          param.name.to_s +
+          (param_value.nil? ? "" : " = #{param_value.to_s_internal}")
+        }).join(separator=",") + \
         ")" + \
         (@returns.nil? ? "" : "-> #{@returns}")
     end

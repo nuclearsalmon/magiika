@@ -8,7 +8,7 @@ module Magiika::Lang::Syntax
     end
 
     group :fn_param do
-      rule :t_def, :EQ, :expr do |context|
+      rule :t_def, :ASSIGN, :expr do |context|
         define_fn_param(context)
       end
       rule :t_def do |context|
@@ -17,6 +17,8 @@ module Magiika::Lang::Syntax
     end
 
     group :fn_params do
+      ignore :SPACE
+
       rule :fn_param, :SEP, :fn_params do |context|
         context.drop(:SEP)
         context.flatten
@@ -80,7 +82,7 @@ module Magiika::Lang::Syntax
     name_tok = context[:fn_ident].token
     name = name_tok.value
 
-    node_params = context[:fn_params]?.try(&.nodes?)
+    node_params = context[:fn_params_block]?.try(&.nodes?)
     params = Node::FnParams.new
     unless node_params.nil?
       node_params.each { |node|
@@ -102,15 +104,20 @@ module Magiika::Lang::Syntax
   end
 
   protected def define_fn_param(context : Context)
-    _type_ident = context[:TYPE]?.try(&.token)
-    name = context[:NAME].token.value
-    value = context[:expr]?.try(&.node)
-    position = context.position
+    t_def = context[:t_def]?
+    t_def = context if t_def.nil?
+
+    _type_ident = t_def[:TYPE]?.try(&.token)
+    name = t_def[:NAME].token.value
 
     _type = nil
     unless _type_ident.nil?
       _type = Node::RetrieveVar.new(_type_ident.value, _type_ident.position)
     end
+
+    value = context[:expr]?.try(&.node)
+
+    position = context.position
 
     node = Node::FnParam.new(name, _type, nil, value, position)
     context.become(node)

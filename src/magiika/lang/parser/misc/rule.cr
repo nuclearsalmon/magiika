@@ -32,7 +32,7 @@ module Magiika::Lang
       @pattern.each do |sym|
         # sym is token name
         if ObjectExtensions.upcase?(sym)  # token
-          Log.debug { "  - token: :#{sym} in #{@pattern}@#{parser.parsing_position}" }
+          #Log.debug { "Trying token  :#{sym} in #{@pattern} from #{parser.parsing_position}" }
 
           token = parser.expect_token(sym, ignores, noignores)
 
@@ -41,7 +41,7 @@ module Magiika::Lang
             return nil
           end
 
-          Log.debug { "Token-match :#{sym} in #{@pattern}@#{self_name}" }
+          Log.debug { "Matched token :#{sym} in #{@pattern}@:#{self_name}" }
           if @pattern.size > 1
             context.add(sym, token)
           else
@@ -49,7 +49,7 @@ module Magiika::Lang
           end
         # sym is group name
         else
-          Log.debug { "  - group: :#{sym} in #{@pattern}@#{parser.parsing_position}" }
+          #Log.debug { "Trying group  :#{sym} in #{@pattern} from #{parser.parsing_position}" }
 
           group_context = parser.expect_group(sym, ignores, noignores)
 
@@ -58,7 +58,8 @@ module Magiika::Lang
             return nil
           end
 
-          Log.debug { "Group-match :#{sym} in #{@pattern}@#{self_name}" }
+          Log.debug { "Matched group :#{sym} in #{@pattern}@:#{self_name}" }
+
           # update context
           if @pattern.size > 1
             context.unsafe_add(sym, group_context)
