@@ -43,7 +43,7 @@ module Magiika::Lang
       context = self[key]?
       return if context.nil?
 
-      if ObjectExtensions.upcase?(key)
+      if Util.upcase?(key)
         if index == -1
           context.drop_tokens
         else
@@ -82,7 +82,7 @@ module Magiika::Lang
       unsafe_merge(context)
     end
 
-    def become(data : NodeObj | MatchedToken)
+    def become(data : Psuedo::Node | MatchedToken)
       clear
       add(data)
     end
@@ -127,12 +127,12 @@ module Magiika::Lang
       internal_merge(from, false)
     end
 
-    def add(value : NodeObj)
-      (@nodes ||= Array(NodeObj).new) << value
+    def add(value : Psuedo::Node)
+      (@nodes ||= Array(Psuedo::Node).new) << value
     end
 
-    def add(values : Array(NodeObj))
-      (@nodes ||= Array(NodeObj).new).concat(values)
+    def add(values : Array(Psuedo::Node))
+      (@nodes ||= Array(Psuedo::Node).new).concat(values)
     end
 
     def add(value : MatchedToken)
@@ -150,7 +150,7 @@ module Magiika::Lang
 
     def add(
         key : Symbol,
-        value : NodeObj | Array(NodeObj) | MatchedToken | Array(MatchedToken))
+        value : Psuedo::Node | Array(Psuedo::Node) | MatchedToken | Array(MatchedToken))
       sub_context = Context.new(key)
       sub_context.add(value)
       unsafe_add(key, sub_context)

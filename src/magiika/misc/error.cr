@@ -74,7 +74,7 @@ module Magiika::Error
     def initialize(
         @title : String,
         @message : String,
-        @position : Lang::Position? = nil)
+        @position : Position? = nil)
       super(message)
     end
 
@@ -105,15 +105,15 @@ module Magiika::Error
   # expected one type, got another
   class Type < Safe
     def initialize(
-        found_type : NodeAny,
-        expected_type : NodeAny,
+        found_type : Psuedo::TypeNode,
+        expected_type : Psuedo::TypeNodeIdent,
         message : String? = nil,
-        position : Lang::Position? = nil)
+        position : Position? = nil)
       full_message = "Type error"
       full_message += ": '#{message}'" unless message.nil?
       full_message += "."
-      full_message += "\nFound: '#{found_type}.type_name'"
-      full_message += "\nExpected: '#{expected_type}.type_name'"
+      full_message += "\nFound: '#{found_type.type_name}'"
+      full_message += "\nExpected: '#{expected_type.type_name}'"
 
       super(
         "TYPE ERROR",
@@ -126,7 +126,7 @@ module Magiika::Error
   class SafeParsingError < Safe
     def initialize(
         message : String,
-        position : Lang::Position? = nil)
+        position : Position? = nil)
       super(
         "PARSER ERROR",
         message,
@@ -138,7 +138,7 @@ module Magiika::Error
   class UnexpectedCharacter < Safe
     def initialize(
         character : Char,
-        position : Lang::Position? = nil)
+        position : Position? = nil)
       super(
         "UNEXPECTED CHARACTER",
         "Unexpected character: '#{character}'",
@@ -164,7 +164,7 @@ module Magiika::Error
   class UnexpectedEnd < Safe
     def initialize(
         symbol : Symbol,
-        position : Lang::Position? = nil)
+        position : Position? = nil)
       super(
         "UNEXPECTED END",
         "Unexpected end. Expected a symbol after: '#{symbol}'",
@@ -177,7 +177,7 @@ module Magiika::Error
     def initialize(
         ident : String,
         scope : Scope,
-        position : Lang::Position? = nil)
+        position : Position? = nil)
       super(
         "UNDEFINED VARIABLE",
         "Undefined variable: '#{ident}'",
@@ -188,8 +188,8 @@ module Magiika::Error
   class UndefinedMethod < Safe
     def initialize(
         ident : String,
-        target : NodeObj? = nil,
-        position : Lang::Position? = nil)
+        target : Psuedo::Node? = nil,
+        position : Position? = nil)
       super(
         "UNDEFINED METHOD",
         "Undefined method: '#{ident}'" +

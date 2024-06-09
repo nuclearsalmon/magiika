@@ -15,7 +15,7 @@ module Magiika::Lang::Tokenizer
 
           content = match[0]
 
-          position = Lang::Position.new(row, col, filename)
+          position = Position.new(row, col, filename)
           token = Lang::MatchedToken.new(token._type, content, position)
           tokens_found << token
 

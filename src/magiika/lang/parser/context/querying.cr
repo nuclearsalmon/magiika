@@ -12,19 +12,19 @@ module Magiika::Lang
       self.[]?(key) || raise Error::Internal.new("Expected subcontext :#{key} for :#{@name} not found. #{self.pretty_inspect}.")
     end
 
-    def node?(index : Int32 = 0) : NodeObj?
+    def node?(index : Int32 = 0) : Psuedo::Node?
       @nodes.try(&.[index]?)
     end
 
-    def node(index : Int32 = 0) : NodeObj
-      node?(index) || raise Error::Internal.new("Expected NodeObj for :#{@name} not found. #{self.pretty_inspect}.")
+    def node(index : Int32 = 0) : Psuedo::Node
+      node?(index) || raise Error::Internal.new("Expected Psuedo::Node for :#{@name} not found. #{self.pretty_inspect}.")
     end
 
-    def nodes? : Array(NodeObj)?
+    def nodes? : Array(Psuedo::Node)?
       @nodes.try(&.dup)
     end
 
-    def nodes : Array(NodeObj)
+    def nodes : Array(Psuedo::Node)
       nodes? || raise Error::Internal.new("Expected nodes for :#{@name} not found. #{self.pretty_inspect}.")
     end
 
@@ -52,7 +52,7 @@ module Magiika::Lang
     end
 
     # Root result
-    def result : NodeObj
+    def result : Psuedo::Node
       _tokens = @tokens
       _nodes = @nodes
       _sub_contexts = @sub_contexts
@@ -73,7 +73,7 @@ module Magiika::Lang
       return _nodes.first
     end
 
-    def position? : Lang::Position?
+    def position? : Position?
       lowest_position = nil
 
       @tokens.try(&.each { |token|
@@ -113,7 +113,7 @@ module Magiika::Lang
       return lowest_position
     end
 
-    def position : Lang::Position
+    def position : Position
       lowest_position = position?
 
       if lowest_position.nil?

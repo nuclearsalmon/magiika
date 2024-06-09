@@ -11,7 +11,7 @@ module Magiika::Lang
   record MatchedToken,
     _type : Symbol,
     value : String,
-    position : Lang::Position do
+    position : Position do
 
     def to_s
       ":#{@_type}(\"#{@value}\") @ #{@position.to_s}"

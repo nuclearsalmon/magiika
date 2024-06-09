@@ -32,7 +32,7 @@ module Magiika::Lang
       validate_group_rules
     end
 
-    def parse(@parsing_tokens : Array(MatchedToken)) : NodeObj
+    def parse(@parsing_tokens : Array(MatchedToken)) : Psuedo::Node
       # clear before parsing
       @parsing_position = 0
       @parsing_group_cache.clear()
@@ -50,7 +50,7 @@ module Magiika::Lang
           "Parsing failed to match anything.")
       end
 
-      result_node : NodeObj = result_context.result
+      result_node : Psuedo::Node = result_context.result
 
       # verify that every token was consumed
       position = @parsing_position

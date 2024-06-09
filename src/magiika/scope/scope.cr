@@ -1,18 +1,17 @@
 module Magiika
   abstract class Scope
     getter name : String
-    getter position : Lang::Position
+
+    def position? : Position?
+      @position
+    end
 
     def initialize(
         @name : String,
-        @position : Lang::Position)
+        @position : Position? = nil)
     end
 
     abstract def get?(ident : String) : Node::Meta?
-
-    def get?(ident : Lang::MatchedToken) : Node::Meta?
-      get?(ident.value)
-    end
 
     def get(ident : String) : Node::Meta
       obj = get?(ident)
@@ -20,69 +19,49 @@ module Magiika
       raise Error::UndefinedVariable.new(ident, self)
     end
 
-    def get(ident : Lang::MatchedToken) : Node::Meta
-      obj = get?(ident.value)
-      return obj unless obj.nil?
-      raise Error::UndefinedVariable.new(ident.value, self, ident.position)
-    end
-
     def get_fn?(
         ident : String,
         args : FnArgs,
         deep_analysis : Bool = false) \
-          : {MatchResult, {Function, Hash(String, NodeObj)}?}?
+          : {MatchResult, {Function, Hash(String, Psuedo::Node)}?}?
       variable = get?(ident)
       return nil unless variable.is_a?(Node::Fn)
 
       match_result, param_hash \
         = variable.match_args(args, deep_analysis);
 
-      return match_result.error? ? nil : {match_result, {variable, param_hash}}
-    end
-
-    def get_fn?(
-        ident : Lang::MatchedToken,
-        args : FnArgs,
-        deep_analysis : Bool = false) \
-          : {MatchResult, {Function, Hash(String, NodeObj)}?}?
-      get_fn?(ident.value, args, deep_analysis)
+      return deep_analysis ? {match_result, {variable, param_hash}} : nil
     end
 
     def get_fn(
         ident : String,
         args : FnArgs,
         deep_analysis : Bool = false) \
-          : {MatchResult, {Function, Hash(String, NodeObj)}?}
-      function = get_fn?(ident, args, deep_analysis)
-      return function if function
+          : {MatchResult, {Function, Hash(String, Psuedo::Node)}?}
+      fn = get_fn?(ident, args, deep_analysis)
+      return fn unless fn.nil?
       raise Error::UndefinedVariable.new(ident, self)
     end
 
-    def get_fn(
-        ident : Lang::MatchedToken,
-        args : FnArgs,
-        deep_analysis : Bool = false) \
-          : {MatchResult, {Function, Hash(String, NodeObj)}?}
-      function = get_fn?(ident, args, deep_analysis)
-      return function if function
-      raise Error::UndefinedVariable.new(ident.value, self, ident.position)
-    end
-
-    abstract def set(ident : String, value : NodeObj) : Nil
-    def set(ident : Lang::MatchedToken, value : NodeObj) : Nil
-      set(ident.value, value)
+    abstract def set(ident : String, meta : Node::Meta) : Nil
+    def set(ident : String, value : Psuedo::TypeNode) : Nil
+      set(ident, Node::Meta.new(value))
     end
 
     abstract def exist?(ident : String) : ::Bool
-    def exist?(ident : Lang::MatchedToken) : ::Bool
-      exist?(ident.value)
-    end
 
-    abstract def exist_here?(ident : String) : ::Bool
-    def exist_here?(ident : Lang::MatchedToken) : ::Bool
-      exist_here?(ident.value)
-    end
+    abstract def find_global_scope() : Scope::Global
 
-    abstract def find_global_scope() : self
+    protected def prepare_value(value : Psuedo::Node) : Node::Meta
+      if value.is_a?(Node::Meta)
+        if value.const?
+          raise Error::Lazy.new("Cannot modify a constant value.")
+        end
+
+        value
+      else
+        Node::Meta.new(value)
+      end
+    end
   end
 end

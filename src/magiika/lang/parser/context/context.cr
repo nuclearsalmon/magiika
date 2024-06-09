@@ -8,13 +8,13 @@ module Magiika::Lang
     include ContextTemplate::Querying
 
     property name : Symbol
-    @nodes : Array(NodeObj)?
+    @nodes : Array(Psuedo::Node)?
     @tokens : Array(MatchedToken)?
     @sub_contexts : Hash(Symbol, Context)?
 
     def initialize(
         @name : Symbol,
-        @nodes : Array(NodeObj)? = nil,
+        @nodes : Array(Psuedo::Node)? = nil,
         @tokens : Array(MatchedToken)? = nil,
         @sub_contexts : Hash(Symbol, Context)? = nil)
     end

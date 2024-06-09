@@ -31,7 +31,7 @@ module Magiika::Lang
       # iterate over rule symbols, eg [:NAME, :EQ, :expr]
       @pattern.each do |sym|
         # sym is token name
-        if ObjectExtensions.upcase?(sym)  # token
+        if Util.upcase?(sym)  # token
           #Log.debug { "Trying token  :#{sym} in #{@pattern} from #{parser.parsing_position}" }
 
           token = parser.expect_token(sym, ignores, noignores)

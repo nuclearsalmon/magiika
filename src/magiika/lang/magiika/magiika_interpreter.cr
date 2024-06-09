@@ -1,36 +1,7 @@
-require "../../util/object_extensions.cr"
-
-require "../../util/algo.cr"
-require "../../misc/error.cr"
-require "../../misc/visibility.cr"
-require "../../misc/match_result.cr"
-
 require "../parser/parser.cr"
 require "../parser/builder.cr"
-
-require "../position.cr"
 require "../parser/misc/token.cr"
 
-require "../../node_members/member_objects_helper.cr"
-require "../../node_members/shared.cr"
-require "../../node/node.cr"
-
-require "../../node/fn/supplementary.cr"
-require "../../node/fn/templates/**"
-require "../../node/fn/fn.cr"
-require "../../node/fn/**"
-
-require "../../node/type/psuedo/**"
-require "../../node/type/**"
-require "../../typing/typing.cr"
-require "../../node/desc/desc.cr"
-require "../../node/meta.cr"
-require "../../node/stmt/**"
-
-require "../../scope/scope.cr"
-require "../../scope/**"
-
-require "../../node/root.cr"
 require "./syntax_macros.cr"
 require "./syntax/**"
 
@@ -177,14 +148,14 @@ module Magiika::Lang
     # ------------------------------------------------------
 
     def parse(parsing_tokens : Array(MatchedToken)) \
-        : Tuple(Array(MatchedToken), Array(NodeObj))?
+        : Tuple(Array(MatchedToken), Array(Psuedo::Node))?
       @parser.parse(parsing_tokens)
     end
 
     def execute(
         instructions : String,
         scope : Scope,
-        filename : String? = nil) : NodeObj?
+        filename : String? = nil) : Psuedo::Node?
       tokens = @parser.tokenize(instructions, filename)
       inform(tokens) if @display_tokenization
 
@@ -199,15 +170,15 @@ module Magiika::Lang
       eval_result
     end
 
-    def execute(instructions : String) : NodeObj?
-      position = Lang::Position.new(1, 1)
+    def execute(instructions : String) : Psuedo::Node?
+      position = Position.new(1, 1)
       scope = Scope::Global.new("global", position)
 
       return execute(instructions, scope, filename)
     end
 
     def interactive : Nil
-      position = Lang::Position.new(1, 1)
+      position = Position.new(1, 1)
       scope = Scope::Global.new("global", position)
 
       Signal::INT.trap { print "\n"; exit }

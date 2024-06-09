@@ -2,11 +2,16 @@ require "./scope.cr"
 
 
 module Magiika
-  class Scope::NestedScope < Scope
-    @variables : Hash(String, Node::Meta) = {} of String => Node::Meta
-    property parent : Scope
+  class Scope::Nested < Scope
+    protected getter parent : Scope
+    protected getter variables : Hash(String, Node::Meta)
 
-    def initialize(name : String, position : Lang::Position, @parent : Scope)
+    def initialize(
+        name : String,
+        @parent : Scope,
+        position : Position? = nil,
+        @variables : Hash(String, Node::Meta) =
+          Hash(String, Node::Meta).new)
       super(name, position)
     end
 
@@ -16,19 +21,7 @@ module Magiika
       @parent.get?(ident).as(Node::Meta?)
     end
 
-    private def prepare_value(value : NodeObj) : Node::Meta
-      if value.is_a?(Node::Meta)
-        if value.const?
-          raise Error::Lazy.new("Cannot modify a constant value.")
-        end
-
-        value
-      else
-        Node::Meta.new(value)
-      end
-    end
-
-    def set(ident : String, value : NodeObj) : Nil
+    def set(ident : String, meta : Node::Meta) : Nil
       if exist_here?(ident)
         # check if the existing variable is a constant
         existing_value = @variables[ident]?
@@ -38,13 +31,13 @@ module Magiika
         end
 
         # update variable in the current scope
-        @variables[ident] = prepare_value(value)
+        @variables[ident] = meta
       elsif exist_elsewhere?(ident)
         # update variable in the parent scope where it exists
-        @parent.set(ident, value)
+        @parent.set(ident, meta)
       else
         # create variable in the current scope
-        @variables[ident] = prepare_value(value)
+        @variables[ident] = meta
       end
     end
 
@@ -60,7 +53,7 @@ module Magiika
       @parent.exist?(ident)
     end
 
-    def find_global_scope : Scope
+    def find_global_scope : Scope::Global
       @parent.find_global_scope
     end
   end

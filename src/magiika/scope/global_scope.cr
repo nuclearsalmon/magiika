@@ -7,7 +7,7 @@ module Magiika
 
     def initialize(
         name : String,
-        position : Lang::Position)
+        position : Position)
       super(name, position)
     end
 
@@ -15,40 +15,17 @@ module Magiika
       @variables[ident]?
     end
 
-    private def prepare_value(value : NodeObj) : Node::Meta
-      if value.is_a?(Node::Meta)
-        if value.const?
-          raise Error::Lazy.new("Cannot modify a constant value.")
-        end
-
-        value
-      else
-        Node::Meta.new(value)
+    def set(ident : String, meta : Node::Meta) : Nil
+      # check if the existing variable is a constant
+      if @variables[ident]?.try(&.const?)
+        raise Error::Lazy.new("Cannot modify a constant value.")
       end
-    end
 
-    def set(ident : String, value : NodeObj) : Nil
-      if exist_here?(ident)
-        # check if the existing variable is a constant
-        existing_value = @variables[ident]?
-
-        if existing_value && existing_value.const?
-          raise Error::Lazy.new("Cannot modify a constant value.")
-        end
-
-        # update variable in the current scope
-        @variables[ident] = prepare_value(value)
-      else
-        # create variable in the current scope
-        @variables[ident] = prepare_value(value)
-      end
+      # create variable in the current scope
+      @variables[ident] = meta
     end
 
     def exist?(ident : String) : ::Bool
-      @variables.has_key?(ident)
-    end
-
-    def exist_here?(ident : String) : ::Bool
       @variables.has_key?(ident)
     end
 

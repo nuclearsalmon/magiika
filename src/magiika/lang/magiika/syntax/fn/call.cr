@@ -55,7 +55,7 @@ module Magiika::Lang::Syntax
     args = FnArgs.new
     unless node_args.nil?
       node_args.each { |node|
-        node.type!(Node::FnArg)
+        Util.is_a!(node, Node::FnArg)
         args << node.as(Node::FnArg)
       }
     end

@@ -79,25 +79,25 @@ module Magiika::Lang::Syntax
 
   protected def define_fn(context : Context)
     pos = Position.default
-    name_tok = context[:fn_ident].token
-    name = name_tok.value
+    name_t = context[:fn_ident].token
+    name = name_t.value
 
     node_params = context[:fn_params_block]?.try(&.nodes?)
     params = Node::FnParams.new
     unless node_params.nil?
       node_params.each { |node|
-        node.type!(Node::FnParam)
+        Util.is_a!(node, Node::FnParam)
         params << node.as(Node::FnParam)
       }
     end
 
     body = context[:fn_body].nodes?
-    body = Array(NodeObj).new if body.nil?
-    ret_tok = context[:fn_ret]?.try(&.token.value)
+    body = Array(Psuedo::Node).new if body.nil?
+    ret_t = context[:fn_ret]?.try(&.token.value)
     ret = nil  # FIXME
 
     fn = Node::StmtsFn.new(pos, name, params, body, ret)
-    assign = Node::AssignVar.new(pos, name_tok, fn, AssignMode::Any)
+    assign = Node::AssignVar.new(pos, name, fn, AssignMode::Any)
 
     context.clear
     context.become(assign)
@@ -112,7 +112,7 @@ module Magiika::Lang::Syntax
 
     _type = nil
     unless _type_ident.nil?
-      _type = Node::RetrieveVar.new(_type_ident.value, _type_ident.position)
+      _type = Node::Resolve.new(_type_ident.value, _type_ident.position)
     end
 
     value = context[:expr]?.try(&.node)

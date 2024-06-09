@@ -6,7 +6,7 @@ module Magiika::Lang::ParserValidator
     @groups.each do |group_name, group|
       group_name_s = group_name.to_s
 
-      unless ObjectExtensions.downcase?(group_name_s)
+      unless Util.downcase?(group_name_s)
         raise Error::Internal.new("name must be lowercase")
       end
 
@@ -19,7 +19,7 @@ module Magiika::Lang::ParserValidator
     rules.each do |rule|
       rule.pattern.each do |symbol|
         sym_s = symbol.to_s
-        if ObjectExtensions.upcase?(sym_s)
+        if Util.upcase?(sym_s)
           unless valid_token_names.includes?(symbol)
             raise "Invalid #{rule_type} in group '#{group_name}': No token found for symbol ':#{symbol}'"
           end

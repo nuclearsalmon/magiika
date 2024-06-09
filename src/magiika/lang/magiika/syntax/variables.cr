@@ -14,14 +14,14 @@ module Magiika::Lang::Syntax
     group :def_value do
       rule :def, :ASSIGN, :cond do |context|
         name_t = context[:def].token
-        #name = name_t.value
+        name = name_t.value
         #op = context[:ASSIGN].token.value
         value = context[:cond].node
         pos = name_t.position
 
         node = Node::AssignVar.new(
           pos,
-          name_t,
+          name,
           value,
           AssignMode::Declare)
         context.become(node)
@@ -31,14 +31,14 @@ module Magiika::Lang::Syntax
     group :set_value do
       rule :NAME, :ASSIGN, :cond do |context|
         name_t = context[:NAME].token
-        #name = name_t.value
+        name = name_t.value
         #op = context[:ASSIGN].token.value
         value = context[:cond].node
         pos = name_t.position
 
         node = Node::AssignVar.new(
           pos,
-          name_t,
+          name,
           value,
           AssignMode::Replace)
         context.become(node)

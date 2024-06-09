@@ -4,10 +4,6 @@ require "./group/builder.cr"
 
 module Magiika::Lang
   class Parser::Builder
-    private macro type(obj, typ)
-      raise Error::InternalType.new unless {{obj}}.is_a?({{typ}})
-    end
-
     @root : Group? = nil
     @groups = Hash(Symbol, Group).new
     @tokens = Hash(Symbol, Token).new
@@ -27,7 +23,7 @@ module Magiika::Lang
 
     private def token(name : Symbol, pattern : Regex)
       name_s = name.to_s
-      raise Error::Internal.new("name must be uppercase: #{name}") unless ObjectExtensions.upcase?(name_s)
+      raise Error::Internal.new("name must be uppercase: #{name}") unless Util.upcase?(name_s)
       raise Error::Internal.new("duplicate token: :#{name}") if @tokens[name]?
 
       @tokens[name] = Token.new(name, Regex.new("\\A" + pattern.source))
@@ -43,7 +39,7 @@ module Magiika::Lang
 
     private def group(name : Symbol, &)
       name_s = name.to_s
-      raise Error::Internal.new("name must be lowercase: #{name}") unless ObjectExtensions.downcase?(name_s)
+      raise Error::Internal.new("name must be lowercase: #{name}") unless Util.downcase?(name_s)
       raise Error::Internal.new("duplicate group: :#{name}") if @groups[name]?
 
       builder = Group::Builder.new(name)
