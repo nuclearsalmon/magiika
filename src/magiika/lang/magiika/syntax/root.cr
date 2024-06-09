@@ -22,6 +22,7 @@ module Magiika::Lang::Syntax
 
     group :stmt do
       rule :fn_def
+      rule :cls_def
       rule :set_member_value
       rule :def_value
       rule :set_value

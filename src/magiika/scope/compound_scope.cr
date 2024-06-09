@@ -15,7 +15,7 @@ module Magiika
       return nil
     end
 
-    def set(ident : String, meta : Node::Meta) : Nil
+    def set(ident : String, meta : Node::Meta) : ::Nil
       raise Error::Internal.new("Compound scope cannot be empty.") if @scopes.size < 1
       @scopes[0].set(ident, meta)
     end

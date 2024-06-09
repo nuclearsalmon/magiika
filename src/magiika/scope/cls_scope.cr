@@ -41,9 +41,9 @@ module Magiika
     def set(
         ident : String,
         value : Psuedo::TypeNode,
-        visibility : Visibility = Visibility::Public) : Nil
+        visibility : Visibility = Visibility::Public) : ::Nil
       meta = Node::Meta.new(value, nil, nil, visibility)
-      set(ident, meta)
+      super(ident, meta.as(Node::Meta))
     end
 
     private def find_variable_in_scope(

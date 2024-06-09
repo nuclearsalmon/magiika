@@ -43,9 +43,9 @@ module Magiika
       raise Error::UndefinedVariable.new(ident, self)
     end
 
-    abstract def set(ident : String, meta : Node::Meta) : Nil
-    def set(ident : String, value : Psuedo::TypeNode) : Nil
-      set(ident, Node::Meta.new(value))
+    abstract def set(ident : String, meta : Node::Meta) : ::Nil
+    def set(ident : String, value : Psuedo::TypeNode) : ::Nil
+      set(ident, Node::Meta.new(value).as(Node::Meta))
     end
 
     abstract def exist?(ident : String) : ::Bool

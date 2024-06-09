@@ -21,7 +21,7 @@ module Magiika
       @parent.get?(ident).as(Node::Meta?)
     end
 
-    def set(ident : String, meta : Node::Meta) : Nil
+    def set(ident : String, meta : Node::Meta) : ::Nil
       if exist_here?(ident)
         # check if the existing variable is a constant
         existing_value = @variables[ident]?

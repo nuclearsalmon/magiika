@@ -15,7 +15,7 @@ module Magiika
       @variables[ident]?
     end
 
-    def set(ident : String, meta : Node::Meta) : Nil
+    def set(ident : String, meta : Node::Meta) : ::Nil
       # check if the existing variable is a constant
       if @variables[ident]?.try(&.const?)
         raise Error::Lazy.new("Cannot modify a constant value.")

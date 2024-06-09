@@ -24,6 +24,7 @@ module Magiika::Lang
         register_variables
         register_function_defining
         register_function_call
+        register_class_defining
       end
     end
 

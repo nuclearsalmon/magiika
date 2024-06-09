@@ -23,9 +23,7 @@ module Magiika::Lang
       rules = (context_for_lr.nil? ? @rules : @lr_rules)
       rules.each do |rule|
         context = rule.try_patterns(@name, parser, @ignores, @noignores)
-        if context.nil?
-          next
-        else
+        unless context.nil?
           block = rule.block
           unless block.nil?
             context.merge(context_for_lr) unless context_for_lr.nil?
@@ -33,7 +31,6 @@ module Magiika::Lang
             Log.debug { "Executing block for rule #{rule.pattern}@#{@name} ..." }
             block.call(context)
           end
-
           return context
         end
       end

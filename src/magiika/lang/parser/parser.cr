@@ -56,10 +56,6 @@ module Magiika::Lang
       position = @parsing_position
       if position < @parsing_tokens.size
         raise Error::UnexpectedSymbol.new(@parsing_tokens[position])
-        #raise Error::SafeParsingError.new( \
-        #  "Unconsumed tokens (#{@parsing_tokens.size-position}" \
-        #  " / #{@parsing_tokens.size} total):\n" +
-        #  @parsing_tokens[position..].map(&.to_s).join("\n"))
       end
 
       return result_node
