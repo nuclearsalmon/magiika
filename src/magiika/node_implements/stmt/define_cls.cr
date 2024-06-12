@@ -32,7 +32,7 @@ module Magiika
     def eval(scope : Scope) : Psuedo::TypeNode
       cls_scope, inst_scope_base = process_stmts(scope)
 
-      cls =  Node::Cls.new(
+      cls = Node::Cls.new(
         @name,
         @abstract,
         cls_scope,
@@ -40,10 +40,8 @@ module Magiika
         self.position?)
 
       cls_scope.set("this", cls)
-
       scope.set(@name, cls)
-
-      Node::Nil.instance
+      cls
     end
 
     def eval_bool(scope : Scope) : ::Bool

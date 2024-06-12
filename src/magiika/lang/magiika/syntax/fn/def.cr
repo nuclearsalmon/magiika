@@ -97,7 +97,7 @@ module Magiika::Lang::Syntax
     ret = nil  # FIXME
 
     fn = Node::StmtsFn.new(pos, name, params, body, ret)
-    assign = Node::AssignVar.new(pos, name, fn, AssignMode::Any)
+    assign = Node::Assign.new(pos, name, fn, AssignMode::Any)
 
     context.clear
     context.become(assign)

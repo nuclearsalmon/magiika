@@ -90,7 +90,7 @@ module Magiika::Lang::Syntax
     token :L_BRC, /\{/
     token :R_BRC, /\}/
 
-    token :MEMBER, /\./
+    token :CHAIN, /\./
     token :SEP, /,/
 
 

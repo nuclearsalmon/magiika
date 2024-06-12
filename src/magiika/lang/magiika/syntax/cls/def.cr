@@ -46,24 +46,4 @@ module Magiika::Lang::Syntax
     context.clear
     context.become(def_cls)
   end
-
-  protected def define_fn_param(context : Context)
-    t_def = context[:t_def]?
-    t_def = context if t_def.nil?
-
-    _type_ident = t_def[:TYPE]?.try(&.token)
-    name = t_def[:NAME].token.value
-
-    _type = nil
-    unless _type_ident.nil?
-      _type = Node::Resolve.new(_type_ident.value, _type_ident.position)
-    end
-
-    value = context[:expr]?.try(&.node)
-
-    position = context.position
-
-    node = Node::FnParam.new(name, _type, nil, value, position)
-    context.become(node)
-  end
 end

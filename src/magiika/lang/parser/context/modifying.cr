@@ -144,16 +144,43 @@ module Magiika::Lang
     end
 
     # unsafe add, will NOT clone and duplicate
-    def unsafe_add(key : Symbol, value : Context)
-      (@sub_contexts ||= Hash(Symbol, Context).new)[key] = value
+    def unsafe_add(
+        key : Symbol,
+        value : Context)
+      sub_contexts = @sub_contexts
+      if sub_contexts.nil?
+        (@sub_contexts = Hash(Symbol, Context).new)[key] = value
+      else
+        sub_context = sub_contexts[key]?
+        if sub_context.nil?
+          sub_contexts[key] = value
+        else
+          sub_context.unsafe_merge(value)
+        end
+      end
     end
 
     def add(
         key : Symbol,
         value : Psuedo::Node | Array(Psuedo::Node) | MatchedToken | Array(MatchedToken))
-      sub_context = Context.new(key)
-      sub_context.add(value)
-      unsafe_add(key, sub_context)
+      sub_contexts = @sub_contexts
+      if sub_contexts.nil?
+        value_context = Context.new(key)
+        value_context.add(value)
+
+        (@sub_contexts = Hash(Symbol, Context).new)[key] \
+          = value_context
+      else
+        sub_context = sub_contexts[key]?
+        if sub_context.nil?
+          value_context = Context.new(key)
+          value_context.add(value)
+
+          sub_contexts[key] = value_context
+        else
+          sub_context.add(value)
+        end
+      end
     end
   end
 end

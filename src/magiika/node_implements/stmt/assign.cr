@@ -5,7 +5,7 @@ module Magiika
     Any      # any of the modes, doesn't care
   end
 
-  class Node::AssignVar < NodeClass
+  class Node::Assign < NodeClass
     def initialize(
         position : Position?,
         @ident : String,
@@ -36,26 +36,6 @@ module Magiika
         raise Error::Internal.new("Unknown assignment operator: \'#{@oper}\'")
       end
 
-      return value
-    end
-
-    def eval_bool(scope : Scope) : ::Bool
-      return False
-    end
-  end
-
-
-  class Node::AssignMember < NodeClass
-    def initialize(
-        position : Position,
-        @dest : Psuedo::Node,
-        @value : Psuedo::Node,
-        @oper : String)
-      super(position)
-    end
-
-    def eval(scope : Scope) : Psuedo::Node
-      value = @value.eval(scope)
       return value
     end
 

@@ -21,9 +21,10 @@ module Magiika::Lang
         register_primitives
         register_expressions
         register_conditions
-        register_variables
         register_function_defining
         register_function_call
+        register_variables
+        register_chaining
         register_class_defining
       end
     end

@@ -35,30 +35,26 @@ module Magiika::Lang::Syntax
 
     group :fn_call do
       rule :get_value, :fn_args_block do |context|
-        define_arg(context, false)
-      end
-      rule :get_member_value, :fn_args_block do |context|
-        define_arg(context, true)
+        parse_fn(context)
       end
     end
   end
 
-  protected def define_arg(context : Context, value_is_member : Bool)
-    if value_is_member
-      target = context[:get_member_value].node
-    else
-      target = context[:get_value].node
-    end
+  protected def ensure_args_type(
+      node_args : Array(Psuedo::Node)?) : FnArgs
+    args = FnArgs.new
+    node_args.try(&.each { |node|
+      Util.is_a!(node, Node::FnArg)
+      args << node.as(Node::FnArg)
+    })
+    args
+  end
+
+  protected def parse_fn(context : Context)
+    target = context[:get_value].node
 
     node_args = context[:fn_args_block].nodes?
-
-    args = FnArgs.new
-    unless node_args.nil?
-      node_args.each { |node|
-        Util.is_a!(node, Node::FnArg)
-        args << node.as(Node::FnArg)
-      }
-    end
+    args = ensure_args_type(node_args)
 
     position = context.position
     node = Node::Call.new(position, target, args)

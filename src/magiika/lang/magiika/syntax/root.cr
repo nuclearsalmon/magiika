@@ -14,8 +14,7 @@ module Magiika::Lang::Syntax
 
         root_node = Node::Root.new(context.nodes)
 
-        context.drop_nodes
-        context.add(root_node)
+        context.become(root_node)
       end
       rule :stmt
     end
@@ -23,26 +22,29 @@ module Magiika::Lang::Syntax
     group :stmt do
       rule :fn_def
       rule :cls_def
-      rule :set_member_value
       rule :def_value
       rule :set_value
       rule :cond
     end
 
     group :value do
+      rule :chain
+      rule :value_nochain
+    end
+
+    group :value_nochain do
       rule :literal
       rule :fn_call
-      rule :get_member_value
       rule :get_value
       rule :L_PAR, :enclosed_value, :R_PAR do |context|
         context.become(:enclosed_value)
       end
-      rule :cond
     end
 
     group :enclosed_value do
       rule :def_value
-      rule :value
+      rule :set_value
+      rule :cond
     end
   end
 end
