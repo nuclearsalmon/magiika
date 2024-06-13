@@ -29,7 +29,8 @@ module Magiika::Lang
         @root : Group,
         @groups : Hash(Symbol, Group),
         @tokens : Hash(Symbol, Token))
-      validate_group_rules
+      validate_references_existance
+      detect_and_fix_left_recursive_rules
     end
 
     def parse(@parsing_tokens : Array(MatchedToken)) : Psuedo::Node
