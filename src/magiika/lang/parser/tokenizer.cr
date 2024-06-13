@@ -13,7 +13,8 @@ module Magiika::Lang::Tokenizer
         unless match.nil?
           Log.debug { "Matched token :#{token._type}: \"#{match[0]}\"" }
 
-          content = match[0]
+          content = match[1]?
+          content = match[0] if content.nil?
 
           position = Position.new(row, col, filename)
           token = Lang::MatchedToken.new(token._type, content, position)

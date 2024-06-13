@@ -1,7 +1,8 @@
 module Magiika::Lang
   record Token,
     _type : Symbol,
-    pattern : Regex do
+    pattern : Regex,
+    greedy : Bool = false do
 
     def to_s
       ":#{@_type}(\"#{@value}\")"

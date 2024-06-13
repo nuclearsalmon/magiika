@@ -2,20 +2,22 @@ module Magiika
   class Node::Str < TypeNodeClass::ClassTyping
     include Psuedo::Resolved
 
+    protected getter value : ::String
+
     def initialize(@value : ::String, position : Position? = nil)
       super(position)
     end
 
-    def to_s_internal : String
-      return @value.to_s
+    def to_s_internal : ::String
+      "\"#{@value}\""
     end
 
     def eval(scope : Scope) : Node::Str
-      return self
+      self
     end
 
     def eval_bool(scope : Scope) : ::Bool
-      return @value != ""
+      @value != ""
     end
 
 
@@ -29,7 +31,7 @@ module Magiika
       Members.def_scoped_vars self
 
       {% begin %}
-        puts Node::Str.new(self_node.to_s_internal).to_s_internal
+        puts self_node.as(Node::Str).value
       {% end %}
       return Node::Nil.instance.as(Psuedo::TypeNode)
     end

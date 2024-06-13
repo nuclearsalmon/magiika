@@ -73,7 +73,7 @@ module Magiika::Lang::ParserValidator
         if inexplicit_recursive_reference?(
             to_group, group_name)
           group.rules.delete(rule)
-          rule.pattern.shift
+          rule.pattern.shift if rule.pattern.size > 1
           group.lr_rules << rule
         end
       }

@@ -10,12 +10,11 @@ module Magiika::Lang
     include Tokenizer
     include ParserValidator
 
-    @root : Group
-    @groups : Hash(Symbol, Group)
-    @tokens : Hash(Symbol, Token)
+    protected getter root : Group
+    protected getter groups : Hash(Symbol, Group)
+    protected getter tokens : Hash(Symbol, Token)
 
-    @parsing_position : Int32 = 0
-    property parsing_position
+    property parsing_position : Int32 = 0
 
     @parsing_tokens = Array(MatchedToken).new
 
@@ -62,7 +61,7 @@ module Magiika::Lang
       return result_node
     end
 
-    private def resolve_ignores(
+    def resolve_ignores(
         ignores : Array(Symbol)? = nil,
         noignores : Array(Symbol)? = nil) : Array(Symbol)
       root = @root
@@ -86,7 +85,7 @@ module Magiika::Lang
       return final_ignores
     end
 
-    private def next_token(resolved_ignores : Array(Symbol)) : MatchedToken?
+    def next_token(resolved_ignores : Array(Symbol)) : MatchedToken?
       loop do
         token = @parsing_tokens[@parsing_position]?
         @parsing_position += 1

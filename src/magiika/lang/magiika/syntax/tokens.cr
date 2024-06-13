@@ -107,7 +107,7 @@ module Magiika::Lang::Syntax
 
     # identifiers
     # ------------------------------------------------------
-    token :NAME, /([A-Za-z_][A-Za-z0-9_]*)/
+    token :NAME, /([A-Za-z_][A-Za-z0-9_]*)/, true
 
 
     # whitespace

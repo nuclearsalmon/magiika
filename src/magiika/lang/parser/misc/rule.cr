@@ -37,8 +37,23 @@ module Magiika::Lang
           token = parser.expect_token(sym, ignores, noignores)
 
           if token.nil?
-            parser.parsing_position = initial_parsing_position
-            return nil
+            target_token = parser.tokens[sym]
+            if target_token.greedy
+              resolved_ignores = parser.resolve_ignores(ignores, noignores)
+              token = parser.next_token(resolved_ignores)
+              if !token.nil? && target_token.pattern.match(token.value)
+                token = MatchedToken.new(
+                  sym,
+                  token.value,
+                  token.position)
+              else
+                parser.parsing_position = initial_parsing_position
+                return nil
+              end
+            else
+              parser.parsing_position = initial_parsing_position
+              return nil
+            end
           end
 
           Log.debug { "Matched token :#{sym} in #{@pattern}@:#{self_name}" }
