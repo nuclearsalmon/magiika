@@ -31,6 +31,11 @@ module Magiika
         @filename : String? = nil)
     end
 
+    def initialize(@filename : String)
+      @row = -1
+      @col = -1
+    end
+
     def to_s
       filename = @filename
       if filename.nil? || filename == ""

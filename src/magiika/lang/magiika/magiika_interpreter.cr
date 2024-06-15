@@ -90,7 +90,12 @@ module Magiika::Lang
       return condition ? "enabled" : "disabled"
     end
 
-    private def exit
+    private def leave_file
+      print "🌠 #{ANSI_RELAXED_STYLE}aborting execution#{ANSI_RESET}\n"
+      exit 0
+    end
+
+    private def leave_interactive
       print "🌠 #{ANSI_RELAXED_STYLE}leaving interactive mode#{ANSI_RESET}\n"
       exit 0
     end
@@ -149,11 +154,6 @@ module Magiika::Lang
     # functionality
     # ------------------------------------------------------
 
-    def parse(parsing_tokens : Array(MatchedToken)) \
-        : Tuple(Array(MatchedToken), Array(Psuedo::Node))?
-      @parser.parse(parsing_tokens)
-    end
-
     def execute(
         instructions : String,
         scope : Scope,
@@ -179,11 +179,28 @@ module Magiika::Lang
       return execute(instructions, scope, filename)
     end
 
-    def interactive : Nil
-      position = Position.new(1, 1)
-      scope = Scope::Global.new("global", position)
+    def run_file(file_path : String) : Psuedo::Node?
+      Signal::INT.trap { print "\n"; leave_file }
 
-      Signal::INT.trap { print "\n"; exit }
+      position = Position.new(file_path)
+      scope = Scope::Global.new(position)
+
+      input = File.read(file_path)
+
+      result = execute(input, scope)
+      unless result.nil? || result.is_a?(Node::Nil)
+        print "⭐ #{result.to_s_internal}\n"
+      end
+    rescue ex : Exception
+      print_ex(ex)
+      exit(1)
+    end
+
+    def run_interactive : Nil
+      Signal::INT.trap { print "\n"; leave_interactive }
+
+      position = Position.new(1, 1)
+      scope = Scope::Global.new(position)
 
       banner
       loop do
@@ -209,8 +226,7 @@ module Magiika::Lang
       end
     rescue ex : Exception
       print_ex(ex)
-    ensure
-      exit
+      exit(1)
     end
   end
 end

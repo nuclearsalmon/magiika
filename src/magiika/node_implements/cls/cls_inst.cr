@@ -46,8 +46,8 @@ module Magiika
     # ---
 
     def []?(ident : String) : Psuedo::Node?
-      meta = @from_cls[ident]?
-      meta = @inst_scope.get?(ident) if meta.nil?
+      meta = @inst_scope.get?(ident)
+      meta = @from_cls.cls_scope.get?(ident) if meta.nil?
       return meta.as(Node::Meta).try(&.value)
     end
 

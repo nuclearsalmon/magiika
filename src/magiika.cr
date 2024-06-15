@@ -1,6 +1,7 @@
 #!/usr/bin/env -S crystal run
 require "log"
 require "dotenv"
+require "option_parser"
 require "./magiika/magiika.cr"
 require "./magiika/lang/lang.cr"
 
@@ -73,11 +74,36 @@ module Magiika
   # ⚡ API
   # --------------------------------------------------------
 
-  def interpreter
-    Lang::MagiikaInterpreter.new
-  end
+  def main
+    file : String? = ARGV[0]?
+    if !file.nil? && !file.starts_with?('-')
+      ARGV.delete_at(0)
+    end
 
-  def run
-    interpreter.interactive
+    parser = OptionParser.new do |parser|
+      parser.banner = "✨ Usage: magiika [FILE] [options]"
+      parser.on("-h", "--help", "Show this help") do
+        puts parser
+        exit
+      end
+      parser.missing_option do |option_flag|
+        STDERR.puts "💫 Error: #{option_flag} is missing something."
+        STDERR.puts parser
+        exit(1)
+      end
+      parser.invalid_option do |option_flag|
+        STDERR.puts "💫 Error: #{option_flag} is not a valid option."
+        STDERR.puts parser
+        exit(1)
+      end
+    end
+    parser.parse
+
+    interpreter = Lang::MagiikaInterpreter.new
+    if file.nil?
+      interpreter.run_interactive
+    else
+      interpreter.run_file(file)
+    end
   end
 end

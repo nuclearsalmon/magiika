@@ -8,13 +8,15 @@ module Magiika::Lang::Syntax
     end
 
     group :stmts do
-      rule :stmt, :nls, :stmts do |context|
-        context.drop(:nls)
+      rule :stmt, :NEWLINE, :stmts do |context|
         context.flatten
 
         root_node = Node::Root.new(context.nodes)
 
         context.become(root_node)
+      end
+      rule :stmt, :NEWLINE do |context|
+        context.become(:stmt)
       end
       rule :stmt
     end

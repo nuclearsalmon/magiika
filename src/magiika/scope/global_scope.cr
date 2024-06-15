@@ -6,9 +6,8 @@ module Magiika
     @variables = Hash(String, Node::Meta).new
 
     def initialize(
-        name : String,
         position : Position)
-      super(name, position)
+      super("global", position)
     end
 
     def get?(ident : String) : Node::Meta?
