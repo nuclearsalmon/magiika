@@ -1,9 +1,16 @@
+# ignore binaries
+*
+!/**/
+!*.*
+
+# local test scripts and binary output
+/prog/
+/out/
+
+# crystal
 /misc/
 /docs/
 /lib/
 /bin/
 /.shards/
 *.dwarf
-
-# local test scripts
-/prog/
