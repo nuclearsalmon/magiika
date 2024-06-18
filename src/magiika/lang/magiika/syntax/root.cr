@@ -3,12 +3,9 @@ module Magiika::Lang::Syntax
     root do
       ignore :SPACE
       ignore :LINE_CONT
+      ignore_trailing :NEWLINE
+      ignore_trailing :INLINE_NEWLINE
 
-      rule :stmts, :nls do |context|
-        context.become(:stmts)
-        root_node = Node::Root.new(context.nodes)
-        context.become(root_node)
-      end
       rule :stmts do |context|
         context.become(:stmts)
         root_node = Node::Root.new(context.nodes)

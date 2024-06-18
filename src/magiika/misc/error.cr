@@ -193,7 +193,7 @@ module Magiika::Error
       super(
         "UNDEFINED METHOD",
         "Undefined method: '#{ident}'" +
-        (target.nil? ? "" : "on #{target.type_name}"),
+        (target.nil? ? "" : " on #{target.type_name}"),
         position)
     end
   end

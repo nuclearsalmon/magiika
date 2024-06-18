@@ -15,8 +15,7 @@ module Magiika::Lang
     def try_patterns(
         self_name : Symbol,
         parser : Parser,
-        ignores : Array(Symbol)?,
-        noignores : Array(Symbol)?) : Context?
+        computed_ignores : Array(Symbol)) : Context?
       if parser.not_enough_tokens?(@pattern.size)
         Log.debug { "Skipping rule #{@pattern}, not enough tokens." }
         return nil
@@ -34,13 +33,12 @@ module Magiika::Lang
         if Util.upcase?(sym)  # token
           #Log.debug { "Trying token  :#{sym} in #{@pattern} from #{parser.parsing_position}" }
 
-          token = parser.expect_token(sym, ignores, noignores)
+          token = parser.expect_token(sym, computed_ignores)
 
           if token.nil?
             target_token = parser.tokens[sym]
             if target_token.greedy
-              resolved_ignores = parser.resolve_ignores(ignores, noignores)
-              token = parser.next_token(resolved_ignores)
+              token = parser.next_token(computed_ignores)
               if !token.nil? && target_token.pattern.match(token.value)
                 token = MatchedToken.new(
                   sym,
@@ -66,7 +64,7 @@ module Magiika::Lang
         else
           #Log.debug { "Trying group  :#{sym} in #{@pattern} from #{parser.parsing_position}" }
 
-          group_context = parser.expect_group(sym, ignores, noignores)
+          group_context = parser.expect_group(sym, computed_ignores)
 
           if group_context.nil?
             parser.parsing_position = initial_parsing_position

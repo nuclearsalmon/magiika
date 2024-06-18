@@ -5,6 +5,7 @@ module Magiika::Lang
     @lr_rules = Array(Rule).new
     @ignores : Array(Symbol)? = nil
     @noignores : Array(Symbol)? = nil
+    @trailingignores : Array(Symbol)? = nil
 
     def self.new(name : Symbol, &)
       with Group.new(name) yield
@@ -19,7 +20,8 @@ module Magiika::Lang
         @rules,
         @lr_rules,
         @ignores,
-        @noignores)
+        @noignores,
+        @trailing_ignores)
     end
 
     private def rule(rule : Rule) : Nil
@@ -61,21 +63,15 @@ module Magiika::Lang
     end
 
     private def noignore(pattern : Symbol) : Nil
-      noignores = @noignores
-      if noignores.nil?
-        noignores = Array(Symbol).new
-        @noignores = noignores
-      end
-      noignores << pattern
+      (@noignores ||= Array(Symbol).new) << pattern
     end
 
     private def ignore(pattern : Symbol) : Nil
-      ignores = @ignores
-      if ignores.nil?
-        ignores = Array(Symbol).new
-        @ignores = ignores
-      end
-      ignores << pattern
+      (@ignores ||= Array(Symbol).new) << pattern
+    end
+
+    private def ignore_trailing(pattern : Symbol) : Nil
+      (@trailing_ignores ||= Array(Symbol).new) << pattern
     end
   end
 end

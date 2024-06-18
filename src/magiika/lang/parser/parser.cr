@@ -52,6 +52,13 @@ module Magiika::Lang
 
       result_node : Psuedo::Node = result_context.result
 
+      # consume trailing root ignores
+      computed_ignores = @root.ignores
+      computed_ignores = Array(Symbol).new if computed_ignores.nil?
+      loop do
+        break if next_token(computed_ignores).nil?
+      end
+
       # verify that every token was consumed
       position = @parsing_position
       if position < @parsing_tokens.size
@@ -65,14 +72,11 @@ module Magiika::Lang
       return result_node
     end
 
-    def resolve_ignores(
-        ignores : Array(Symbol)? = nil,
-        noignores : Array(Symbol)? = nil) : Array(Symbol)
-      root = @root
-      raise Error::Internal.new("root should not be nil") if root.nil?
-
+    def compute_ignores(
+        ignores : Array(Symbol)?,
+        noignores : Array(Symbol)?) : Array(Symbol)
       final_ignores = Array(Symbol).new
-      root_ignores = root.ignores
+      root_ignores = @root.ignores
 
       if noignores.nil?
         final_ignores.concat(root_ignores) unless root_ignores.nil?
@@ -89,11 +93,11 @@ module Magiika::Lang
       return final_ignores
     end
 
-    def next_token(resolved_ignores : Array(Symbol)) : MatchedToken?
+    def next_token(computed_ignores : Array(Symbol)) : MatchedToken?
       loop do
         token = @parsing_tokens[@parsing_position]?
         @parsing_position += 1
-        if token.nil? || !(resolved_ignores.includes?(token._type))
+        if token.nil? || !(computed_ignores.includes?(token._type))
           return token
         end
       end
@@ -102,10 +106,7 @@ module Magiika::Lang
 
     def expect_token(
         ident : Symbol,
-        ignores : Array(Symbol)? = nil,
-        noignores : Array(Symbol)? = nil) : MatchedToken?
-      computed_ignores = resolve_ignores(ignores, noignores)
-
+        computed_ignores : Array(Symbol)) : MatchedToken?
       initial_parsing_position = @parsing_position
       token = next_token(computed_ignores)
 
@@ -137,10 +138,8 @@ module Magiika::Lang
 
     def expect_group(
         ident : Symbol,
-        ignores : Array(Symbol)? = nil,
-        noignores : Array(Symbol)? = nil) : Context?
+        computed_ignores : Array(Symbol)) : Context?
       initial_parsing_position = @parsing_position
-      computed_ignores = resolve_ignores(ignores, noignores)
 
       context = nil
       loop do
