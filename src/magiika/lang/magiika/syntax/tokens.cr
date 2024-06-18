@@ -10,27 +10,27 @@ module Magiika::Lang::Syntax
 
     # keywords and types
     # ------------------------------------------------------
-    token :BOOL_T, /bool/
-    token :INT_T, /int/
-    token :FLT_T, /flt/
-    token :STR_T, /str/
-    token :NIL_T, /nil/
-    token :LIST_T, /list/
+    #token :BOOL_T, /bool/
+    #token :INT_T, /int/
+    #token :FLT_T, /flt/
+    #token :STR_T, /str/
+    #token :NIL_T, /nil/
+    #token :LIST_T, /list/
     token :FN_T, /fn/
     token :CLS_T, /cls/
 
-    token :ABST, /abst/
+    #token :ABST, /abst/
 
 
     # multi-character operators and tokens
     # ------------------------------------------------------
-    token :ASSIGN_INLINE, /:=/
-    token :ASSIGN_SUB, /\-=/
-    token :ASSIGN_ADD, /\+=/
-    token :ASSIGN_MULT, /\*=/
-    token :ASSIGN_DIV, /\\=/
-    token :ASSIGN_POW, /\*\*=/
-    token :ASSIGN_PIPE, /\|=/
+    #token :ASSIGN_INLINE, /:=/
+    #token :ASSIGN_SUB, /\-=/
+    #token :ASSIGN_ADD, /\+=/
+    #token :ASSIGN_MULT, /\*=/
+    #token :ASSIGN_DIV, /\\=/
+    #token :ASSIGN_POW, /\*\*=/
+    #token :ASSIGN_PIPE, /\|=/
 
     token :OR, /\|\||or/
     token :AND, /&&|and/
@@ -43,20 +43,20 @@ module Magiika::Lang::Syntax
     token :NAND, /nand/
 
     token :EQ, /==/
-    token :NEQ, /!=/
-    token :LEQ, /<=/
-    token :GEQ, />=/
+    #token :NEQ, /!=/
+    #token :LEQ, /<=/
+    #token :GEQ, />=/
     token :INC, /\+\+/
     token :DEC, /\-\-/
     token :IDIV, /\/\//
-    token :POW, /\*\*/
-    token :LSH, /<</
-    token :RSH, />>/
+    #token :POW, /\*\*/
+    #token :LSH, /<</
+    #token :RSH, />>/
     token :IMPL, /\->/
-    token :DIA, /<>/
+    #token :DIA, /<>/
 
     token :PAR, /\(\)/
-    token :SQBRC, /\[\]/
+    #token :SQBRC, /\[\]/
     token :BRC, /\{\}/
 
 
@@ -78,15 +78,15 @@ module Magiika::Lang::Syntax
     token :MOD, /%/
     token :CASH, /\$/
 
-    token :NOT, /!|not/
-    token :BNOT, /NOT/
-    token :LT, /</
-    token :GT, />/
+    #token :NOT, /!|not/
+    #token :BNOT, /NOT/
+    #token :LT, /</
+    #token :GT, />/
 
     token :L_PAR, /\(/
     token :R_PAR, /\)/
-    token :L_SQBRC, /\[/
-    token :R_SQBRC, /\]/
+    #token :L_SQBRC, /\[/
+    #token :R_SQBRC, /\]/
     token :L_BRC, /\{/
     token :R_BRC, /\}/
 

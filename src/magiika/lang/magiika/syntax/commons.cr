@@ -1,12 +1,12 @@
 module Magiika::Lang::Syntax
   private def register_commons
-    group :nls do
-      noignore :NEWLINE
-      noignore :INLINE_NEWLINE
-
-      rule :NEWLINE
-      rule :INLINE_NEWLINE
-    end
+    #group :nls do
+    #  noignore :NEWLINE
+    #  noignore :INLINE_NEWLINE
+    #
+    #  rule :NEWLINE
+    #  rule :INLINE_NEWLINE
+    #end
 
     group :def do
       rule :DEFINE, :NAME do |context|

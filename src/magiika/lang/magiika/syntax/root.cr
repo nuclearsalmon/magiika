@@ -5,6 +5,7 @@ module Magiika::Lang::Syntax
       ignore :LINE_CONT
       ignore_trailing :NEWLINE
       ignore_trailing :INLINE_NEWLINE
+      ignore_trailing :LINE_CONT
 
       rule :stmts do |context|
         context.become(:stmts)

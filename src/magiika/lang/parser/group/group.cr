@@ -1,9 +1,8 @@
 module Magiika::Lang
   private class Group
-    # required for functionality
-    getter name, ignores, noignores
-    # required for validation
+    getter name
     getter rules, lr_rules
+    getter ignores, noignores, trailing_ignores
 
     @name : Symbol
     @rules : Array(Rule)

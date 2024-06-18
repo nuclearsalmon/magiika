@@ -30,6 +30,8 @@ module Magiika::Lang
         @tokens : Hash(Symbol, Token))
       validate_references_existance
       detect_and_fix_left_recursive_rules
+      detect_unused_tokens
+      detect_unused_groups
     end
 
     def parse(@parsing_tokens : Array(MatchedToken)) : Psuedo::Node

@@ -58,19 +58,27 @@ module Magiika::Lang
     end
 
     private def noignore() : Nil
-      noignores = @noignores
-      @noignores = Array(Symbol).new if noignores.nil?
+      @noignores ||= Array(Symbol).new
     end
 
     private def noignore(pattern : Symbol) : Nil
+      unless Util.upcase?(pattern.to_s)
+        raise Error::Internal.new("Only tokens can be ignored.")
+      end
       (@noignores ||= Array(Symbol).new) << pattern
     end
 
     private def ignore(pattern : Symbol) : Nil
+      unless Util.upcase?(pattern.to_s)
+        raise Error::Internal.new("Only tokens can be ignored.")
+      end
       (@ignores ||= Array(Symbol).new) << pattern
     end
 
     private def ignore_trailing(pattern : Symbol) : Nil
+      unless Util.upcase?(pattern.to_s)
+        raise Error::Internal.new("Only tokens can be ignored.")
+      end
       (@trailing_ignores ||= Array(Symbol).new) << pattern
     end
   end

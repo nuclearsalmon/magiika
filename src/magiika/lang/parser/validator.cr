@@ -79,4 +79,51 @@ module Magiika::Lang::ParserValidator
       }
     }
   end
+
+  private def detect_unused_tokens : Nil
+    unused : Array(Symbol) = @tokens.map { |sym, _| sym }
+
+    groups : Array(Group) = \
+      @groups.map { |_, group| group }.tap(&.<< @root)
+
+    groups.each { |group|
+      syms = Array(Symbol).new
+
+      rules = group.rules.dup.tap(&.concat(group.lr_rules))
+      rules.each { |rule|
+        rule.pattern.each { |sym|
+          syms << sym if Util.upcase?(sym.to_s)
+        }
+      }
+
+      ignores = group.ignores
+      syms.concat(ignores) unless ignores.nil?
+
+      noignores = group.noignores
+      syms.concat(noignores) unless noignores.nil?
+
+      trailing_ignores = group.trailing_ignores
+      syms.concat(trailing_ignores) unless trailing_ignores.nil?
+
+      syms.each { |sym| unused.delete(sym) }
+    }
+
+    return if unused.empty?
+    raise Error::Internal.new("Unused tokens: #{unused}")
+  end
+
+  private def detect_unused_groups : Nil
+    unused : Array(Symbol) = @groups.map { |sym, _| sym }
+    @groups.each { |_, group|
+      rules = group.rules.tap(&.dup).tap(&.concat(group.lr_rules))
+      rules.each { |rule|
+        rule.pattern.each { |sym|
+          unused.delete(sym) if Util.downcase?(sym.to_s)
+        }
+      }
+    }
+
+    return if unused.empty?
+    raise Error::Internal.new("Unused groups: #{unused}")
+  end
 end
