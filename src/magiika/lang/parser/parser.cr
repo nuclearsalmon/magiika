@@ -55,6 +55,10 @@ module Magiika::Lang
       # verify that every token was consumed
       position = @parsing_position
       if position < @parsing_tokens.size
+        Log.debug {
+          "Got #{result_node.pretty_inspect}, but only matched " +
+          "#{position}/#{@parsing_tokens.size} tokens."
+        }
         raise Error::UnexpectedSymbol.new(@parsing_tokens[position])
       end
 

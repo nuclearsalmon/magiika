@@ -27,8 +27,6 @@ module Magiika::Lang::Syntax
     end
 
     group :un_pofx_op do
-      noignore :SPACE
-
       un_expr_rule :value, :INC
       un_expr_rule :value, :DEC
       un_expr_rule :value, :CASH

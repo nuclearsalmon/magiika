@@ -182,6 +182,8 @@ module Magiika::Lang
     def run_file(file_path : String) : Psuedo::Node?
       Signal::INT.trap { print "\n"; leave_file }
 
+      #operator_command('l')
+
       position = Position.new(file_path)
       scope = Scope::Global.new(position)
 

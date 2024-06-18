@@ -27,6 +27,8 @@ module Magiika::Lang::Syntax
     end
 
     group :fn_params_block do
+      ignore :NEWLINE
+
       rule :PAR
       rule :L_PAR, :fn_params, :R_PAR do |context|
         context.become(:fn_params)
@@ -43,7 +45,7 @@ module Magiika::Lang::Syntax
       ignore :NEWLINE
       ignore :INLINE_NEWLINE
 
-      rule :stmt, :fn_stmts do |context|
+      rule :fn_stmts, :stmt do |context|
         context.flatten
       end
       rule :stmt
@@ -59,6 +61,9 @@ module Magiika::Lang::Syntax
     end
 
     group :fn_def do
+      ignore :NEWLINE
+      ignore :SPACE
+
       rule :fn_ident, :fn_params_block, :fn_ret, :fn_body do |context|
         define_fn(context)
       end

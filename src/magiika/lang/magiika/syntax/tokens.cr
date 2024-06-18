@@ -100,21 +100,20 @@ module Magiika::Lang::Syntax
     token :STR, /"([^"\\]*(?:\\.[^"\\]*)*)"/
     #token :STR, /'([^'\\]*(?:\\.[^'\\]*)*)'/
     #token :STR, /(?:"([^"\\]*(?:\\.[^"\\]*)*)")|(?:'([^'\\]*(?:\\.[^'\\]*)*)')/
-    token :BOOL, /(?:true)|(?:false)/
+    token :BOOL, /true|false/
     token :FLT, /\d+\.\d+/
     token :INT, /\d+/
 
 
     # identifiers
     # ------------------------------------------------------
-    token :NAME, /([A-Za-z_][A-Za-z0-9_]*)/, true
+    token :NAME, /([A-Za-z_][A-Za-z0-9_]*)/
 
 
     # whitespace
     # (ran last, to allow for whitespace-sensitive tokens
     # ------------------------------------------------------
-    token :TAB, /\t| {2}/
-    token :SPACE, / +/
+    token :SPACE, /[\t ]+/
     token :LINE_CONT, /\\ ?\r?\n[\t ]*/
     token :NEWLINE, /\r?\n/
     token :INLINE_NEWLINE, /;/

@@ -71,13 +71,17 @@ module Magiika::Lang
     end
 
     def absorb(key : Symbol)
-      context = self[key]
+      context = @sub_contexts.try(&.[key]?)
+      return if context.nil?
+
       drop_context(key)
       unsafe_merge(context)
     end
 
     def become(key : Symbol)
-      context = self[key]
+      context = @sub_contexts.try(&.[key]?)
+      return if context.nil?
+
       clear
       unsafe_merge(context)
     end

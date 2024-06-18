@@ -26,7 +26,11 @@ module Magiika::Lang
         unless context.nil?
           block = rule.block
           unless block.nil?
-            context.merge(context_for_lr) unless context_for_lr.nil?
+            #context.merge(context_for_lr) unless context_for_lr.nil?
+            unless context_for_lr.nil?
+              context_for_lr.merge(context)
+              context = context_for_lr
+            end
 
             Log.debug { "Executing block for rule #{rule.pattern}@#{@name} ..." }
             block.call(context)
@@ -38,7 +42,7 @@ module Magiika::Lang
     end
 
     def parse(parser : Parser) : Context?
-      Log.debug { "... trying rules for :#{@name} ..." }
+      #Log.debug { "... trying rules for :#{@name} ..." }
 
       context = try_rules(parser, context_for_lr=nil)
       if context.nil?

@@ -1,22 +1,27 @@
 module Magiika::Lang::Syntax
   protected def register_root
     root do
-      ignore :LINE_CONT
       ignore :SPACE
+      ignore :LINE_CONT
 
-      rule :stmts
+      rule :stmts, :nls do |context|
+        context.become(:stmts)
+        root_node = Node::Root.new(context.nodes)
+        context.become(root_node)
+      end
+      rule :stmts do |context|
+        context.become(:stmts)
+        root_node = Node::Root.new(context.nodes)
+        context.become(root_node)
+      end
     end
 
     group :stmts do
-      rule :stmt, :NEWLINE, :stmts do |context|
-        context.flatten
+      ignore :NEWLINE
+      ignore :INLINE_NEWLINE
 
-        root_node = Node::Root.new(context.nodes)
-
-        context.become(root_node)
-      end
-      rule :stmt, :NEWLINE do |context|
-        context.become(:stmt)
+      rule :stmts, :stmt do |context|
+        context.absorb(:stmts)
       end
       rule :stmt
     end
