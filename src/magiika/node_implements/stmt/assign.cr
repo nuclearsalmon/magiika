@@ -40,7 +40,7 @@ module Magiika
     end
 
     def eval_bool(scope : Scope) : ::Bool
-      return False
+      return false
     end
   end
 end

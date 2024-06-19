@@ -10,8 +10,7 @@ module Magiika::Lang::ParserValidator
 
       [*group.rules, *group.lr_rules].each { |rule|
         rule.pattern.each { |symbol|
-          sym_s = symbol.to_s
-          if Util.upcase?(sym_s)
+          if Util.upcase?(symbol.to_s)
             unless token_symbols.includes?(symbol)
               raise Error::Internal.new(
                 "Invalid rule in group ':#{group_name}' - " +

@@ -1,5 +1,5 @@
-require "./modifying.cr"
-require "./querying.cr"
+require "./modifying"
+require "./querying"
 
 
 module Magiika::Lang

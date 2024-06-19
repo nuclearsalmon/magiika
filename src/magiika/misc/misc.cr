@@ -1,3 +1,3 @@
-require "./error.cr"
-require "./visibility.cr"
-require "./match_result.cr"
+require "./error"
+require "./visibility"
+require "./match_result"

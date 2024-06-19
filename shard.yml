@@ -11,7 +11,7 @@ targets:
   magiika:
     main: src/main.cr
 
-crystal: 1.8.2
+crystal: '>= 1.12.2'
 
 license: AGPLv3
 

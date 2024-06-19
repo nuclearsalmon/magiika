@@ -1,5 +1,5 @@
-require "./iface.cr"
-require "./psuedo.cr"
+require "./iface"
+require "./psuedo"
 require "./defaults"
 
 module Magiika

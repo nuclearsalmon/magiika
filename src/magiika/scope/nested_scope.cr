@@ -1,4 +1,4 @@
-require "./scope.cr"
+require "./scope"
 
 
 module Magiika

@@ -1,8 +1,8 @@
-require "./tokenizer.cr"
-require "./validator.cr"
-require "./misc/rule.cr"
-require "./group/group.cr"
-require "./context/context.cr"
+require "./tokenizer"
+require "./validator"
+require "../misc/rule"
+require "../group/group"
+require "../context/context"
 
 
 module Magiika::Lang
@@ -53,13 +53,6 @@ module Magiika::Lang
       end
 
       result_node : Psuedo::Node = result_context.result
-
-      # consume trailing root ignores
-      computed_ignores = @root.ignores
-      computed_ignores = Array(Symbol).new if computed_ignores.nil?
-      loop do
-        break if next_token(computed_ignores).nil?
-      end
 
       # verify that every token was consumed
       position = @parsing_position

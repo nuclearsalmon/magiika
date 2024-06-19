@@ -1,8 +1,8 @@
-require "../parser/parser.cr"
-require "../parser/builder.cr"
-require "../parser/misc/token.cr"
+require "../parser/parser/parser"
+require "../parser/parser/builder"
+require "../parser/misc/token"
 
-require "./syntax_macros.cr"
+require "./syntax_macros"
 require "./syntax/**"
 
 
@@ -18,6 +18,7 @@ module Magiika::Lang
         register_tokens
         register_root
         register_commons
+        register_if_else
         register_primitives
         register_expressions
         register_conditions

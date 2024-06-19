@@ -1,4 +1,4 @@
-require "./nested_scope.cr"
+require "./nested_scope"
 
 
 module Magiika

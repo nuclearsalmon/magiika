@@ -1,4 +1,4 @@
 #!/usr/bin/env -S crystal run
-require "./magiika.cr"
+require "./magiika"
 
 Magiika.main

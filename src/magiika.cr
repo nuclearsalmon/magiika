@@ -2,8 +2,8 @@
 require "log"
 require "dotenv"
 require "option_parser"
-require "./magiika/magiika.cr"
-require "./magiika/lang/lang.cr"
+require "./magiika/magiika"
+require "./magiika/lang/lang"
 
 
 module Magiika

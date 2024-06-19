@@ -4,9 +4,10 @@ module Magiika::Lang::Syntax
   protected def register_tokens
     # comments
     # ------------------------------------------------------
-    #token :COMMENT, /\#.*$/
+    token :COMMENT, /\#.*\r?\n/
     #token :COMMENT, /\/\*([^*]|\r?\n|(\*+([^*\/]|\r?\n)))*\*+\//
     #token :DOC_COMMENT, /\/\*\*(\r?\n|(\*+([^*\/]|\r?\n)))*\*\*+\//
+
 
     # keywords and types
     # ------------------------------------------------------
@@ -18,6 +19,10 @@ module Magiika::Lang::Syntax
     #token :LIST_T, /list/
     token :FN_T, /fn/
     token :CLS_T, /cls/
+
+    token :IF, /if/
+    token :ELSIF, /elsif/
+    token :ELSE, /else/
 
     #token :ABST, /abst/
 
@@ -100,7 +105,7 @@ module Magiika::Lang::Syntax
     token :STR, /"([^"\\]*(?:\\.[^"\\]*)*)"/
     #token :STR, /'([^'\\]*(?:\\.[^'\\]*)*)'/
     #token :STR, /(?:"([^"\\]*(?:\\.[^"\\]*)*)")|(?:'([^'\\]*(?:\\.[^'\\]*)*)')/
-    token :BOOL, /true|false/
+    token :BOOL, /(?>true|false)/
     token :FLT, /\d+\.\d+/
     token :INT, /\d+/
 

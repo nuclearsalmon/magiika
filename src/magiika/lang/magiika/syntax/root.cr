@@ -1,6 +1,7 @@
 module Magiika::Lang::Syntax
   protected def register_root
     root do
+      ignore :COMMENT
       ignore :SPACE
       ignore :LINE_CONT
       ignore_trailing :NEWLINE
@@ -9,7 +10,12 @@ module Magiika::Lang::Syntax
 
       rule :stmts do |context|
         context.become(:stmts)
-        root_node = Node::Root.new(context.nodes)
+
+        filename = context.node(0).position.filename
+
+        root_node = Node::Stmts.new(
+          context.nodes,
+          Position.new(0,0, filename))
         context.become(root_node)
       end
     end
@@ -25,6 +31,7 @@ module Magiika::Lang::Syntax
     end
 
     group :stmt do
+      rule :if_else
       rule :fn_def
       rule :cls_def
       rule :def_value
