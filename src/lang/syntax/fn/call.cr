@@ -1,4 +1,4 @@
-module Magiika::Lang::Syntax
+module Magiika::Syntax
   protected def register_function_call
     group :fn_arg do
       rule :value do |context|
@@ -50,7 +50,7 @@ module Magiika::Lang::Syntax
     args
   end
 
-  protected def parse_fn(context : Context)
+  protected def parse_fn(context : Merlin::Context(Symbol, Psuedo::Node))
     target = context[:get_value].node
 
     node_args = context[:fn_args_block].nodes?

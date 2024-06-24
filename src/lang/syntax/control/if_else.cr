@@ -1,4 +1,4 @@
-module Magiika::Lang::Syntax
+module Magiika::Syntax
   protected def register_if_else
     group :stmts_block do
       ignore(:NEWLINE)

@@ -1,4 +1,4 @@
-module Magiika::Lang::Syntax
+module Magiika::Syntax
   protected def register_expressions
     group :expr do
       bin_expr_rule :expr, :ADD, :term

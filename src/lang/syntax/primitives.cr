@@ -1,4 +1,4 @@
-module Magiika::Lang::Syntax
+module Magiika::Syntax
   def register_primitives
     group :literal do
       rule :FLT do |context|

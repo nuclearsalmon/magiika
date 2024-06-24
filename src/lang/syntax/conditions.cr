@@ -1,4 +1,4 @@
-module Magiika::Lang::Syntax
+module Magiika::Syntax
   private def register_conditions
     group :cond do
       bin_expr_rule :cond, :BOR, :and_cond

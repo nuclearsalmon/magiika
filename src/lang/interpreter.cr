@@ -1,14 +1,8 @@
-require "../parser/parser/parser"
-require "../parser/parser/builder"
-require "../parser/misc/token"
+module Magiika
+  class Interpreter
+    private class ParserBuilder < \
+        Merlin::ParserBuilder(Symbol, Psuedo::Node)
 
-require "./syntax_macros"
-require "./syntax/**"
-
-
-module Magiika::Lang
-  class MagiikaInterpreter
-    private class Builder < Parser::Builder
       include Syntax
 
       def initialize
@@ -38,11 +32,13 @@ module Magiika::Lang
     private ANSI_WARNING_STYLE     = "\x1b[38;2;235;59;47m"
     private ANSI_RELAXED_STYLE     = "\x1b[38;2;150;178;195m"
 
-    @parser : Parser = Builder.new.build
+    @@parser_builder = ParserBuilder.new
+    @parser : Merlin::Parser(Symbol, Psuedo::Node) = \
+      @@parser_builder.build
 
-    @display_tokenization = false
-    @display_parsing = false
-    @display_eval = false
+    property show_tokenization : Bool = false
+    property show_parsing : Bool = false
+    property show_eval : Bool = false
 
 
     # decorative
@@ -121,11 +117,11 @@ module Magiika::Lang
     private def operator_command(cmd : Char)
       case cmd
       when 't'
-        @display_tokenization = !@display_tokenization
-        notify("show tokenization result: #{cond_to_tg(@display_tokenization)}.")
+        @show_tokenization = !@show_tokenization
+        notify("show tokenization result: #{cond_to_tg(@show_tokenization)}.")
       when 'p'
-        @display_parsing = !@display_parsing
-        notify("show parsing result: #{cond_to_tg(@display_parsing)}.")
+        @show_parsing = !@show_parsing
+        notify("show parsing result: #{cond_to_tg(@show_parsing)}.")
       when 'l'
         from_level = Magiika.log_level
         is_debug = from_level == ::Log::Severity::Debug
@@ -133,8 +129,8 @@ module Magiika::Lang
         Magiika.change_log_level(to_level)
         notify("show debug_logs: #{cond_to_tg(!is_debug)}.")
       when 'e'
-        @display_eval = !@display_eval
-        notify("show detailed eval result: #{cond_to_tg(@display_eval)}.")
+        @show_eval = !@show_eval
+        notify("show detailed eval result: #{cond_to_tg(@show_eval)}.")
       when 'h'
         notify(
           ANSI_UNDERLINE_ON +
@@ -160,15 +156,15 @@ module Magiika::Lang
         scope : Scope,
         filename : String? = nil) : Psuedo::Node?
       tokens = @parser.tokenize(instructions, filename)
-      inform(tokens) if @display_tokenization
+      inform(tokens) if @show_tokenization
 
       parsed_result = @parser.parse(tokens)
-      inform(parsed_result) if @display_parsing
+      inform(parsed_result) if @show_parsing
 
       return nil if parsed_result.nil?
 
       eval_result = parsed_result.eval(scope)
-      inform(eval_result) if @display_eval
+      inform(eval_result) if @show_eval
 
       eval_result
     end

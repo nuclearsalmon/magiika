@@ -1,4 +1,4 @@
-module Magiika::Lang::Syntax
+module Magiika::Syntax
   protected def register_variables
     group :get_value do
       rule :NAME do |context|

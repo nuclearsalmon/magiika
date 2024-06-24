@@ -1,4 +1,4 @@
-module Magiika::Lang::Syntax
+module Magiika::Syntax
   private macro bin_expr_rule(l_s, op_s, r_s)
     {% l_ss = l_s.stringify %}
     {% if l_ss.upcase == l_ss %}

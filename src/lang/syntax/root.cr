@@ -1,4 +1,4 @@
-module Magiika::Lang::Syntax
+module Magiika::Syntax
   protected def register_root
     root do
       ignore :COMMENT

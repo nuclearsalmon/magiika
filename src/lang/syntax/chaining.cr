@@ -1,4 +1,4 @@
-module Magiika::Lang::Syntax
+module Magiika::Syntax
   protected def register_chaining
     group :chain do
       rule :value_nochain, :CHAIN, :NAME, :fn_args_block do |context|
@@ -27,7 +27,7 @@ module Magiika::Lang::Syntax
 
   protected def parse_chained_call(
       source : Psuedo::Node,
-      context : Context) : Nil
+      context : Merlin::Context(Symbol, Psuedo::Node)) : Nil
     target_ident, position = \
       parse_chain_node_base(context)
 
@@ -41,7 +41,7 @@ module Magiika::Lang::Syntax
 
   protected def parse_chained_retrieve(
       source : Psuedo::Node,
-      context : Context) : Nil
+      context : Merlin::Context(Symbol, Psuedo::Node)) : Nil
     target_ident, position = \
       parse_chain_node_base(context)
 
@@ -50,7 +50,7 @@ module Magiika::Lang::Syntax
     context.become(node)
   end
 
-  protected def parse_chain_node_base(context : Context) \
+  protected def parse_chain_node_base(context : Merlin::Context(Symbol, Psuedo::Node)) \
       : Tuple(String, Position)
     target_ident_t = context[:NAME].token
     target_ident = target_ident_t.value

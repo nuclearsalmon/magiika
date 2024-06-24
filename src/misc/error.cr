@@ -50,26 +50,12 @@ module Magiika::Error
     end
   end
 
-  # an unrecoverable parsing error
-  class SevereParserError < Internal
-    def initialize(
-        parser : Lang::Parser,
-        cause : Exception,
-        message : String? = nil)
-      new_message = (
-        "An error occured during parsing." +
-        (message.nil? ? "" : " #{message}") +
-        "\n---\nParser cache: \n#{parser.inspect_cache}\n---\n")
-      super(new_message, cause)
-    end
-  end
-
 
   # ✨ User-facing, expected and potentially recoverable errors.
   # --------------------------------------------------------
 
   # user-facing, expected and potentially recoverable error
-  class Safe < Exception
+  abstract class Safe < Exception
     getter title, position
     def initialize(
         @title : String,
@@ -92,14 +78,6 @@ module Magiika::Error
     def to_s(io : IO) : Nil
       io << to_s
     end
-
-    def inspect_with_backtrace : String
-      to_s
-    end
-
-    def inspect_with_backtrace(io : IO) : Nil
-      to_s(io)
-    end
   end
 
   # expected one type, got another
@@ -118,56 +96,6 @@ module Magiika::Error
       super(
         "TYPE ERROR",
         full_message,
-        position)
-    end
-  end
-
-  # minor parsing error
-  class SafeParsingError < Safe
-    def initialize(
-        message : String,
-        position : Position? = nil)
-      super(
-        "PARSER ERROR",
-        message,
-        position)
-    end
-  end
-
-  # unexpected character when parsing
-  class UnexpectedCharacter < Safe
-    def initialize(
-        character : Char,
-        position : Position? = nil)
-      super(
-        "UNEXPECTED CHARACTER",
-        "Unexpected character: '#{character}'",
-        position)
-    end
-  end
-
-  # expected end when parsing
-  class UnexpectedSymbol < Safe
-    def initialize(token : Lang::MatchedToken)
-      _type = token._type
-      symbol = token.value
-      position = token.position
-      super(
-        "EXPECTED END",
-        "Unexpected symbol: \"#{symbol}\" (:#{_type})",
-        position)
-    end
-  end
-
-  # FIXME: unused
-  # expected end when parsing
-  class UnexpectedEnd < Safe
-    def initialize(
-        symbol : Symbol,
-        position : Position? = nil)
-      super(
-        "UNEXPECTED END",
-        "Unexpected end. Expected a symbol after: '#{symbol}'",
         position)
     end
   end

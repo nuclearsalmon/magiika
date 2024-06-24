@@ -1,4 +1,4 @@
-module Magiika::Lang::Syntax
+module Magiika::Syntax
   protected def register_class_defining
     group :cls_ident do
       #rule :ABST, :CLS_T, :def do |context|
@@ -31,7 +31,7 @@ module Magiika::Lang::Syntax
     end
   end
 
-  protected def define_cls(context : Context)
+  protected def define_cls(context : Merlin::Context(Symbol, Psuedo::Node))
     abst = !(context[:ABST]?.try(&.token?).nil?)
 
     name_t = context[:cls_ident].token

@@ -1,4 +1,4 @@
-module Magiika::Lang::Syntax
+module Magiika::Syntax
   private def register_commons
     #group :nls do
     #  noignore :NEWLINE

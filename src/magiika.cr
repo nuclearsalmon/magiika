@@ -1,16 +1,56 @@
 #!/usr/bin/env -S crystal run
+
 require "log"
 require "dotenv"
 require "option_parser"
-require "./magiika/magiika"
-require "./magiika/lang/lang"
+require "merlin"
 
+require "./version"
+
+require "./util/util"
+require "./misc/error"
+require "./misc/visibility"
+require "./misc/match_result"
+require "./misc/typing"
+
+require "./node/node"
+
+require "./type_node/iface"
+require "./type_node/psuedo"
+require "./type_node/defaults"
+require "./type_node/type_node"
+
+require "./node_implements/members/member_objects_helper"
+require "./node_implements/members/shared"
+
+require "./node_implements/fn/supplementary"
+require "./node_implements/fn/templates/**"
+require "./node_implements/fn/fn"
+require "./node_implements/fn/**"
+
+require "./node_implements/psuedo/**"
+
+require "./node_implements/primitives/**"
+
+require "./node_implements/meta/desc/desc"
+require "./node_implements/meta/meta"
+
+require "./node_implements/cls/cls"
+require "./node_implements/cls/cls_inst"
+
+require "./node_implements/stmt/**"
+
+require "./scope/scope"
+require "./scope/**"
+
+require "./lang/syntax_macros"
+require "./lang/syntax/**"
+require "./lang/interpreter"
 
 module Magiika
-  VERSION = "0.1.0"
-
   extend self
 
+  alias Position = Merlin::Position
 
   # ⭐ Environment variables
   # --------------------------------------------------------
@@ -68,42 +108,5 @@ module Magiika
     ::Log.builder.unbind("*", @@log_level, LOG_BACKEND)
     @@log_level = level
     ::Log.builder.bind("*", @@log_level, LOG_BACKEND)
-  end
-
-
-  # ⚡ API
-  # --------------------------------------------------------
-
-  def main
-    file : String? = ARGV[0]?
-    if !file.nil? && !file.starts_with?('-')
-      ARGV.delete_at(0)
-    end
-
-    parser = OptionParser.new do |parser|
-      parser.banner = "✨ Usage: magiika [FILE] [options]"
-      parser.on("-h", "--help", "Show this help") do
-        puts parser
-        exit
-      end
-      parser.missing_option do |option_flag|
-        STDERR.puts "💫 Error: #{option_flag} is missing something."
-        STDERR.puts parser
-        exit(1)
-      end
-      parser.invalid_option do |option_flag|
-        STDERR.puts "💫 Error: #{option_flag} is not a valid option."
-        STDERR.puts parser
-        exit(1)
-      end
-    end
-    parser.parse
-
-    interpreter = Lang::MagiikaInterpreter.new
-    if file.nil?
-      interpreter.run_interactive
-    else
-      interpreter.run_file(file)
-    end
   end
 end

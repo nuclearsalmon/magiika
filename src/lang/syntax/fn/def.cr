@@ -1,4 +1,4 @@
-module Magiika::Lang::Syntax
+module Magiika::Syntax
   protected def register_function_defining
     group :fn_ident do
       rule :FN_T, :def do |context|
@@ -82,7 +82,8 @@ module Magiika::Lang::Syntax
     end
   end
 
-  protected def define_fn(context : Context)
+  protected def define_fn(
+      context : Merlin::Context(Symbol, Psuedo::Node))
     pos = Position.default
     name_t = context[:fn_ident].token
     name = name_t.value
@@ -108,7 +109,8 @@ module Magiika::Lang::Syntax
     context.become(assign)
   end
 
-  protected def define_fn_param(context : Context)
+  protected def define_fn_param(
+      context : Merlin::Context(Symbol, Magiika::Psuedo::Node))
     t_def = context[:t_def]?
     t_def = context if t_def.nil?
 
