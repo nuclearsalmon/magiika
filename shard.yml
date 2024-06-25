@@ -1,20 +1,22 @@
 name: magiika
 version: 0.1.0
 
+crystal: '>= 1.12.2'
+
 authors:
   - Gustav Dersjö <gustav.dersjo@gmail.com>
 
 description: |
-  A magical language.
+  A magical programming language.
+
+license: AGPLv3
 
 targets:
   magiika:
     main: src/main.cr
 
-crystal: '>= 1.12.2'
-
-license: AGPLv3
-
 dependencies:
+  merlin:
+    github: nuclearsalmon/merlin
   dotenv:
     github: drum445/dotenv

@@ -4,3 +4,7 @@ shards:
     git: https://github.com/drum445/dotenv.git
     version: 0.5.0
 
+  merlin:
+    git: https://github.com/nuclearsalmon/merlin.git
+    version: 0.1.0+git.commit.73d2c4f7828c1cc9e0a6231b616896199e9bd044
+
