@@ -51,17 +51,5 @@ module Magiika
     abstract def exist?(ident : String) : ::Bool
 
     abstract def find_global_scope() : Scope::Global
-
-    protected def prepare_value(value : Psuedo::Node) : Node::Meta
-      if value.is_a?(Node::Meta)
-        if value.const?
-          raise Error::Lazy.new("Cannot modify a constant value.")
-        end
-
-        value
-      else
-        Node::Meta.new(value)
-      end
-    end
   end
 end
