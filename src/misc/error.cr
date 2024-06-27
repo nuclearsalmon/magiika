@@ -74,10 +74,6 @@ module Magiika::Error
 
       return message
     end
-
-    def to_s(io : IO) : Nil
-      io << to_s
-    end
   end
 
   # expected one type, got another
@@ -120,7 +116,7 @@ module Magiika::Error
         position : Position? = nil)
       super(
         "UNDEFINED METHOD",
-        "Undefined method: '#{ident}'" +
+        "Undefined method: \"#{ident}\"" +
         (target.nil? ? "" : " on #{target.type_name}"),
         position)
     end

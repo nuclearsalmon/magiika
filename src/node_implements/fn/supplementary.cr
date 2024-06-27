@@ -21,9 +21,7 @@ module Magiika
         @value : Psuedo::Node? = nil,
         position : Position? = nil)
       unless descriptor.nil?
-        descriptors = Set(Node::Desc).new
-        descriptors << descriptor
-        @descriptors = descriptors
+        (@descriptors = Set(Node::Desc).new) << descriptor
       end
       super(position)
     end

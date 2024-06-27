@@ -71,7 +71,7 @@ module Magiika
       macro inherited
         {% verbatim do %}
           def self.type_name : ::String
-            "#{ {{@type.name.stringify}} }"
+            {{@type.name.stringify.split("::")[-1]}}
           end
         {% end %}
       end

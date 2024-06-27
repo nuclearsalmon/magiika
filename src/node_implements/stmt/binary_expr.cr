@@ -19,7 +19,7 @@ module Magiika
       left_oper = left[@oper]?
 
       if left_oper.nil?
-        raise Error::Internal.new("unknown method `:#{@oper}'.")
+        raise Error::UndefinedMethod.new(@oper, left, @position)
       else
         left_oper = left_oper.eval(scope)
 

@@ -7,7 +7,11 @@ require "merlin"
 
 require "./version"
 
-require "./util/util"
+require "./util/macros"
+require "./util/object_extensions"
+require "./util/algo"
+require "./util/ansi"
+
 require "./misc/error"
 require "./misc/visibility"
 require "./misc/match_result"

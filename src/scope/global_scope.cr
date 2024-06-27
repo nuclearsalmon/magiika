@@ -5,6 +5,10 @@ module Magiika
   class Scope::Global < Scope
     @variables = Hash(String, Node::Meta).new
 
+    def position : Position
+      @position.not_nil!
+    end
+
     def initialize(
         position : Position)
       super("global", position)
