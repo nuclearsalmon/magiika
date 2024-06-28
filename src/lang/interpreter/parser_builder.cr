@@ -1,5 +1,5 @@
 class Magiika::Interpreter
-  private class ParserBuilder < Merlin::ParserBuilder(Symbol, Psuedo::Node)
+  private class ParserBuilder < Merlin::ParserBuilder(Symbol, Node)
     include Syntax
 
     def initialize

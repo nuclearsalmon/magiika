@@ -79,8 +79,8 @@ module Magiika::Error
   # expected one type, got another
   class Type < Safe
     def initialize(
-        found_type : Psuedo::TypeNode,
-        expected_type : Psuedo::TypeNodeIdent,
+        found_type : TypeNode,
+        expected_type : TypeNodeIdent,
         message : String? = nil,
         position : Position? = nil)
       full_message = "Type error"
@@ -112,7 +112,7 @@ module Magiika::Error
   class UndefinedMethod < Safe
     def initialize(
         ident : String,
-        target : Psuedo::Node? = nil,
+        target : Node? = nil,
         position : Position? = nil)
       super(
         "UNDEFINED METHOD",

@@ -3,7 +3,7 @@ require "./nested_scope"
 
 module Magiika
   class Scope::Fn < Scope::Nested
-    def inject(args : Hash(String, Psuedo::TypeNode)) ::Nil
+    def inject(args : Hash(String, TypeNode)) ::Nil
       args.each{ |name, value|
         set(name, value)
       }
@@ -12,7 +12,7 @@ module Magiika
     def set(ident : String, meta : Node::Meta) : ::Nil
       super(ident, meta)
       value = meta.value
-      if value.is_a?(Psuedo::TypeNodeInstanceTyping)
+      if value.is_a?(TypeNode::InstanceTypingFeat)
         value.register_self
       end
     end
@@ -21,7 +21,7 @@ module Magiika
       @variables.each { |key, value|
         if value.is_a?(Node::Cls)
           # FIXME: need to do it recursively too
-          if value.is_a?(Psuedo::TypeNodeInstanceTyping)
+          if value.is_a?(TypeNode::InstanceTypingFeat)
             value.unregister_self
           end
         end

@@ -2,7 +2,7 @@ require "./parser_builder"
 
 class Magiika::Interpreter
   @@parser_builder = ParserBuilder.new
-  @parser : Merlin::Parser(Symbol, Psuedo::Node) = \
+  @parser : Merlin::Parser(Symbol, Node) = \
     @@parser_builder.build
 
   property show_tokenization : Bool = false
@@ -17,7 +17,7 @@ class Magiika::Interpreter
   end
 
   def parse(
-      tokens : Array(Merlin::MatchedToken(Symbol))) : Psuedo::Node
+      tokens : Array(Merlin::MatchedToken(Symbol))) : Node
     parsed_result = @parser.parse(tokens)
     print_inform(parsed_result) if @show_before_eval
     parsed_result
@@ -26,7 +26,7 @@ class Magiika::Interpreter
   def execute(
       instructions : String,
       scope : Scope,
-      filename : String? = nil) : Psuedo::Node
+      filename : String? = nil) : Node
     # tokenize
     filename = filename.nil? ? scope.position.filename : filename
     tokens = tokenize(instructions, filename)

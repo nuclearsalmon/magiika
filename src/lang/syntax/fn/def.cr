@@ -83,7 +83,7 @@ module Magiika::Syntax
   end
 
   protected def define_fn(
-      context : Merlin::Context(Symbol, Psuedo::Node))
+      context : Merlin::Context(Symbol, Node))
     pos = Position.default
     name_t = context[:fn_ident].token
     name = name_t.value
@@ -98,7 +98,7 @@ module Magiika::Syntax
     end
 
     body = context[:fn_body].nodes?
-    body = Array(Psuedo::Node).new if body.nil?
+    body = Array(Node).new if body.nil?
     ret_t = context[:fn_ret]?.try(&.token.value)
     ret = nil  # FIXME
 
@@ -110,7 +110,7 @@ module Magiika::Syntax
   end
 
   protected def define_fn_param(
-      context : Merlin::Context(Symbol, Magiika::Psuedo::Node))
+      context : Merlin::Context(Symbol, Magiika::Node))
     t_def = context[:t_def]?
     t_def = context if t_def.nil?
 

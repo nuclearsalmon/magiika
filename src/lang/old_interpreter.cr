@@ -1,7 +1,7 @@
 module Magiika
   class Interpreter
     private class ParserBuilder < \
-        Merlin::ParserBuilder(Symbol, Psuedo::Node)
+        Merlin::ParserBuilder(Symbol, Node)
 
       include Syntax
 
@@ -33,7 +33,7 @@ module Magiika
     private ANSI_RELAXED_STYLE     = "\x1b[38;2;150;178;195m"
 
     @@parser_builder = ParserBuilder.new
-    @parser : Merlin::Parser(Symbol, Psuedo::Node) = \
+    @parser : Merlin::Parser(Symbol, Node) = \
       @@parser_builder.build
 
     property show_tokenization : Bool = false
@@ -154,7 +154,7 @@ module Magiika
     def execute(
         instructions : String,
         scope : Scope,
-        filename : String? = nil) : Psuedo::Node?
+        filename : String? = nil) : Node?
       tokens = @parser.tokenize(instructions, filename)
       inform(tokens) if @show_tokenization
 
@@ -169,14 +169,14 @@ module Magiika
       eval_result
     end
 
-    def execute(instructions : String) : Psuedo::Node?
+    def execute(instructions : String) : Node?
       position = Position.new(1, 1)
       scope = Scope::Global.new("global", position)
 
       return execute(instructions, scope, filename)
     end
 
-    def run_file(file_path : String) : Psuedo::Node?
+    def run_file(file_path : String) : Node?
       Signal::INT.trap { print "\n"; leave_file }
 
       #operator_command('l')

@@ -40,7 +40,7 @@ module Magiika
 
     def set(
         ident : String,
-        value : Psuedo::TypeNode,
+        value : TypeNode,
         visibility : Visibility = Visibility::Public) : ::Nil
       meta = Node::Meta.new(value, nil, nil, visibility)
       super(ident, meta.as(Node::Meta))

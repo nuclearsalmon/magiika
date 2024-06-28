@@ -18,31 +18,27 @@ require "./misc/match_result"
 require "./misc/typing"
 
 require "./node/node"
+require "./node/type_node"
 
-require "./type_node/iface"
-require "./type_node/psuedo"
-require "./type_node/defaults"
-require "./type_node/type_node"
+require "./node/psuedo/**"
 
-require "./node_implements/members/member_objects_helper"
-require "./node_implements/members/shared"
+require "./node/members/member_objects_helper"
+require "./node/members/shared"
 
-require "./node_implements/fn/supplementary"
-require "./node_implements/fn/templates/**"
-require "./node_implements/fn/fn"
-require "./node_implements/fn/**"
+require "./node/fn/supplementary"
+require "./node/fn/templates/**"
+require "./node/fn/fn"
+require "./node/fn/**"
 
-require "./node_implements/psuedo/**"
+require "./node/primitives/**"
 
-require "./node_implements/primitives/**"
+require "./node/meta/desc/desc"
+require "./node/meta/meta"
 
-require "./node_implements/meta/desc/desc"
-require "./node_implements/meta/meta"
+require "./node/cls/cls"
+require "./node/cls/cls_inst"
 
-require "./node_implements/cls/cls"
-require "./node_implements/cls/cls_inst"
-
-require "./node_implements/stmt/**"
+require "./node/stmt/**"
 
 require "./scope/scope"
 require "./scope/**"

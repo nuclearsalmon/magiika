@@ -31,7 +31,7 @@ module Magiika::Syntax
     end
   end
 
-  protected def define_cls(context : Merlin::Context(Symbol, Psuedo::Node))
+  protected def define_cls(context : Merlin::Context(Symbol, Node))
     abst = !(context[:ABST]?.try(&.token?).nil?)
 
     name_t = context[:cls_ident].token
@@ -39,7 +39,7 @@ module Magiika::Syntax
     pos = name_t.position
 
     body = context[:cls_body].nodes?
-    body = Array(Psuedo::Node).new if body.nil?
+    body = Array(Node).new if body.nil?
 
     def_cls = Node::DefCls.new(name, abst, body, pos)
 

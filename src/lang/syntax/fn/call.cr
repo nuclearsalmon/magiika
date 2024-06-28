@@ -41,7 +41,7 @@ module Magiika::Syntax
   end
 
   protected def ensure_args_type(
-      node_args : Array(Psuedo::Node)?) : FnArgs
+      node_args : Array(Node)?) : FnArgs
     args = FnArgs.new
     node_args.try(&.each { |node|
       Util.is_a!(node, Node::FnArg)
@@ -50,7 +50,7 @@ module Magiika::Syntax
     args
   end
 
-  protected def parse_fn(context : Merlin::Context(Symbol, Psuedo::Node))
+  protected def parse_fn(context : Merlin::Context(Symbol, Node))
     target = context[:get_value].node
 
     node_args = context[:fn_args_block].nodes?

@@ -26,8 +26,8 @@ module Magiika::Syntax
   end
 
   protected def parse_chained_call(
-      source : Psuedo::Node,
-      context : Merlin::Context(Symbol, Psuedo::Node)) : Nil
+      source : Node,
+      context : Merlin::Context(Symbol, Node)) : Nil
     target_ident, position = \
       parse_chain_node_base(context)
 
@@ -40,8 +40,8 @@ module Magiika::Syntax
   end
 
   protected def parse_chained_retrieve(
-      source : Psuedo::Node,
-      context : Merlin::Context(Symbol, Psuedo::Node)) : Nil
+      source : Node,
+      context : Merlin::Context(Symbol, Node)) : Nil
     target_ident, position = \
       parse_chain_node_base(context)
 
@@ -50,7 +50,7 @@ module Magiika::Syntax
     context.become(node)
   end
 
-  protected def parse_chain_node_base(context : Merlin::Context(Symbol, Psuedo::Node)) \
+  protected def parse_chain_node_base(context : Merlin::Context(Symbol, Node)) \
       : Tuple(String, Position)
     target_ident_t = context[:NAME].token
     target_ident = target_ident_t.value
