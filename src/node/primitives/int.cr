@@ -30,6 +30,24 @@ module Magiika
     # define members code
     Members.def_members_feat
 
+    private def self.__neg(scope : Scope::Fn) : TypeNode
+      Members.def_scoped_vars self
+
+      {% begin %}
+        self_value = self_node.as(Node::Int).value.to_i32
+
+        return Node::Int.new(-self_value).as(TypeNode)
+      {% end %}
+    end
+
+    private def self.__pos(scope : Scope::Fn) : TypeNode
+      Members.def_scoped_vars self
+
+      {% begin %}
+        return self_node
+      {% end %}
+    end
+
     private def self._add(scope : Scope::Fn) : TypeNode
       Members.def_scoped_vars self, other
 
@@ -87,10 +105,15 @@ module Magiika
       return Node::Nil.instance.as(TypeNode)
     end
 
-    Members.def_fn "_$",
-      __cash,
+    Members.def_fn "_+",
+      __pos,
       nil,
-      Node::Nil
+      Node::Int
+
+    Members.def_fn "_-",
+      __neg,
+      nil,
+      Node::Int
 
     Members.def_fn "+",
       _add,

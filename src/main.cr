@@ -5,7 +5,9 @@ module Magiika
   def main
     # get file, if supplied
     file : String? = ARGV[0]?
-    if !file.nil? && file.starts_with?('-')
+    if file.nil? || file.starts_with?('-')
+      file = nil
+    else
       ARGV.delete_at(0)
     end
 

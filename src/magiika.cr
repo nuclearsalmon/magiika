@@ -23,7 +23,6 @@ require "./node/type_node"
 require "./node/psuedo/**"
 
 require "./node/members/member_objects_helper"
-require "./node/members/shared"
 
 require "./node/fn/supplementary"
 require "./node/fn/templates/**"

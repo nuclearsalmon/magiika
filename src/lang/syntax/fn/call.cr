@@ -1,16 +1,16 @@
 module Magiika::Syntax
   protected def register_function_call
     group :fn_arg do
-      rule :value do |context|
+      rule :cond do |context|
         value = context.node
 
         node = Node::FnArg.new(value)
         context.become(node)
       end
 
-      rule :NAME, :EQ, :value do |context|
+      rule :NAME, :EQ, :cond do |context|
         name = context[:NAME].token.value
-        value = context[:value].node
+        value = context[:cond].node
 
         node = Node::FnArg.new(value, name)
         context.become(node)
