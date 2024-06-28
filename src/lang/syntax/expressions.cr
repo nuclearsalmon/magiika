@@ -21,7 +21,6 @@ module Magiika::Syntax
       un_expr_rule :DEC, :un_pofx_op
       un_expr_rule :ADD, :un_pofx_op
       un_expr_rule :SUB, :un_pofx_op
-      un_expr_rule :CASH, :un_pofx_op
 
       rule :un_pofx_op
     end

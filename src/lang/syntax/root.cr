@@ -9,8 +9,6 @@ module Magiika::Syntax
       ignore_trailing :LINE_CONT
 
       rule :stmts do |context|
-        context.become(:stmts)
-
         filename = context.node(0).position.filename
 
         root_node = Node::Stmts.new(
@@ -26,6 +24,7 @@ module Magiika::Syntax
 
       rule :stmts, :stmt do |context|
         context.absorb(:stmts)
+        context.absorb(:stmt)
       end
       rule :stmt
     end
@@ -36,6 +35,15 @@ module Magiika::Syntax
       rule :cls_def
       rule :def_value
       rule :set_value
+
+      rule :CASH, :stmt do |context|
+        position = context[:CASH].token.position
+        stmt = context[:stmt].node
+        node = Node::CashPrint.new(position, stmt)
+
+        context.become(node)
+      end
+
       rule :cond
     end
 

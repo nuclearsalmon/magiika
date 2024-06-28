@@ -1,6 +1,14 @@
 module Magiika::Syntax
   private def register_conditions
     group :cond do
+      rule :CASH, :cond do |context|
+        position = context[:CASH].token.position
+        cond = context[:cond].node
+        node = Node::CashPrintStringify.new(position, cond)
+
+        context.become(node)
+      end
+
       bin_expr_rule :cond, :BOR, :and_cond
       bin_expr_rule :cond, :OR, :and_cond
       rule :and_cond

@@ -4,7 +4,7 @@ module Magiika::Syntax
   protected def register_tokens
     # comments
     # ------------------------------------------------------
-    token :COMMENT, /\#.*\r?\n/
+    token :COMMENT, /#([^\r\n].*)/
     #token :COMMENT, /\/\*([^*]|\r?\n|(\*+([^*\/]|\r?\n)))*\*+\//
     #token :DOC_COMMENT, /\/\*\*(\r?\n|(\*+([^*\/]|\r?\n)))*\*\*+\//
 
@@ -120,7 +120,7 @@ module Magiika::Syntax
     # ------------------------------------------------------
     token :SPACE, /[\t ]+/
     token :LINE_CONT, /\\ ?\r?\n[\t ]*/
-    token :NEWLINE, /\r?\n/
-    token :INLINE_NEWLINE, /;/
+    token :NEWLINE, /(?: *\r?\n *)+/
+    token :INLINE_NEWLINE, / *;/
   end
 end

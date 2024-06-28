@@ -6,20 +6,21 @@ class Magiika::Interpreter
     @@parser_builder.build
 
   property show_tokenization : Bool = false
-  property show_before_eval : Bool = false
+  property show_ast : Bool = false
+  property show_logs : Bool = false
 
   def tokenize(
       instructions : String,
       filename : String? = nil) : Array(Merlin::MatchedToken(Symbol))
     tokens = @parser.tokenize(instructions, filename)
-    print_inform(tokens) if @show_tokenization
+    print_inform(tokens.pretty_inspect) if @show_tokenization
     tokens
   end
 
   def parse(
       tokens : Array(Merlin::MatchedToken(Symbol))) : Node
     parsed_result = @parser.parse(tokens)
-    print_inform(parsed_result) if @show_before_eval
+    print_inform(parsed_result.pretty_inspect) if @show_ast
     parsed_result
   end
 
@@ -69,6 +70,12 @@ class Magiika::Interpreter
   end
 
   def run_file(file_path : String) : Nil
+    if @show_logs
+      Magiika.change_log_level(::Log::Severity::Debug)
+    else
+      Magiika.change_log_level(::Log::Severity::Warn)
+    end
+
     # Create "^C" signal trap
     create_signal_trap
 
@@ -93,6 +100,12 @@ class Magiika::Interpreter
   end
 
   def run_interactive : Nil
+    if @show_logs
+      Magiika.change_log_level(::Log::Severity::Debug)
+    else
+      Magiika.change_log_level(::Log::Severity::Warn)
+    end
+
     # Create "^C" signal trap
     create_signal_trap
 

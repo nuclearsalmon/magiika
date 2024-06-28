@@ -25,12 +25,12 @@ module Magiika::Syntax
       l = context[{{l_s}}].node
       op = context[{{op_s}}].token
       r = context[{{r_s}}].node
+      position = l.position
 
       context.clear
 
-      position = l.position
-      expr = Node::BinaryExpr.new(position, l, op.value, r)
-      context.add(expr)
+      node = Node::BinaryExpr.new(position, l, op.value, r)
+      context.add(node)
     end
   end
 
@@ -52,19 +52,19 @@ module Magiika::Syntax
       {% if l_is_tok %}
         op = context[{{l_s}}].token
         obj = context[{{r_s}}].node
-        pos = op.position
-        side = false
+        position = op.position
+        right_side = false
       {% else %}
         op = context[{{r_s}}].token
         obj = context[{{l_s}}].node
-        pos = obj.position
-        side = true
+        position = obj.position
+        right_side = true
       {% end %}
 
       context.clear
 
-      expr = Node::UnaryExpr.new(pos, op.value, obj, side)
-      context.add(expr)
+      node = Node::UnaryExpr.new(position, op.value, obj, right_side)
+      context.add(node)
     end
   end
 end

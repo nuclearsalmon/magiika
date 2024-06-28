@@ -10,12 +10,20 @@ module Magiika
     end
 
     show_tokenization : Bool = false
+    show_logs : Bool = false
+    show_ast : Bool = false
 
     # define options parser
     option_parser = OptionParser.new do |parser|
       parser.banner = "✨ Usage: magiika [FILE] [options]"
       parser.on("--show-tokens", "DEVTOOL: Show tokenization.") do
         show_tokenization = true
+      end
+      parser.on("--show-logs", "DEVTOOL: Show log output.") do
+        show_logs = true
+      end
+      parser.on("--show-ast", "DEVTOOL: Show abstract syntax tree") do
+        show_ast = true
       end
       parser.on("-h", "--help", "Show this help") do
         puts parser
@@ -39,6 +47,8 @@ module Magiika
     # create interpreter
     interpreter = Interpreter.new
     interpreter.show_tokenization = show_tokenization
+    interpreter.show_logs = show_logs
+    interpreter.show_ast = show_ast
 
     # run interpreter
     if file.nil?
