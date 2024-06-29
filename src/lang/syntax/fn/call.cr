@@ -28,8 +28,22 @@ module Magiika::Syntax
 
     group :fn_args_block do
       rule :PAR
+      rule :L_PAR, :R_PAR
+
       rule :L_PAR, :fn_args, :R_PAR do |context|
         context.become(:fn_args)
+      end
+
+      rule :L_PAR, :fn_args do |context|
+        position = context[:fn_args].nodes.last.position
+        position = position.clone(col: position.col + 1)
+        raise Error::ExpectedCharacter.new("Expected \")\".", position)
+      end
+
+      rule :L_PAR do |context|
+        position = context.token.position
+        position = position.clone(col: position.col + 1)
+        raise Error::ExpectedCharacter.new("Expected \")\".", position)
       end
     end
 

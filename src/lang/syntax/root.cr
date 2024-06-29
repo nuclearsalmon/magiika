@@ -59,6 +59,18 @@ module Magiika::Syntax
       rule :L_PAR, :enclosed_value, :R_PAR do |context|
         context.become(:enclosed_value)
       end
+
+      rule :L_PAR, :enclosed_value do |context|
+        position = context[:enclosed_value].nodes.last.position
+        position = position.clone(col: position.col + 1)
+        raise Error::ExpectedCharacter.new("Expected \")\".", position)
+      end
+
+      rule :L_PAR do |context|
+        position = context.token.position
+        position = position.clone(col: position.col + 1)
+        raise Error::ExpectedCharacter.new("Expected \")\".", position)
+      end
     end
 
     group :enclosed_value do

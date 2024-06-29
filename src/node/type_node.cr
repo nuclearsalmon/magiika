@@ -1,7 +1,7 @@
 abstract class Magiika::TypeNode < Magiika::Node
   # redefine. needs to be repeated here or it won't work.
   # modified to include the type_id
-  macro inherited
+  macro finalized
     {% verbatim do %}
       # needs to be repeated here or it won't work
       def self.type_name : ::String
@@ -50,21 +50,19 @@ abstract class Magiika::TypeNode < Magiika::Node
   end
 
   def self.superclass : TypeNode?
-    raise NotImplementedError.new("Should have been implemented via macro.")
+    nil
   end
 
-  macro extended
-    macro inherited
-      {% verbatim do %}
-        def self.superclass : TypeNode?
-          {% if @type.superclass %}
-            klass = {{ @type.superclass }}
-            return klass if klass.is_a?(TypeNode)
-          {% end %}
-          nil
-        end
-      {% end %}
-    end
+  macro finalized
+    {% verbatim do %}
+      def self.superclass : TypeNode?
+        {% if @type.superclass %}
+          klass = {{ @type.superclass }}
+          return klass if klass.is_a?(TypeNode)
+        {% end %}
+        nil
+      end
+    {% end %}
   end
 end
 
@@ -82,7 +80,9 @@ module Magiika::TypeNode::ClassTypingFeat
       def type_id : Typing::TypeID
         self.class.type_id
       end
+    end
 
+    macro finalized
       {% verbatim do %}
         def self.type_name : ::String
           "#{ {{@type.name.stringify}} }\##{ type_id }"
@@ -144,10 +144,6 @@ module Magiika
 
     include InstanceTypingFeat
   end
-end
-
-module Magiika
-  # ⭐ TypeNode as identifier
 
   alias TypeNodeIdent =
     TypeNode |

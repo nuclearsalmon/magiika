@@ -91,8 +91,8 @@ class Magiika::Interpreter
       unless result.is_a?(Node::Nil)
         print "⭐ #{ result.to_s_internal }\n"
       end
-    rescue ex : Error::Safe
-      print_warning(ex.to_s)
+    #rescue ex : Error::Safe
+    #  print_warning(ex.to_s)
     end
   rescue ex
     print_error(ex)

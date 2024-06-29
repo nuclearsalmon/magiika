@@ -57,6 +57,7 @@ module Magiika::Error
   # user-facing, expected and potentially recoverable error
   abstract class Safe < Exception
     getter title, position
+
     def initialize(
         @title : String,
         @message : String,
@@ -73,6 +74,18 @@ module Magiika::Error
       #message += "\n\n   #{@message}"
 
       return message
+    end
+  end
+
+  # missing character in syntax
+  class ExpectedCharacter < Safe
+    def initialize(
+        @message : String,
+        @position : Position? = nil)
+      super(
+        "EXPECTED CHARACTER",
+        message,
+        position)
     end
   end
 

@@ -30,8 +30,22 @@ module Magiika::Syntax
       ignore :NEWLINE
 
       rule :PAR
+      rule :L_PAR, :R_PAR
+
       rule :L_PAR, :fn_params, :R_PAR do |context|
         context.become(:fn_params)
+      end
+
+      rule :L_PAR, :fn_params do |context|
+        position = context[:fn_params].nodes.last.position
+        position = position.clone(col: position.col + 1)
+        raise Error::ExpectedCharacter.new("Expected \")\".", position)
+      end
+
+      rule :L_PAR do |context|
+        position = context.token.position
+        position = position.clone(col: position.col + 1)
+        raise Error::ExpectedCharacter.new("Expected \")\".", position)
       end
     end
 
@@ -57,6 +71,18 @@ module Magiika::Syntax
       rule :BRC
       rule :L_BRC, :fn_stmts, :R_BRC  do |context|
         context.become(:fn_stmts)
+      end
+
+      rule :L_BRC, :fn_stmts do |context|
+        position = context[:fn_stmts].nodes.last.position
+        position = position.clone(col: position.col + 1)
+        raise Error::ExpectedCharacter.new("Expected \"}\".", position)
+      end
+
+      rule :L_BRC do |context|
+        position = context.token.position
+        position = position.clone(col: position.col + 1)
+        raise Error::ExpectedCharacter.new("Expected \"}\".", position)
       end
     end
 

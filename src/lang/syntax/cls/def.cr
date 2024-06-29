@@ -19,8 +19,22 @@ module Magiika::Syntax
       ignore(:NEWLINE)
 
       rule :BRC
+      rule :L_BRC, :R_BRC
+
       rule :L_BRC, :stmts, :R_BRC  do |context|
         context.become(:stmts)
+      end
+
+      rule :L_BRC, :stmts do |context|
+        position = context[:stmts].nodes.last.position
+        position = position.clone(col: position.col + 1)
+        raise Error::ExpectedCharacter.new("Expected \"}\".", position)
+      end
+
+      rule :L_BRC do |context|
+        position = context.token.position
+        position = position.clone(col: position.col + 1)
+        raise Error::ExpectedCharacter.new("Expected \"}\".", position)
       end
     end
 

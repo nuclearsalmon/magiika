@@ -46,7 +46,7 @@ abstract class Magiika::Node
     raise NotImplementedError.new("Should have been implemented via macro.")
   end
 
-  macro inherited
+  macro finalized
     {% verbatim do %}
       def self.type_name : ::String
         {{ @type.name.stringify.split("::")[-1] }}
