@@ -13,14 +13,22 @@ class Magiika::Interpreter
       instructions : String,
       filename : String? = nil) : Array(Merlin::MatchedToken(Symbol))
     tokens = @parser.tokenize(instructions, filename)
-    print_inform(tokens.pretty_inspect) if @show_tokenization
+    if @show_tokenization
+      token_msg = "Tokens:\n   "
+      token_msg += tokens.map(&.to_s).join("\n   ")
+      print_inform(token_msg)
+    end
     tokens
   end
 
   def parse(
       tokens : Array(Merlin::MatchedToken(Symbol))) : Node
     parsed_result = @parser.parse(tokens)
-    print_inform(parsed_result.pretty_inspect) if @show_ast
+    if @show_ast
+      token_msg = "Abstract syntax tree:\n   "
+      token_msg += tokens.map(&.to_s).join("\n   ")
+      print_inform(parsed_result.pretty_inspect)
+    end
     parsed_result
   end
 
@@ -91,8 +99,8 @@ class Magiika::Interpreter
       unless result.is_a?(Node::Nil)
         print "⭐ #{ result.to_s_internal }\n"
       end
-    #rescue ex : Error::Safe
-    #  print_warning(ex.to_s)
+    rescue ex : Error::Safe
+      print_warning(ex.to_s)
     end
   rescue ex
     print_error(ex)
