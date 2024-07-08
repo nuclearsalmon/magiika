@@ -8,13 +8,10 @@ module Magiika::FnTemplates
     # ---
 
     # argument scope injection operation
-    protected abstract def inject(
-      args : Hash(String, TypeNode),
-      scope : Scope::Fn) : ::Nil
+    protected abstract def inject(args : Hash(String, TypeNode)) : ::Nil
 
     # evaluation operation
-    protected abstract def method_eval(
-      method_scope : Scope::Fn) : TypeNode
+    protected abstract def method_eval : TypeNode
 
     # validation operation
     protected abstract def validate_result(result : TypeNode)
@@ -24,10 +21,8 @@ module Magiika::FnTemplates
     # ---
 
     # call operation
-    def call(
-        args : Hash(String, TypeNode),
-        scope : Scope) : TypeNode
-      Scope::Fn.use(@name, scope, position) do |method_scope|
+    def call(args : Hash(String, TypeNode)) : TypeNode
+      Scope::Fn.use(@name, @defining_scope, position) do |method_scope|
         # inject args into scope
         inject(args, method_scope)
 

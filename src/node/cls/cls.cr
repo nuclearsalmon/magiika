@@ -13,6 +13,10 @@ module Magiika
         @inst_scope_base : Scope::Cls,
         position : Position? = nil)
       super(position)
+      if !(Util.upcase?(@name[0]))
+        raise Error::NamingConvention.new(
+          "Class names must start with an uppercase character.")
+      end
     end
 
     def abstract?
@@ -35,9 +39,12 @@ module Magiika
     # ⭐ Members
     # ---
 
-    def []?(ident : String) : Node?
-      meta = @cls_scope.get?(ident)
-      return meta.try(&.value)
+    def scope : Scope::Cls
+      @cls_scope
+    end
+
+    def defining_scope : Scope
+      @cls_scope.parent
     end
 
     # define members code

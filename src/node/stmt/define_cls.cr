@@ -8,9 +8,9 @@ module Magiika
       super(position)
     end
 
-    private def process_stmts(scope : Scope) : Tuple(Scope::Cls, Scope::Cls)
-      cls_scope = Scope::Cls.new(@name + "_cls", scope, @position)
-      inst_scope_base = Scope::Cls.new(@name + "_inst", scope, @position)
+    private def process_stmts(defining_scope : Scope) : Tuple(Scope::Cls, Scope::Cls)
+      cls_scope = Scope::Cls.new(@name + "_cls", defining_scope, @position)
+      inst_scope_base = Scope::Cls.new(@name + "_inst", defining_scope, @position)
 
       @stmts.each { |stmt|
         if (stmt.is_a?(Node::Fn))
@@ -33,6 +33,7 @@ module Magiika
       cls_scope, inst_scope_base = process_stmts(scope)
 
       cls = Node::Cls.new(
+        scope,  # eval scope becomes defining scope
         @name,
         @abstract,
         cls_scope,

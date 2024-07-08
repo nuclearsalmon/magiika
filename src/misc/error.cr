@@ -77,6 +77,18 @@ module Magiika::Error
     end
   end
 
+  # does not follow naming convention
+  class NamingConvention < Safe
+    def initialize(
+        @message : String,
+        @position : Position? = nil)
+      super(
+        "NAMING CONVENTION",
+        message,
+        position)
+    end
+  end
+
   # missing character in syntax
   class ExpectedCharacter < Safe
     def initialize(

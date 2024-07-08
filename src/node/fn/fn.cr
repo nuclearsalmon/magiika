@@ -5,23 +5,33 @@ module Magiika
     getter returns : FnRet?
 
     def initialize(
+        @defining_scope : Scope,
         @name : String,
         @params : FnParams,
         @returns : FnRet? = nil)
       # FIXME: check that there are no param duplicates
       super(nil)
+      if !(Util.downcase?(@name[0]))
+        raise Error::NamingConvention.new(
+          "Function names must start with a lowercase character.")
+      end
     end
 
     def initialize(
         position : Position,
+        @defining_scope : Scope,
         @name : String,
         @params : FnParams,
         @returns : FnRet? = nil)
       # FIXME: check that there are no param duplicates
       super(position)
+      if !(Util.downcase?(@name[0]))
+        raise Error::NamingConvention.new(
+          "Function names must start with a lowercase character.")
+      end
     end
 
-    def eval(scope : Scope) : TypeNode
+    def eval(scope : Scope) : self
       self
     end
 
@@ -108,9 +118,7 @@ module Magiika
       end
     end
 
-    abstract def call(
-      args : Hash(String, TypeNode),
-      scope : Scope) : TypeNode
+    abstract def call(args : Hash(String, TypeNode)) : TypeNode
 
     def call_safe(
         args : FnArgs,

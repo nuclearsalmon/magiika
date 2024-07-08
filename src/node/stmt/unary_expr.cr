@@ -12,14 +12,9 @@ module Magiika
       obj = @obj.eval(scope)
       extended_oper = @r_side ? @oper : ("_" + @oper)
 
-      unless obj.is_a?(TypeNode)
-        raise Error::Internal.new("Expected a TypeNode from eval")
-      end
-
-      obj_oper = obj[extended_oper]?
-
-      if obj_oper.nil?
-        raise Error::UndefinedMethod.new(extended_oper, obj)
+      if (!(obj.responds_to?(:scope)) || \
+          (obj_oper = obj.scope.get?(extended_oper)).nil?)
+        raise Error::UndefinedMethod.new(extended_oper, obj, position?)
       else
         obj_oper = obj_oper.eval(scope)
 

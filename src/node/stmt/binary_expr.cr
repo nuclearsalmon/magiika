@@ -12,14 +12,9 @@ module Magiika
       left = @left.eval(scope)
       right = @right.eval(scope)
 
-      unless left.is_a?(TypeNode)
-        raise Error::Internal.new("Expected a TypeNode from eval")
-      end
-
-      left_oper = left[@oper]?
-
-      if left_oper.nil?
-        raise Error::UndefinedMethod.new(@oper, left, @position)
+      if (!(left.responds_to?(:scope)) || \
+          (left_oper = left.scope.get?(@oper)).nil?)
+        raise Error::UndefinedMethod.new(@oper, left, position?)
       else
         left_oper = left_oper.eval(scope)
 

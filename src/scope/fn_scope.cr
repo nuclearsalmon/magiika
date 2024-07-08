@@ -17,10 +17,9 @@ module Magiika
       end
     end
 
-    def cleanup : ::Nil
+    private def cleanup : ::Nil
       @variables.each { |key, value|
         if value.is_a?(Node::Cls)
-          # FIXME: need to do it recursively too
           if value.is_a?(TypeNode::InstanceTypingFeat)
             value.unregister_self
           end

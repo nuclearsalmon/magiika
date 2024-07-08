@@ -56,5 +56,40 @@ module Magiika
     def find_global_scope : Scope::Global
       @parent.find_global_scope
     end
+
+    def find_scope(scope : Scope, i : Int32 = 0) : ::Bool
+      if (parent = @parent) == scope
+        true
+      elsif parent.responds_to?(:find_scope)
+        if i >= 64
+          raise Error::Internal.new(
+            "Potentially infinite scope chain detected" +
+            " when traversing \"#{@parent}\".")
+        end
+
+        parent.find_scope(scope)
+      else
+        false
+      end
+    end
+
+    def find_private_scope(scope : Scope::Cls) : ::Bool
+      prev_scope = @parent
+      i = 0
+      loop do
+        break unless prev_scope.is_a?(Scope::Cls)
+        return true if prev_scope == scope
+
+        prev_scope = prev_scope.parent
+        i += 1
+
+        if i >= 64
+          raise Error::Internal.new(
+            "Potentially infinite scope chain detected" +
+            " when traversing \"#{@parent}\".")
+        end
+      end
+      false
+    end
   end
 end

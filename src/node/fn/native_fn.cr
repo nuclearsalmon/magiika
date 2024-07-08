@@ -5,15 +5,16 @@ module Magiika
     include FnTemplates::DefaultValidator
 
     def initialize(
+        defining_scope : Scope,
         name : String,
         params : FnParams,
         @proc : Proc(Scope::Fn, TypeNode),
         returns : FnRet? = nil)
-      super(name, params, returns)
+      super(defining_scope, name, params, returns)
     end
 
-    protected def method_eval(method_scope : Scope::Fn) : TypeNode
-      result = @proc.call(method_scope)
+    protected def method_eval : TypeNode
+      result = @proc.call(@defining_scope)
     end
 
     def to_s_internal : String

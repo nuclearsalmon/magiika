@@ -38,7 +38,7 @@ module Magiika
     end
   end
 
-  alias Node::FnParams = Array(Node::FnParam)
+  alias FnParams = Array(Node::FnParam)
 
   class Node::FnArg < Node
     property name : String?

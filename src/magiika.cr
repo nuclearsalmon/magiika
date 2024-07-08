@@ -22,9 +22,8 @@ require "./node/type_node"
 
 require "./node/psuedo/**"
 
-require "./node/members/member_objects_helper"
-
-require "./node/fn/supplementary"
+require "./node/fn/extra"
+require "./misc/member_nodes"
 require "./node/fn/templates/**"
 require "./node/fn/fn"
 require "./node/fn/**"
@@ -40,7 +39,8 @@ require "./node/cls/cls_inst"
 require "./node/stmt/**"
 
 require "./scope/scope"
-require "./scope/**"
+require "./scope/standalone_scope"
+require "./scope/*"
 
 require "./lang/syntax_macros"
 require "./lang/syntax/**"

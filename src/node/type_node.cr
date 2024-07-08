@@ -1,20 +1,4 @@
 abstract class Magiika::TypeNode < Magiika::Node
-  # redefine. needs to be repeated here or it won't work.
-  # modified to include the type_id
-  macro finalized
-    {% verbatim do %}
-      # needs to be repeated here or it won't work
-      def self.type_name : ::String
-        "#{ {{ @type.name.stringify.split("::")[-1] }} }\#\##{ type_id }"
-      end
-
-      # modified to include the type_id
-      def type_name : ::String
-        "#{ {{ @type.name.stringify.split("::")[-1] }} }\##{ type_id }"
-      end
-    {% end %}
-  end
-
   # ⭐ macros for delegation
 
   private macro delegate_to_typing(call)
@@ -34,11 +18,6 @@ abstract class Magiika::TypeNode < Magiika::Node
   delegate_to_typing_extensive type
   delegate_to_typing_extensive inherits_type
 
-  # Data member access
-  def []?(ident : ::String) : Node?
-    nil
-  end
-
   def eval(scope : Scope) : TypeNode
     self
   end
@@ -53,17 +32,33 @@ abstract class Magiika::TypeNode < Magiika::Node
     nil
   end
 
-  macro finalized
-    {% verbatim do %}
-      def self.superclass : TypeNode?
-        {% if @type.superclass %}
-          klass = {{ @type.superclass }}
-          return klass if klass.is_a?(TypeNode)
-        {% end %}
-        nil
-      end
-    {% end %}
+  private macro recursive_inherited
+    macro inherited
+      {% verbatim do %}
+        def self.superclass : TypeNode?
+          {% if @type.superclass %}
+            klass = {{ @type.superclass }}
+            return klass if klass.is_a?(TypeNode)
+          {% end %}
+          nil
+        end
+
+        # needs to be repeated here or it won't work
+        def self.type_name : ::String
+          "#{ {{ @type.name.stringify.split("::")[-1] }} }\#\##{ type_id }"
+        end
+
+        # modified to include the type_id
+        def type_name : ::String
+          "#{ {{ @type.name.stringify.split("::")[-1] }} }\##{ type_id }"
+        end
+      {% end %}
+
+      recursive_inherited
+    end
   end
+
+  recursive_inherited
 end
 
 module Magiika::TypeNode::ClassTypingFeat
@@ -82,13 +77,17 @@ module Magiika::TypeNode::ClassTypingFeat
       end
     end
 
-    macro finalized
-      {% verbatim do %}
-        def self.type_name : ::String
-          "#{ {{@type.name.stringify}} }\##{ type_id }"
-        end
-      {% end %}
+    private macro recursive_inherited
+      macro inherited
+        {% verbatim do %}
+          def self.type_name : ::String
+            "#{ {{@type.name.stringify}} }\##{ type_id }"
+          end
+        {% end %}
+      end
     end
+
+    recursive_inherited
   end
 end
 

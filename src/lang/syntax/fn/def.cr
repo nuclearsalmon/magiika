@@ -115,7 +115,7 @@ module Magiika::Syntax
     name = name_t.value
 
     node_params = context[:fn_params_block]?.try(&.nodes?)
-    params = Node::FnParams.new
+    params = FnParams.new
     unless node_params.nil?
       node_params.each { |node|
         Util.is_a!(node, Node::FnParam)

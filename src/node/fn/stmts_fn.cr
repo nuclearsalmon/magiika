@@ -6,17 +6,18 @@ module Magiika
 
     def initialize(
         position : Position,
+        defining_scope : Scope,
         name : String,
         params : FnParams,
         @statements : Array(Node),
         returns : FnRet? = nil)
-      super(position, name, params, returns)
+      super(position, defining_scope, name, params, returns)
     end
 
-    protected def method_eval(method_scope : Scope::Fn) : TypeNode
+    protected def method_eval : TypeNode
       result : Node? = nil
       @statements.each { |stmt|
-        result = stmt.eval(method_scope)
+        result = stmt.eval(@defining_scope)
       }
       if result.nil? || !result.is_a?(TypeNode)
         Node::Nil.instance

@@ -1,5 +1,6 @@
 module Magiika
   class Node::Flt < TypeNode::ClassTyping
+    extend Members
     include Psuedo::Resolved
     include Psuedo::Number
 
@@ -27,11 +28,8 @@ module Magiika
     # ⭐ Members
     # ---
 
-    # define members code
-    Members.def_members_feat
-
     private def self.__neg(scope : Scope::Fn) : TypeNode
-      Members.def_scoped_vars self
+      Members.get_scoped_vars self
 
       {% begin %}
         self_value = self_node.as(Node::Flt).value.to_f32
@@ -41,7 +39,7 @@ module Magiika
     end
 
     private def self.__pos(scope : Scope::Fn) : TypeNode
-      Members.def_scoped_vars self
+      Members.get_scoped_vars self
 
       {% begin %}
         return self_node
@@ -49,7 +47,7 @@ module Magiika
     end
 
     private def self._add(scope : Scope::Fn) : TypeNode
-      Members.def_scoped_vars self, other
+      Members.get_scoped_vars self, other
 
       {% begin %}
         self_value = self_node.as(Node::Flt).value.to_f32
@@ -61,7 +59,7 @@ module Magiika
     end
 
     private def self._sub(scope : Scope::Fn) : TypeNode
-      Members.def_scoped_vars self, other
+      Members.get_scoped_vars self, other
 
       {% begin %}
         self_value = self_node.as(Node::Flt).value.to_f32
@@ -73,7 +71,7 @@ module Magiika
     end
 
     private def self._mul(scope : Scope::Fn) : TypeNode
-      Members.def_scoped_vars self, other
+      Members.get_scoped_vars self, other
 
       {% begin %}
         self_value = self_node.as(Node::Flt).value.to_f32
@@ -85,7 +83,7 @@ module Magiika
     end
 
     private def self._div(scope : Scope::Fn) : TypeNode
-      Members.def_scoped_vars self, other
+      Members.get_scoped_vars self, other
 
       {% begin %}
         self_value = self_node.as(Node::Flt).value.to_f32
@@ -97,7 +95,7 @@ module Magiika
     end
 
     private def self.__cash(scope : Scope::Fn) : TypeNode
-      Members.def_scoped_vars self
+      Members.get_scoped_vars self
 
       {% begin %}
         puts Node::Str.new(self_node.to_s_internal).to_s_internal

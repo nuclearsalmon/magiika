@@ -6,9 +6,7 @@ module Magiika
       @position
     end
 
-    def initialize(
-        @name : String,
-        @position : Position? = nil)
+    def initialize(@name : String, @position : Position? = nil)
     end
 
     abstract def get?(ident : String) : Node::Meta?

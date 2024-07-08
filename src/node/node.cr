@@ -46,13 +46,19 @@ abstract class Magiika::Node
     raise NotImplementedError.new("Should have been implemented via macro.")
   end
 
-  macro finalized
-    {% verbatim do %}
-      def self.type_name : ::String
-        {{ @type.name.stringify.split("::")[-1] }}
-      end
-    {% end %}
+  private macro recursive_inherited
+    macro inherited
+      {% verbatim do %}
+        def self.type_name : ::String
+          {{ @type.name.stringify.split("::")[-1] }}
+        end
+      {% end %}
+
+      recursive_inherited
+    end
   end
+
+  recursive_inherited
 
   def self.to_s : ::String
     "#{ type_name } ...\n#{ pretty_inspect }"
