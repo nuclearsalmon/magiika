@@ -118,7 +118,52 @@ module Magiika
       end
     end
 
-    abstract def call(args : Hash(String, TypeNode)) : TypeNode
+    # argument scope injection operation
+    protected def inject(
+        args : Hash(String, TypeNode),
+        method_scope : Scope) : ::Nil
+      method_scope.inject(args)
+    end
+
+    # evaluation operation
+    protected abstract def method_eval(
+      method_scope : Scope) : TypeNode
+
+    # validation operation
+    protected def validate_result(result : TypeNode)
+      returns = @returns
+      return if returns.nil?
+
+      # type check
+      _type = returns._type
+      if (!_type.nil? && !result.type?(_type))
+        raise Error::Type.new(result, _type)
+      end
+
+      # descriptor check
+      descs = returns.descs
+      unless descs.nil?
+        descs.each do |descriptor|
+          validation_result = descriptor.validate(result)
+          unless validation_result.matched?
+            validation_result.raise
+          end
+        end
+      end
+    end
+
+    # call operation
+    def call(args : Hash(String, TypeNode)) : TypeNode
+      Scope::Fn.use(@name, @defining_scope, position) do |method_scope|
+        # inject args into scope
+        inject(args, method_scope)
+
+        # perform operation
+        result = method_eval(method_scope)
+        validate_result(result)
+        return result
+      end
+    end
 
     def call_safe(
         args : FnArgs,
@@ -140,7 +185,7 @@ module Magiika
         type_node_args_hash[key] = type_value
       }
 
-      call(type_node_args_hash, scope)
+      call(type_node_args_hash)
     end
 
     def call_safe_raise(

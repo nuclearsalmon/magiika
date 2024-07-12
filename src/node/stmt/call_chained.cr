@@ -17,7 +17,7 @@ module Magiika
       end
 
       target = target.try(&.value)
-      call_target(target, @args, scope)
+      Node::Call.call_target(target, @args, scope)
     end
   end
 end

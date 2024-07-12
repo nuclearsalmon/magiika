@@ -22,7 +22,7 @@ module Magiika
 
     def eval(scope : Scope) : TypeNode
       target = @target.eval(scope)
-      call_target(target, @args, scope)
+      self.class.call_target(target, @args, scope)
     end
   end
 end

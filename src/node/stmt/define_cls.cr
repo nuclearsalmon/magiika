@@ -30,10 +30,10 @@ module Magiika
     end
 
     def eval(scope : Scope) : TypeNode
+      # eval scope becomes defining scope
       cls_scope, inst_scope_base = process_stmts(scope)
 
       cls = Node::Cls.new(
-        scope,  # eval scope becomes defining scope
         @name,
         @abstract,
         cls_scope,

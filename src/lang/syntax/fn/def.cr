@@ -128,8 +128,7 @@ module Magiika::Syntax
     ret_t = context[:fn_ret]?.try(&.token.value)
     ret = nil  # FIXME
 
-    fn = Node::StmtsFn.new(pos, name, params, body, ret)
-    assign = Node::Assign.new(pos, name, fn, AssignMode::Any)
+    assign = Node::DefFn.new(pos, name, params, body, ret)
 
     context.clear
     context.become(assign)

@@ -24,7 +24,6 @@ require "./node/psuedo/**"
 
 require "./node/fn/extra"
 require "./misc/member_nodes"
-require "./node/fn/templates/**"
 require "./node/fn/fn"
 require "./node/fn/**"
 

@@ -71,7 +71,7 @@ module Magiika::Syntax
     args = ensure_args_type(node_args)
 
     position = context.position
-    node = Node::Call.new(position, target, args)
+    node = Node::Call.new(target, args, position)
     context.become(node)
   end
 end

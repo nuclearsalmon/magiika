@@ -23,7 +23,7 @@ module Magiika::Members
     params << Node::FnParam.new("self", self)
     fn_ret = ret_type.nil? ? nil : FnRet.new(ret_type)
 
-    node = Node::NativeFn.new(name, params, body, fn_ret)
+    node = Node::NativeFn.new(self.scope, name, params, body, fn_ret)
     meta = Node::Meta.new(node, Node::NativeFn, nil, visibility)
 
     scope.set(name, meta)
@@ -31,7 +31,6 @@ module Magiika::Members
 
   macro def_fn(name, body_fn, params, ret_type)
     self.def_fn(
-      self.scope,
       {{ name }},
       ->(scope : Scope::Fn){ {{ body_fn }}(scope) },
       {{ params }},
@@ -40,7 +39,6 @@ module Magiika::Members
 
   macro def_fn(name, body_fn, params, ret_type, visibility)
     self.def_fn(
-      self.scope,
       {{ name }},
       ->(scope : Scope::Fn){ {{ body_fn }}(scope) },
       {{ params }},

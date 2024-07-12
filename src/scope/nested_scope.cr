@@ -73,7 +73,7 @@ module Magiika
       end
     end
 
-    def find_private_scope(scope : Scope::Cls) : ::Bool
+    def find_private_scope(scope : Scope) : ::Bool
       prev_scope = @parent
       i = 0
       loop do

@@ -6,5 +6,5 @@ shards:
 
   merlin:
     git: https://github.com/nuclearsalmon/merlin.git
-    version: 0.1.0+git.commit.73d2c4f7828c1cc9e0a6231b616896199e9bd044
+    version: 0.1.0+git.commit.d496a428f427d9f601401ad1ef312675312cb69d
 

@@ -51,7 +51,10 @@ class Magiika::Interpreter
     # begin/rescue used here, as signal trapping is not
     # implemented on Windows
     begin
-      Signal::INT.trap { exit 0 }
+      Signal::INT.trap {
+        print "\n"
+        exit 0
+      }
     rescue ex : NotImplementedError
     end
   end

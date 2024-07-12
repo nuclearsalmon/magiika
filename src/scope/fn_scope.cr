@@ -17,7 +17,7 @@ module Magiika
       end
     end
 
-    private def cleanup : ::Nil
+    protected def cleanup : ::Nil
       @variables.each { |key, value|
         if value.is_a?(Node::Cls)
           if value.is_a?(TypeNode::InstanceTypingFeat)

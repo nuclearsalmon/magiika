@@ -13,19 +13,8 @@ module Magiika
       raise Error::Internal.new("Abst fn is not callable.")
     end
 
-    def call(args : Hash(String, TypeNode)) : TypeNode
-      raise_uncallable_error
-    end
-
-    def call_safe(
-        args : FnArgs,
-        deep_analysis : ::Bool = false) : MatchResult | TypeNode
-      raise_uncallable_error
-    end
-
-    def call_safe_raise(
-        args : FnArgs,
-        deep_analysis : ::Bool = false) : TypeNode
+    protected def method_eval(
+        method_scope : Scope) : TypeNode
       raise_uncallable_error
     end
 

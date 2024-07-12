@@ -1,9 +1,5 @@
 module Magiika
   class Node::StmtsFn < Node::Fn
-    include FnTemplates::DefaultCaller
-    include FnTemplates::DefaultInjector
-    include FnTemplates::DefaultValidator
-
     def initialize(
         position : Position,
         defining_scope : Scope,
@@ -14,10 +10,11 @@ module Magiika
       super(position, defining_scope, name, params, returns)
     end
 
-    protected def method_eval : TypeNode
+    protected def method_eval(
+        method_scope : Scope) : TypeNode
       result : Node? = nil
       @statements.each { |stmt|
-        result = stmt.eval(@defining_scope)
+        result = stmt.eval(method_scope)
       }
       if result.nil? || !result.is_a?(TypeNode)
         Node::Nil.instance
