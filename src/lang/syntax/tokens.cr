@@ -1,12 +1,19 @@
 module Magiika::Syntax
-  #extend self
-
   protected def register_tokens
     # comments
     # ------------------------------------------------------
-    token :COMMENT, /#([^\r\n].*)/
-    #token :COMMENT, /\/\*([^*]|\r?\n|(\*+([^*\/]|\r?\n)))*\*+\//
+    #token :COMMENT, /#([^\r\n].*)/
+    token :COMMENT /\/\/([^\r\n].*)/
+    #token :MULTILINE_COMMENT, /\/\*([^*]|\r?\n|(\*+([^*\/]|\r?\n)))*\*+\//
     #token :DOC_COMMENT, /\/\*\*(\r?\n|(\*+([^*\/]|\r?\n)))*\*\*+\//
+
+
+    # strings
+    # ------------------------------------------------------
+    # enable ONE string mode from below
+    token :STR, /"([^"\\]*(?:\\.[^"\\]*)*)"/
+    #token :STR, /'([^'\\]*(?:\\.[^'\\]*)*)'/
+    #token :STR, /(?:"([^"\\]*(?:\\.[^"\\]*)*)")|(?:'([^'\\]*(?:\\.[^'\\]*)*)')/
 
 
     # keywords and types
@@ -24,18 +31,18 @@ module Magiika::Syntax
     token :ELSIF, /elsif/
     token :ELSE, /else/
 
-    #token :ABST, /abst/
+    token :BOOL, /(?>true|false)/
 
 
     # multi-character operators and tokens
     # ------------------------------------------------------
     #token :ASSIGN_INLINE, /:=/
-    #token :ASSIGN_SUB, /\-=/
-    #token :ASSIGN_ADD, /\+=/
-    #token :ASSIGN_MULT, /\*=/
-    #token :ASSIGN_DIV, /\\=/
-    #token :ASSIGN_POW, /\*\*=/
-    #token :ASSIGN_PIPE, /\|=/
+    token :ASSIGN_SUB, /\-=/
+    token :ASSIGN_ADD, /\+=/
+    token :ASSIGN_MULT, /\*=/
+    token :ASSIGN_DIV, /\\=/
+    token :ASSIGN_POW, /\*\*=/
+    token :ASSIGN_PIPE, /\|=/
 
     token :OR, /\|\||or/
     token :AND, /&&|and/
@@ -53,7 +60,7 @@ module Magiika::Syntax
     #token :GEQ, />=/
     token :INC, /\+\+/
     token :DEC, /\-\-/
-    token :IDIV, /\/\//
+    token :IDIV, /\/\!/
     #token :POW, /\*\*/
     #token :LSH, /<</
     #token :RSH, />>/
@@ -67,8 +74,12 @@ module Magiika::Syntax
 
     # single-character operators and tokens
     # ------------------------------------------------------
-    token :DEFINE, /:/
-    token :ASSIGN, /=/
+    token :DOT, /\./
+    token :COLON, /:/
+    token :S_QUOT, /'/
+
+    #token :DEFINE, /:/
+    #token :ASSIGN, /=/
 
     # FIXME: swap bitwise ops to be literal "XOR",
     #   and use single chars for other ops.
@@ -95,17 +106,13 @@ module Magiika::Syntax
     token :L_BRC, /\{/
     token :R_BRC, /\}/
 
-    token :CHAIN, /\./
+    #token :CHAIN, /\./
     token :SEP, /,/
 
 
-    # literals
+    # numbers
     # ------------------------------------------------------
-    # enable ONE string mode from below
-    token :STR, /"([^"\\]*(?:\\.[^"\\]*)*)"/
-    #token :STR, /'([^'\\]*(?:\\.[^'\\]*)*)'/
-    #token :STR, /(?:"([^"\\]*(?:\\.[^"\\]*)*)")|(?:'([^'\\]*(?:\\.[^'\\]*)*)')/
-    token :BOOL, /(?>true|false)/
+
     token :FLT, /\d+\.\d+/
     token :INT, /\d+/
 

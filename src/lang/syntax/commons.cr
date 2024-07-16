@@ -1,30 +1,34 @@
 module Magiika::Syntax
-  private def register_commons
-    #group :nls do
-    #  noignore :NEWLINE
-    #  noignore :INLINE_NEWLINE
-    #
-    #  rule :NEWLINE
-    #  rule :INLINE_NEWLINE
-    #end
+  protected def register_commons
+    group :magic_def do
+      rule :NAME
+    end
 
-    group :def do
-      rule :DEFINE, :NAME do |context|
-        context.become(:NAME)
+    group :typed_def do
+      rule :NAME, :NAME do |context|  # -> :NAME, :_TYPE
+        _type = context[:NAME].token(0)
+        context.drop(:NAME, 0)
+        context.add(:_TYPE, _type)
       end
     end
 
-    group :t_def do
-      rule :NAME, :DEFINE, :NAME do |context|
-        context.drop(:DEFINE)
+    group :any_def do
+      rule :magic_def do
+        name = context.token
+        context.drop_tokens
+        context.add(:NAME, name)
+      end
+      rule :typed_def
+    end
 
-        _type = context[:NAME].token(0)
-        context.drop(:NAME, 0)
-        context.add(:TYPE, _type)
-      end
-      rule :DEFINE, :NAME do |context|
-        context.drop(:DEFINE)
-      end
+    group :assignment_op do
+      rule :ASSIGN
+      rule :ASSIGN_SUB
+      rule :ASSIGN_ADD
+      rule :ASSIGN_MULT
+      rule :ASSIGN_DIV
+      rule :ASSIGN_POW
+      rule :ASSIGN_PIPE
     end
   end
 end

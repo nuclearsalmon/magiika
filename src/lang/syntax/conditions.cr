@@ -1,5 +1,5 @@
 module Magiika::Syntax
-  private def register_conditions
+  protected def register_conditions
     group :cond do
       rule :CASH, :cond do |context|
         position = context[:CASH].token.position
@@ -48,9 +48,6 @@ module Magiika::Syntax
     group :comp do
       bin_expr_rule :expr, :EQ, :expr
       #rule :NOT, :cond do |_, value|
-      #  BooleanInverterNode.new l.position, value
-      #end
-      #rule :NOT_L, :cond do |_, value|
       #  BooleanInverterNode.new l.position, value
       #end
       rule :expr

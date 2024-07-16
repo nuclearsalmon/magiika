@@ -5,7 +5,7 @@ module Magiika
     @resolved_type : TypeNode? = nil
     @mutex : Mutex = Mutex.new
 
-    def initialize(@ident : String, position : Position)
+    def initialize(position : Position, @ident : String)
       super(position)
     end
 

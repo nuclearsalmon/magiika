@@ -1,5 +1,5 @@
 module Magiika::Syntax
-  def register_primitives
+  protected def register_primitives
     group :literal do
       rule :FLT do |context|
         token = context.token
