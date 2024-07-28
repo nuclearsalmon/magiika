@@ -12,11 +12,18 @@ class Magiika::Interpreter
       register_primitives
       register_expressions
       register_conditions
-      register_function_defining
-      register_function_call
-      register_variables
+
+      register_define_fn_body
+      register_define_fn_params
+      register_define_fn
+
+      register_define_cls
+
+      register_call_fn
+
+      register_define_var
+
       register_chaining
-      register_class_defining
     end
   end
 end

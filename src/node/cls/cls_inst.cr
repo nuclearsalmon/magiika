@@ -1,6 +1,6 @@
 module Magiika
-  class Node::ClsInst < TypeNode::DualTyping
-    include Psuedo::Resolved
+  class Node::ClsInst < TypeNode
+    Typing.instance_typing_feat
 
     delegate name, to: @from_cls
     delegate cls_scope, to: @from_cls

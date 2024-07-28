@@ -1,5 +1,5 @@
 module Magiika
-  abstract class Node::Fn < TypeNode::ClassTyping
+  abstract class Node::Fn < TypeNode
     getter name : String
     getter params : FnParams
     getter returns : FnRet?
@@ -130,14 +130,19 @@ module Magiika
       method_scope : Scope) : TypeNode
 
     # validation operation
-    protected def validate_result(result : TypeNode)
+    protected def validate_result(result : TypeNode, scope : Scope)
       returns = @returns
       return if returns.nil?
 
       # type check
-      _type = returns._type
-      if (!_type.nil? && !result.type?(_type))
-        raise Error::Type.new(result, _type)
+      unresolved_return_type = returns._type
+      unless unresolved_return_type.nil?
+        return_type = unresolved_return_type.eval_type(scope)
+        result_type = result.as(Typing::Type)
+        if (!return_type.nil? &&
+            !result_type.fits_type?(return_type))
+          raise Error::Type.new(result_type, return_type)
+        end
       end
 
       # descriptor check
@@ -160,7 +165,7 @@ module Magiika
 
         # perform operation
         result = method_eval(method_scope)
-        validate_result(result)
+        validate_result(result, @defining_scope)
         return result
       end
     end

@@ -1,10 +1,15 @@
 module Magiika
   class Node::DefineVar < Node
+    @ident : String
+    @value : Node
+    @_type : Typing::EvalsToType?
+    @visibility : Visibility
+
     def initialize(
         position : Position?,
-        @ident : String,
+        @ident : ::String,
         @value : Node,
-        @_type : Node? = nil,
+        @_type : Typing::EvalsToType? = nil,
         @visibility : Visibility = Visibility::Public)
       super(position)
     end
@@ -20,9 +25,9 @@ module Magiika
         raise Error::Internal.new("Variable already exists: \'#{@ident}\'")
       end
 
-      meta = NodeMeta.new(
+      meta = Node::Meta.new(
         value: value,
-        _type: @type,
+        _type: @_type,
         descriptors: nil,
         visibility: @visibility)
 

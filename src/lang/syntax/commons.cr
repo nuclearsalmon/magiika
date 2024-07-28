@@ -1,9 +1,5 @@
 module Magiika::Syntax
   protected def register_commons
-    group :magic_def do
-      rule :NAME
-    end
-
     group :typed_def do
       rule :NAME, :NAME do |context|  # -> :NAME, :_TYPE
         _type = context[:NAME].token(0)
@@ -13,12 +9,10 @@ module Magiika::Syntax
     end
 
     group :any_def do
-      rule :magic_def do
-        name = context.token
-        context.drop_tokens
-        context.add(:NAME, name)
-      end
       rule :typed_def
+      rule :NAME do |context|
+        context.to_subcontext(:NAME)
+      end
     end
 
     group :assignment_op do

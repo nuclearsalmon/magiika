@@ -1,7 +1,5 @@
 module Magiika
-  class Node::Nil < TypeNode::ClassTyping
-    include Psuedo::Resolved
-
+  class Node::Nil < TypeNode
     private def initialize
       super(nil)
     end

@@ -18,6 +18,17 @@ module Magiika::Syntax
       end
     end
 
+    group :stmt do
+      rule :if_else
+      rule :fn_def
+      rule :cls_def
+      rule :def_value
+      rule :set_value
+      rule :cash_stmt
+
+      rule :cond
+    end
+
     group :stmts do
       ignore :NEWLINE
       ignore :INLINE_NEWLINE
@@ -29,13 +40,7 @@ module Magiika::Syntax
       rule :stmt
     end
 
-    group :stmt do
-      rule :if_else
-      rule :fn_def
-      rule :cls_def
-      rule :def_value
-      rule :set_value
-
+    group :cash_stmt do
       rule :CASH, :stmt do |context|
         position = context[:CASH].token.position
         stmt = context[:stmt].node
@@ -43,8 +48,6 @@ module Magiika::Syntax
 
         context.become(node)
       end
-
-      rule :cond
     end
 
     group :value do

@@ -1,7 +1,5 @@
 module Magiika
-  class Node::Str < TypeNode::ClassTyping
-    include Psuedo::Resolved
-
+  class Node::Str < TypeNode
     protected getter value : ::String
 
     def initialize(@value : ::String, position : Position? = nil)

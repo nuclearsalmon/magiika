@@ -104,8 +104,8 @@ module Magiika::Error
   # expected one type, got another
   class Type < Safe
     def initialize(
-        found_type : TypeNode,
-        expected_type : TypeNodeIdent,
+        found_type : Typing::Type,
+        expected_type : Typing::Type,
         message : String? = nil,
         position : Position? = nil)
       full_message = "Type error"

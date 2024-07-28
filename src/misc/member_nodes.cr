@@ -17,7 +17,7 @@ module Magiika::Members
       name : String,
       body : Proc(Scope::Fn, TypeNode),
       params : FnParams? = nil,
-      ret_type : TypeNodeIdent? = nil,
+      ret_type : Typing::EvalsToType? = nil,
       visibility : Visibility = Visibility::Public)
     params = FnParams.new if params.nil?
     params << Node::FnParam.new("self", self)

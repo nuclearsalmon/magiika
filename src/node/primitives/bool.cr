@@ -1,7 +1,5 @@
 module Magiika
-  class Node::Bool < TypeNode::ClassTyping
-    include Psuedo::Resolved
-
+  class Node::Bool < TypeNode
     def initialize(@value : ::Bool, position : Position)
       super(position)
     end

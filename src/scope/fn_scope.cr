@@ -12,16 +12,16 @@ module Magiika
     def set(ident : String, meta : Node::Meta) : ::Nil
       super(ident, meta)
       value = meta.value
-      if value.is_a?(TypeNode::InstanceTypingFeat)
-        value.register_self
+      if value.is_a?(Typing::RegistrableType)
+        value.register_type
       end
     end
 
     protected def cleanup : ::Nil
       @variables.each { |key, value|
         if value.is_a?(Node::Cls)
-          if value.is_a?(TypeNode::InstanceTypingFeat)
-            value.unregister_self
+          if value.is_a?(Typing::RegistrableType)
+            value.unregister_type
           end
         end
       }

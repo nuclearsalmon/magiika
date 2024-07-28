@@ -3,7 +3,7 @@ module Magiika::Syntax
     # comments
     # ------------------------------------------------------
     #token :COMMENT, /#([^\r\n].*)/
-    token :COMMENT /\/\/([^\r\n].*)/
+    token :COMMENT, /\/\/([^\r\n].*)/
     #token :MULTILINE_COMMENT, /\/\*([^*]|\r?\n|(\*+([^*\/]|\r?\n)))*\*+\//
     #token :DOC_COMMENT, /\/\*\*(\r?\n|(\*+([^*\/]|\r?\n)))*\*\*+\//
 
@@ -66,11 +66,6 @@ module Magiika::Syntax
     #token :RSH, />>/
     token :IMPL, /\->/
     #token :DIA, /<>/
-
-    token :PAR, /\(\)/
-    #token :SQBRC, /\[\]/
-    token :BRC, /\{\}/
-
 
     # single-character operators and tokens
     # ------------------------------------------------------

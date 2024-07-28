@@ -1,5 +1,5 @@
 module Magiika
-  class Node::List < TypeNode::ClassTyping
+  class Node::List < TypeNode
     def initialize(@value : ::Array(Node), position : Position? = nil)
       super(position)
     end

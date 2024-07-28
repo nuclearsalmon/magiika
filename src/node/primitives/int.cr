@@ -1,7 +1,6 @@
 module Magiika
-  class Node::Int < TypeNode::ClassTyping
+  class Node::Int < TypeNode
     extend Members
-    include Psuedo::Resolved
     include Psuedo::Number
 
     getter value : InternalNumberType

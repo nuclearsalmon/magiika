@@ -1,39 +1,38 @@
 module Magiika
   # Metadata for a stored Node
-  class Node::Meta < TypeNode::ClassTyping
-    property value : TypeNode
+  class Node::Meta < TypeNode
+    @value : TypeNode
+    getter value : TypeNode
+
+    @_type : Typing::EvalsToType?
+    getter type : Typing::EvalsToType?
+
     property descriptors : Set(Node::Desc)?
     property visibility : Visibility
 
     def initialize(
         @value : TypeNode,
-        @_type : TypeNodeIdent? = nil,
+        @_type : Typing::EvalsToType? = nil,
         @descriptors : Set(Node::Desc)? = nil,
         @visibility : Visibility = Visibility::Public)
-      verify_type!
       super(nil)
     end
 
-    def inner_type? : TypeNodeIdent?
-      @_type
-    end
-
-    def type=(_type : TypeNodeIdent)
-      @_type = _type
-    end
-
-    def verify_type?(node : TypeNode) : ::Bool
+    def value=(value : TypeNode)
       _type = @_type
-      return Typing.type?(node, _type) unless _type.nil?
-      true
+      if !_type.nil? && !_type.fits_type?(value)
+        raise Error::Lazy.new("value #{value} does not fit type #{_type}")
+      end
+      @value = value
     end
 
-    def verify_type!(node : TypeNode)
-      raise Error::InternalType.new unless verify_type?(node)
-    end
-
-    private def verify_type!
-      verify_type!(@value)
+    def type=(_type : Typing::EvalsToType?)
+      current_type = @_type
+      current_value = @value
+      if !current_type.nil? && !_type.fits_type?(current_value)
+        raise Error::Lazy.new("type #{_type} does not fit value #{current_value}")
+      end
+      @_type = _type
     end
 
     def magic? : ::Bool
@@ -52,7 +51,15 @@ module Magiika
     end
 
     def eval(scope : Scope) : TypeNode
-      @value.eval(scope)
+      value = @value.eval(scope)
+      unresolved_type = @_type
+      unless unresolved_type.nil?
+        _type = unresolved_type.eval_type(scope)
+        unless value.as(Typing::Type).fits_type?(_type)
+          raise Error::Lazy.new("value #{value} does not fit type #{_type}")
+        end
+      end
+      value
     end
   end
 end

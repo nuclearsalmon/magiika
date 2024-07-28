@@ -1,5 +1,7 @@
 module Magiika::Syntax
   protected def register_chaining
+    # TODO: change :value_nochain and :chain to just :value,
+    #        and test if that works.
     group :chain do
       rule :value_nochain, :DOT, :NAME, :fn_args_block do |context|
         source = context[:value_nochain].node
@@ -23,8 +25,7 @@ module Magiika::Syntax
     end
   end
 
-
-  protected def parse_chain_node_base(
+  protected def parse_chain_target(
       context : Merlin::Context(Symbol, Node)) : Tuple(String, Position)
     target_ident_t = context[:NAME].token
     target_ident = target_ident_t.value
@@ -36,11 +37,9 @@ module Magiika::Syntax
   protected def parse_chained_call(
       source : Node,
       context : Merlin::Context(Symbol, Node)) : Nil
-    target_ident, position = \
-      parse_chain_node_base(context)
+    target_ident, position = parse_chain_target(context)
 
-    node_args = context[:fn_args_block].nodes?
-    args = ensure_args_type(node_args)
+    args = (context[:fn_args_block].nodes? || FnArgs.new).as(FnArgs)
 
     node = Node::ChainedCall.new(
       source, target_ident, args, position)
@@ -50,8 +49,7 @@ module Magiika::Syntax
   protected def parse_chained_retrieve(
       source : Node,
       context : Merlin::Context(Symbol, Node)) : Nil
-    target_ident, position = \
-      parse_chain_node_base(context)
+    target_ident, position = parse_chain_target(context)
 
     node = Node::ChainedRetrieve.new(
       source, target_ident, position)

@@ -1,6 +1,6 @@
 module Magiika
-  class Node::Cls < TypeNode::DualTyping
-    include Psuedo::Resolved
+  class Node::Cls < TypeNode
+    Typing.instance_typing_feat
 
     getter name : String
     getter cls_scope : Scope::Cls
