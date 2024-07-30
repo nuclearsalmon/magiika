@@ -1,16 +1,18 @@
 module Magiika::Syntax
   protected def register_commons
     group :typed_def do
-      rule :NAME, :NAME do |context|  # -> :NAME, :_TYPE
-        _type = context[:NAME].token(0)
+      ignore :SPACE
+
+      rule :NAME, :NAME do |context|  # -> :_TYPE, :NAME
+        type_t = context[:NAME].token(0)
         context.drop(:NAME, 0)
-        context.add(:_TYPE, _type)
+        context.add(:_TYPE, type_t)
       end
     end
 
     group :any_def do
       rule :typed_def
-      rule :NAME do |context|
+      rule :NAME do |context|  # -> :NAME
         context.to_subcontext(:NAME)
       end
     end

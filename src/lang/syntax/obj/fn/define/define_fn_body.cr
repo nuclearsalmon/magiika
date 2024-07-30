@@ -2,8 +2,8 @@ module Magiika::Syntax
   protected def register_define_fn_body
     group :fn_stmt do
       rule :if_else
-      rule :def_value
-      rule :set_value
+      rule :assign
+      rule :retrieve
       rule :cash_stmt
 
       rule :cond

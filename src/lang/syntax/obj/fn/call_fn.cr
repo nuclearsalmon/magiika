@@ -46,8 +46,8 @@ module Magiika::Syntax
     group :fn_call do
       ignore :NEWLINE
 
-      rule :get_value, :L_PAR, :fn_args_block do |context|
-        target = context[:get_value].node
+      rule :retrieve, :L_PAR, :fn_args_block do |context|
+        target = context[:retrieve].node
         node_args = context[:fn_args_block].nodes?
 
         # ensure args type
@@ -63,7 +63,7 @@ module Magiika::Syntax
       end
 
       # error trap
-      rule :get_value, :L_PAR do |context|
+      rule :retrieve, :L_PAR do |context|
         position = context.last_position
         position = position.clone(col: position.col + 1)
         raise Error::ExpectedCharacter.new("Expected \")\".", position)

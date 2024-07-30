@@ -3,7 +3,7 @@ module Magiika::Syntax
     group :stmts_block do
       ignore(:NEWLINE)
 
-      rule :BRC
+      rule :L_BRC, :R_BRC
       rule :L_BRC, :stmts, :R_BRC  do |context|
         context.become(:stmts)
         root_node = Node::Stmts.new(context.nodes)

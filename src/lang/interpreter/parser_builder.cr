@@ -13,16 +13,17 @@ class Magiika::Interpreter
       register_expressions
       register_conditions
 
+      register_access
+
       register_define_fn_body
       register_define_fn_params
       register_define_fn
 
-      register_define_cls
-
-      register_call_fn
-
+      #register_define_cls
+      
       register_define_var
 
+      register_call_fn
       register_chaining
     end
   end

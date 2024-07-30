@@ -86,16 +86,16 @@ module Magiika::Syntax
       end
     end
 
-    group :instance_define_fn do
-      rule :DOT, :define_fn do |context|
-        context.become(:define_fn)
-      end
-    end
+    #group :instance_define_fn do
+    #  rule :DOT, :define_fn do |context|
+    #    context.become(:define_fn)
+    #  end
+    #end
 
-    group :static_define_fn do
-      rule :COLON, :define_fn do |context|
-        context.become(:define_fn)
-      end
-    end
+    #group :static_define_fn do
+    #  rule :COLON, :define_fn do |context|
+    #    context.become(:define_fn)
+    #  end
+    #end
   end
 end

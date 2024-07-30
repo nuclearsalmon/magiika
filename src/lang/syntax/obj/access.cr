@@ -22,11 +22,11 @@ module Magiika::Syntax
         position = name_t.position
 
         node = Node::Assign.new(
-          pos,
+          position,
           name,
           value,
-          op,
-          AssignMode::Replace)
+          AssignMode::Replace,
+          op)
         context.become(node)
       end
     end

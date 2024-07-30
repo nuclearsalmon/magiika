@@ -40,31 +40,12 @@ module Magiika::Syntax
     group :define_cls do
       ignore :NEWLINE
 
-      rule :any_cls_def, :_define_cls do |context|
+      rule :S_QUOT, :any_cls_def, :_define_cls do |context|
         name_t = context[:any_cls_def].token
         name = name_t.value
         pos = name_t.position
 
         cls_def_ctx = context[:_define_cls]
-
-      end
-    end
-
-    group :global_define_cls do
-      rule :S_QUOT, :define_cls do |context|
-        context.become(:define_cls)
-      end
-    end
-
-    group :instance_define_cls do
-      rule :DOT, :define_cls do |context|
-        context.become(:define_cls)
-      end
-    end
-
-    group :static_define_cls do
-      rule :COLON, :define_cls do |context|
-        context.become(:define_cls)
       end
     end
   end

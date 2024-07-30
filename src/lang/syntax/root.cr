@@ -20,10 +20,10 @@ module Magiika::Syntax
 
     group :stmt do
       rule :if_else
-      rule :fn_def
-      rule :cls_def
-      rule :def_value
-      rule :set_value
+      rule :global_define_fn
+      #rule :define_cls
+      rule :global_define_var
+      rule :assign
       rule :cash_stmt
 
       rule :cond
@@ -58,7 +58,7 @@ module Magiika::Syntax
     group :value_nochain do
       rule :literal
       rule :fn_call
-      rule :get_value
+      rule :retrieve
       rule :L_PAR, :enclosed_value, :R_PAR do |context|
         context.become(:enclosed_value)
       end
@@ -77,8 +77,8 @@ module Magiika::Syntax
     end
 
     group :enclosed_value do
-      rule :def_value
-      rule :set_value
+      rule :global_define_var
+      rule :assign
       rule :cond
     end
   end

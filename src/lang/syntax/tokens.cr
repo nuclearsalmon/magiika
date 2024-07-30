@@ -25,7 +25,7 @@ module Magiika::Syntax
     #token :NIL_T, /nil/
     #token :LIST_T, /list/
     token :FN_T, /fn/
-    token :CLS_T, /cls/
+    #token :CLS_T, /cls/
 
     token :IF, /if/
     token :ELSIF, /elsif/
@@ -70,11 +70,10 @@ module Magiika::Syntax
     # single-character operators and tokens
     # ------------------------------------------------------
     token :DOT, /\./
-    token :COLON, /:/
+    #token :COLON, /:/
     token :S_QUOT, /'/
 
-    #token :DEFINE, /:/
-    #token :ASSIGN, /=/
+    token :ASSIGN, /=/
 
     # FIXME: swap bitwise ops to be literal "XOR",
     #   and use single chars for other ops.
