@@ -138,7 +138,7 @@ module Magiika
       unresolved_return_type = returns._type
       unless unresolved_return_type.nil?
         return_type = unresolved_return_type.eval_type(scope)
-        result_type = result.as(Typing::Type)
+        result_type = result.eval_type(scope)
         if (!return_type.nil? &&
             !result_type.fits_type?(return_type))
           raise Error::Type.new(result_type, return_type)

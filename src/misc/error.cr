@@ -104,15 +104,15 @@ module Magiika::Error
   # expected one type, got another
   class Type < Safe
     def initialize(
-        found_type : Typing::Type,
-        expected_type : Typing::Type,
+        found_type : TypeMeta,
+        expected_type : TypeMeta,
         message : String? = nil,
         position : Position? = nil)
       full_message = "Type error"
       full_message += ": '#{message}'" unless message.nil?
       full_message += "."
-      full_message += "\nFound: '#{found_type.type_name}'"
-      full_message += "\nExpected: '#{expected_type.type_name}'"
+      full_message += "\nFound: '#{found_type.name}'"
+      full_message += "\nExpected: '#{expected_type.name}'"
 
       super(
         "TYPE ERROR",

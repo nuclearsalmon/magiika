@@ -3,22 +3,25 @@ module Magiika::Typing
 
   alias TypeID = Int32
 
-  TYPE_IDS = Hash(TypeID, Type).new
+  TYPE_IDS = Hash(TypeID, TypeMeta).new
   TYPE_REGISTRY_MUTEX = Mutex.new
 
-  def register_type(reference : Type) : TypeID
+  def register_type(
+      type_name : ::String, 
+      reference : TypeNode.class | InstTypeNode, 
+      type_superclass : ::Class) : TypeMeta
     TYPE_REGISTRY_MUTEX.lock
 
     # find lowest unused key
-    id = 0
+    id = 0i32
     while TYPE_IDS.has_key?(id)
-      id += 1
+      id += 1i32
     end
 
-    # set reference to id
-    TYPE_IDS[id] = reference
+    type_meta = TypeMeta.new(id, type_name, reference, type_superclass)
+    TYPE_IDS[id] = type_meta
 
-    return id
+    return type_meta
   rescue ex
     raise Error::Internal.new("Error upon registering type: #{ex.pretty_inspect}")
   ensure

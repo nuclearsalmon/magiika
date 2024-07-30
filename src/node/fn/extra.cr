@@ -1,13 +1,13 @@
 module Magiika
   class Node::FnParam < Node
     getter name : String
-    getter _type : Typing::EvalsToType?
+    getter _type : EvalType?
     getter descriptors : Set(Node::Desc)?
     getter value : Node?
 
     def initialize(
         @name : String,
-        @_type : Typing::EvalsToType? = nil,
+        @_type : EvalType? = nil,
         @descriptors : Set(Node::Desc)? = nil,
         @value : Node? = nil,
         position : Position? = nil)
@@ -16,7 +16,7 @@ module Magiika
 
     def initialize(
         @name : String,
-        @_type : Typing::EvalsToType? = nil,
+        @_type : EvalType? = nil,
         descriptor : Node::Desc? = nil,
         @value : Node? = nil,
         position : Position? = nil)
@@ -53,6 +53,6 @@ module Magiika
   alias FnArgs = Array(Node::FnArg)
 
   record FnRet,
-    _type : Typing::EvalsToType? = nil,
+    _type : EvalType? = nil,
     descs : Set(Node::Desc)? = nil
 end

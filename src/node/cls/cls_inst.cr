@@ -1,7 +1,5 @@
 module Magiika
-  class Node::ClsInst < TypeNode
-    Typing.instance_typing_feat
-
+  class Node::ClsInst < InstTypeNode
     delegate name, to: @from_cls
     delegate cls_scope, to: @from_cls
     delegate inst_scope_base, to: @from_cls

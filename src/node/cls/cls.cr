@@ -1,7 +1,5 @@
 module Magiika
-  class Node::Cls < TypeNode
-    Typing.instance_typing_feat
-
+  class Node::Cls < InstTypeNode
     getter name : String
     getter cls_scope : Scope::Cls
     getter inst_scope_base : Scope::Cls

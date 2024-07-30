@@ -12,11 +12,8 @@ require "./misc/match_result"
 require "./node/node"
 
 require "./typing/typing"
-require "./typing/type_node/class_typing_feat"
-require "./typing/type_node/instance_typing_feat"
-require "./typing/type_node/type_checking"
-require "./typing/type_node/type_node"
-require "./typing/flexible_set"
+require "./typing/type_node"
+require "./typing/type_meta"
 require "./typing/resolver"
 require "./typing/union"
 

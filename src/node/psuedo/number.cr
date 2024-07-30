@@ -10,5 +10,7 @@ module Magiika
   end
 
   alias Node::Number = Node::Int | Node::Flt
-  NUMBER_UNION = Node::Union.new(Node::Flt, Node::Int)
+  NUMBER_UNION = Node::Union.new(
+    Node::Flt.type_meta, 
+    Node::Int.type_meta)
 end

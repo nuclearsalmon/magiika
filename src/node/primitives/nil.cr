@@ -1,5 +1,7 @@
 module Magiika
   class Node::Nil < TypeNode
+    extend SelfEvalType
+
     private def initialize
       super(nil)
     end

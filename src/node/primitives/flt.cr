@@ -2,6 +2,7 @@ module Magiika
   class Node::Flt < TypeNode
     extend Members
     include Psuedo::Number
+    extend SelfEvalType
 
     getter value : InternalNumberType
 

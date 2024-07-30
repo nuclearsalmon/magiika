@@ -1,25 +1,18 @@
 module Magiika
-  class Node::Union < TypeNode
-    include Typing::EvalsToType
-
-    Typing.instance_typing_feat
-
-    @types : FlexibleSet(Typing::Type)
-    getter types
+  class Node::Union < InstTypeNode
+    @type_metas : Set(TypeMeta)
+    getter type_metas
 
     def initialize(
-        @types : Set(Typing::Type),
+        @type_metas : Set(TypeMeta),
         position : Position? = nil)
       super(position)
     end
-
+  
     def initialize(
-        *types : Typing::Type,
+        *type_metas : TypeMeta,
         position : Position? = nil)
-      @types = Magiika::FlexibleSet(Typing::Type).new([] of Typing::Type)#([*types] of Typing::Type)
-      types.each { |_type|
-        @types << _type.as(Typing::Type)
-      }
+      @type_metas = Set(TypeMeta).new(type_metas)
       super(position)
     end
   end

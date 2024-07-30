@@ -4,39 +4,63 @@ module Magiika
     @value : TypeNode
     getter value : TypeNode
 
-    @_type : Typing::EvalsToType?
-    getter type : Typing::EvalsToType?
+    @resolved_type : TypeMeta? = nil
+    @unresolved_type : EvalType? = nil
 
     property descriptors : Set(Node::Desc)?
     property visibility : Visibility
 
     def initialize(
         @value : TypeNode,
-        @_type : Typing::EvalsToType? = nil,
+        @resolved_type : TypeMeta? = nil,
         @descriptors : Set(Node::Desc)? = nil,
         @visibility : Visibility = Visibility::Public)
       super(nil)
     end
 
-    def value=(value : TypeNode)
-      _type = @_type
-      if !_type.nil? && !_type.fits_type?(value)
-        raise Error::Lazy.new("value #{value} does not fit type #{_type}")
+    def initialize(
+        @value : TypeNode,
+        @unresolved_type : EvalType? = nil,
+        @descriptors : Set(Node::Desc)? = nil,
+        @visibility : Visibility = Visibility::Public)
+      super(nil)
+    end
+
+    def type : EvalType?
+      @resolved_type || @unresolved_type
+    end
+
+    def resolve_type(scope : Scope) : EvalType
+      resolved_type = @resolved_type
+      if resolved_type.nil? 
+        eval_type = @unresolved_type
+        unless eval_type.nil?
+          resolved_type = eval_type.eval_type(scope)
+          @resolved_type = resolved_type
+        end
+      end
+      return resolved_type
+    end
+
+    def set_value(value : TypeNode, scope : Scope) : ::Nil
+      resolved_type = resolve_type(scope)
+      if !resolved_type.nil? && !resolved_type.fits_type?(value)
+        raise Error::Lazy.new("value #{value} does not fit type #{resolved_type}")
       end
       @value = value
     end
 
-    def type=(_type : Typing::EvalsToType?)
-      current_type = @_type
+    def set_type(new_type : TypeMeta?, scope : Scope) : ::Nil
+      current_type = resolve_type(scope)
       current_value = @value
-      if !current_type.nil? && !_type.fits_type?(current_value)
-        raise Error::Lazy.new("type #{_type} does not fit value #{current_value}")
+      if !current_type.nil? && !new_type.fits_type?(current_value)
+        raise Error::Lazy.new("type #{new_type} does not fit value #{current_value}")
       end
-      @_type = _type
+      @resolved_type = new_type
     end
 
     def magic? : ::Bool
-      @_type.nil?
+      @resolved_type.nil? && @unresolved_type.nil?
     end
 
     def nilable? : ::Bool
@@ -52,11 +76,11 @@ module Magiika
 
     def eval(scope : Scope) : TypeNode
       value = @value.eval(scope)
-      unresolved_type = @_type
+      unresolved_type = @resolved_type
       unless unresolved_type.nil?
-        _type = unresolved_type.eval_type(scope)
-        unless value.as(Typing::Type).fits_type?(_type)
-          raise Error::Lazy.new("value #{value} does not fit type #{_type}")
+        resolved_type = unresolved_type.eval_type(scope)
+        unless value.as(TypeNode).eval_type(scope).fits_type?(resolved_type)
+          raise Error::Lazy.new("value #{value} does not fit type #{resolved_type}")
         end
       end
       value

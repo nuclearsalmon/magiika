@@ -2,14 +2,14 @@ module Magiika
   class Node::DefineVar < Node
     @ident : String
     @value : Node
-    @_type : Typing::EvalsToType?
+    @unresolved_type : EvalType?
     @visibility : Visibility
 
     def initialize(
         position : Position?,
         @ident : ::String,
         @value : Node,
-        @_type : Typing::EvalsToType? = nil,
+        @unresolved_type : EvalType? = nil,
         @visibility : Visibility = Visibility::Public)
       super(position)
     end
@@ -25,9 +25,13 @@ module Magiika
         raise Error::Internal.new("Variable already exists: \'#{@ident}\'")
       end
 
+      unresolved_type = @unresolved_type
+      resolved_type = (unresolved_type.nil? ? nil : 
+        unresolved_type.eval_type(scope))
+
       meta = Node::Meta.new(
         value: value,
-        _type: @_type,
+        resolved_type: resolved_type,
         descriptors: nil,
         visibility: @visibility)
 

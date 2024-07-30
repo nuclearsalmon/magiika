@@ -73,7 +73,7 @@ module Magiika::Syntax
           .as(Array(Node::FnParam)?)
         body = fn_def_ctx[:_body].nodes
         ret = fn_def_ctx[:_ret]?.try(&.node)
-        fn_ret = FnRet.new(_type: ret.as(Typing::EvalsToType))
+        fn_ret = FnRet.new(_type: ret.as(TypeNode))
 
         fn = Node::DefFn.new(pos, name, params, body, fn_ret)
         context.become(fn)

@@ -1,6 +1,6 @@
 module Magiika
   class Node::Resolver < Node
-    include Typing::EvalsToType
+    include AutoEvalType
 
     getter ident : String
 
@@ -25,10 +25,6 @@ module Magiika
       return value
     ensure
       @mutex.unlock
-    end
-
-    def eval_type(scope : Scope) : Typing::Type
-      eval(scope).as(Typing::Type)
     end
 
     def to_s_internal : String

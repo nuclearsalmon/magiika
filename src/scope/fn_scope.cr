@@ -12,7 +12,7 @@ module Magiika
     def set(ident : String, meta : Node::Meta) : ::Nil
       super(ident, meta)
       value = meta.value
-      if value.is_a?(Typing::RegistrableType)
+      if value.is_a?(InstTypeNode)
         value.register_type
       end
     end
@@ -20,7 +20,7 @@ module Magiika
     protected def cleanup : ::Nil
       @variables.each { |key, value|
         if value.is_a?(Node::Cls)
-          if value.is_a?(Typing::RegistrableType)
+          if value.is_a?(InstTypeNode)
             value.unregister_type
           end
         end
