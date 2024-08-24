@@ -45,6 +45,10 @@ module Magiika
       set(ident, meta, here: true)
     end
 
+    def set_here(ident : String, value : TypeNode) : ::Nil
+      set(ident, Node::Meta.new(value), here: true)
+    end
+
     def exist?(ident : String) : ::Bool
       @variables.has_key?(ident) || @parent.exist?(ident)
     end

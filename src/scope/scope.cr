@@ -43,7 +43,7 @@ module Magiika
 
     abstract def set(ident : String, meta : Node::Meta) : ::Nil
     def set(ident : String, value : TypeNode) : ::Nil
-      set(ident, Node::Meta.new(value).as(Node::Meta))
+      set(ident, Node::Meta.new(value))
     end
 
     abstract def exist?(ident : String) : ::Bool

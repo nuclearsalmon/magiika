@@ -31,7 +31,11 @@ module Magiika
 
       case @oper
       when "="
-        scope.set(@ident, value)
+        if scope.responds_to?(:set_here)
+          scope.set_here(@ident, value)
+        else
+          scope.set(@ident, value)
+        end
       else
         raise Error::Internal.new("Unknown assignment operator: \'#{@oper}\'")
       end
