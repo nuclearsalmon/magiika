@@ -6,7 +6,7 @@ module Magiika
         params : FnParams,
         @proc : Proc(Scope::Fn, TypeNode),
         returns : FnRet? = nil)
-      super(defining_scope, name, params, returns)
+      super(defining_scope, true, name, params, returns)
     end
 
     protected def method_eval(

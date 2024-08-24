@@ -5,23 +5,24 @@ module Magiika
     def static? : ::Bool; @static; end
 
     def initialize(
-        position : Position,
         @static : ::Bool,
         @name : String,
         @params : FnParams,
         @statements : Array(Node),
-        @returns : FnRet? = nil)
+        @returns : FnRet? = nil,
+        position : Position? = nil)
       super(position)
     end
 
     def eval(scope : Scope) : TypeNode
       fn = Node::StmtsFn.new(
-        position,
         scope,
+        @static,
         @name,
         @params,
         @statements,
-        @returns
+        @returns,
+        @position
       )
       assign = Node::Assign.new(
         nil,

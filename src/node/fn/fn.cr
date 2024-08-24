@@ -6,23 +6,11 @@ module Magiika
 
     def initialize(
         @defining_scope : Scope,
+        @static : ::Bool,
         @name : String,
         @params : FnParams,
-        @returns : FnRet? = nil)
-      # FIXME: check that there are no param duplicates
-      super(nil)
-      if !(Util.downcase?(@name[0]))
-        raise Error::NamingConvention.new(
-          "Function names must start with a lowercase character.")
-      end
-    end
-
-    def initialize(
-        position : Position,
-        @defining_scope : Scope,
-        @name : String,
-        @params : FnParams,
-        @returns : FnRet? = nil)
+        @returns : FnRet? = nil,
+        position : Position? = nil,)
       # FIXME: check that there are no param duplicates
       super(position)
       if !(Util.downcase?(@name[0]))
@@ -204,7 +192,8 @@ module Magiika
     end
 
     def pretty_sig
-      "#{@name}(" + \
+      (@static ? ":" : ".") +
+      "#{@name}(" +
         (@params.map { |param|
           param_value = param.value
           cs_map_str = ""
@@ -217,8 +206,8 @@ module Magiika
           (cs_map_str == "" ? "" : " ") +
           param.name.to_s +
           (param_value.nil? ? "" : " = #{param_value.to_s_internal}")
-        }).join(separator=",") + \
-        ")" + \
+        }).join(separator=",") +
+        ")" +
         (@returns.nil? ? "" : "-> #{@returns}")
     end
 
