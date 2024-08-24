@@ -6,7 +6,7 @@ require "./util/algo"
 require "./util/ansi"
 
 require "./misc/error"
-require "./misc/visibility"
+require "./misc/access"
 require "./misc/match_result"
 
 require "./node/node"
@@ -20,7 +20,6 @@ require "./typing/union"
 require "./node/psuedo/**"
 
 require "./node/fn/extra"
-require "./misc/member_nodes"
 require "./node/fn/fn"
 require "./node/fn/**"
 

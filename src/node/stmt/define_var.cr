@@ -3,14 +3,14 @@ module Magiika
     @ident : String
     @value : Node
     @unresolved_type : EvalType?
-    @visibility : Visibility
+    @access : Access
 
     def initialize(
         position : Position?,
         @ident : ::String,
         @value : Node,
         @unresolved_type : EvalType? = nil,
-        @visibility : Visibility = Visibility::Public)
+        @access : Access = Access::Public)
       super(position)
     end
 
@@ -26,14 +26,14 @@ module Magiika
       end
 
       unresolved_type = @unresolved_type
-      resolved_type = (unresolved_type.nil? ? nil : 
+      resolved_type = (unresolved_type.nil? ? nil :
         unresolved_type.eval_type(scope))
 
       meta = Node::Meta.new(
         value: value,
         resolved_type: resolved_type,
         descriptors: nil,
-        visibility: @visibility)
+        access: @access)
 
       scope.set(@ident, meta)
 

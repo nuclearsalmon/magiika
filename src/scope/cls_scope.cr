@@ -2,16 +2,16 @@ require "./nested_scope"
 
 module Magiika
   class Scope::Cls < Scope::Nested
-    # overriding get? to handle visibility
+    # overriding get? to handle access
     def get?(
         ident : String,
-        visibility : Visibility = Visibility::Public) : Node::Meta?
-      meta = find_variable_in_scope(ident, visibility)
+        access : Access = Access::Public) : Node::Meta?
+      meta = find_variable_in_scope(ident, access)
       return meta unless meta.nil?
 
       # Delegate to parent scope if not found
       if @parent.is_a?(Scope::Cls)
-        return @parent.as(Scope::Cls).get(ident, visibility)
+        return @parent.as(Scope::Cls).get(ident, access)
       else
         return @parent.get(ident)
       end
@@ -19,19 +19,19 @@ module Magiika
       nil
     end
 
-    # overriding get to handle visibility
+    # overriding get to handle access
     def get(
         ident : String,
-        visibility : Visibility = Visibility::Public) : Node::Meta
-      meta = get?(ident, visibility)
+        access : Access = Access::Public) : Node::Meta
+      meta = get?(ident, access)
       return meta unless meta.nil?
 
-      if !(find_variable_in_scope(ident, Visibility::Private).nil?)
-        raise Error::Lazy.new("#{ident} is not accessible from #{visibility}.")
+      if !(find_variable_in_scope(ident, Access::Private).nil?)
+        raise Error::Lazy.new("#{ident} is not accessible from #{access}.")
       end
 
       if @parent.is_a?(Scope::Cls)
-        @parent.as(Scope::Cls).get(ident, Visibility::Private)
+        @parent.as(Scope::Cls).get(ident, Access::Private)
       end
 
       raise Error::UndefinedVariable.new(ident, self)
@@ -40,31 +40,31 @@ module Magiika
     def set(
         ident : String,
         value : TypeNode,
-        visibility : Visibility = Visibility::Public) : ::Nil
-      meta = Node::Meta.new(value, nil, nil, visibility)
+        access : Access = Access::Public) : ::Nil
+      meta = Node::Meta.new(value, nil, nil, access)
       super(ident, meta.as(Node::Meta))
     end
 
     private def find_variable_in_scope(
         ident : String,
-        visibility : Visibility) : Node::Meta?
+        access : Access) : Node::Meta?
       meta = @variables[ident]?
       return nil unless meta
 
-      # Check visibility and static status
-      return nil unless visibility_permitted?(meta.visibility, visibility)
+      # Check access and static status
+      return nil unless access_permitted?(meta.access, access)
       meta
     end
 
-    private def visibility_permitted?(
-        member_visibility : Visibility,
-        requested_visibility : Visibility) : ::Bool
-      case requested_visibility
-      when Visibility::Public
-        member_visibility == Visibility::Public
-      when Visibility::Protected
-        member_visibility != Visibility::Private
-      when Visibility::Private
+    private def access_permitted?(
+        member_access : Access,
+        requested_access : Access) : ::Bool
+      case requested_access
+      when Access::Public
+        member_access == Access::Public
+      when Access::Protected
+        member_access != Access::Private
+      when Access::Private
         true
       else
         false

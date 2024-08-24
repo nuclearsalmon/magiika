@@ -19,12 +19,12 @@ class Magiika::Interpreter
       register_define_fn_params
       register_define_fn
 
-      #register_define_cls
-      
+      register_define_cls
+
       register_define_var
 
       register_call_fn
-      register_chaining
+      register_chain
     end
   end
 end

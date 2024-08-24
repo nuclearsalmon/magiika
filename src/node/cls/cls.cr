@@ -1,5 +1,7 @@
 module Magiika
   class Node::Cls < InstTypeNode
+    include SubscopingFeat
+
     getter name : String
     getter cls_scope : Scope::Cls
     getter inst_scope_base : Scope::Cls
@@ -9,6 +11,7 @@ module Magiika
         @abstract : ::Bool,
         @cls_scope : Scope::Cls,
         @inst_scope_base : Scope::Cls,
+        @defining_scope : Scope,
         position : Position? = nil)
       super(position)
       if !(Util.upcase?(@name[0]))
@@ -42,7 +45,7 @@ module Magiika
     end
 
     def defining_scope : Scope
-      @cls_scope.parent
+      @defining_scope
     end
 
     # define members code
@@ -56,7 +59,7 @@ module Magiika
 
       fn_ret = ret_type.nil? ? nil : FnRet.new(ret_type)
 
-      @cls_scope.set(name, NativeFn.new(name, params, body, fn_ret))
+      @cls_scopes.public.set(name, NativeFn.new(name, params, body, fn_ret))
     end
   end
 end

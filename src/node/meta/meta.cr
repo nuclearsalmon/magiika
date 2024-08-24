@@ -8,13 +8,13 @@ module Magiika
     @unresolved_type : EvalType? = nil
 
     property descriptors : Set(Node::Desc)?
-    property visibility : Visibility
+    property access : Access
 
     def initialize(
         @value : TypeNode,
         @resolved_type : TypeMeta? = nil,
         @descriptors : Set(Node::Desc)? = nil,
-        @visibility : Visibility = Visibility::Public)
+        @access : Access = Access::Public)
       super(nil)
     end
 
@@ -22,7 +22,7 @@ module Magiika
         @value : TypeNode,
         @unresolved_type : EvalType? = nil,
         @descriptors : Set(Node::Desc)? = nil,
-        @visibility : Visibility = Visibility::Public)
+        @access : Access = Access::Public)
       super(nil)
     end
 
@@ -32,7 +32,7 @@ module Magiika
 
     def resolve_type(scope : Scope) : EvalType
       resolved_type = @resolved_type
-      if resolved_type.nil? 
+      if resolved_type.nil?
         eval_type = @unresolved_type
         unless eval_type.nil?
           resolved_type = eval_type.eval_type(scope)

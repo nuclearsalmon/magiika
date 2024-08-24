@@ -43,18 +43,14 @@ module Magiika::Syntax
 
     group :_define_fn do
       rule :_fn_params_block_and_typing, :fn_body_block do |context|
-        params = context[:_params].nodes
+        params : Array(Node)? = context[:_params]?.try(&.nodes)
         ret = context[:_ret]?.try(&.node)
         body = context[:fn_body_block]?.try(&.nodes)
 
         context.clear
-        context.add(:_params, params)
+        context.add(:_params, params) unless params.nil?
         context.add(:_ret, ret) unless ret.nil?
         context.add(:_body, body) unless body.nil?
-      end
-
-      rule :fn_body_block do |context|
-        context.to_subcontext(:_body) unless context.empty?
       end
     end
 
@@ -73,29 +69,24 @@ module Magiika::Syntax
           .as(Array(Node::FnParam)?)
         body = fn_def_ctx[:_body].nodes
         ret = fn_def_ctx[:_ret]?.try(&.node)
-        fn_ret = FnRet.new(_type: ret.as(TypeNode))
+
+        fn_ret = ret.nil? ? nil : FnRet.new(_type: ret.as(Node::Resolver))
 
         fn = Node::DefFn.new(pos, name, params, body, fn_ret)
         context.become(fn)
       end
     end
 
-    group :global_define_fn do
-      rule :S_QUOT, :define_fn do |context|
+    group :instance_define_fn do
+      rule :DOT, :define_fn do |context|
         context.become(:define_fn)
       end
     end
 
-    #group :instance_define_fn do
-    #  rule :DOT, :define_fn do |context|
-    #    context.become(:define_fn)
-    #  end
-    #end
-
-    #group :static_define_fn do
-    #  rule :COLON, :define_fn do |context|
-    #    context.become(:define_fn)
-    #  end
-    #end
+    group :static_define_fn do
+      rule :COLON, :define_fn do |context|
+        context.become(:define_fn)
+      end
+    end
   end
 end

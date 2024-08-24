@@ -1,8 +1,13 @@
 module Magiika
+  # **Feature:** `#eval_type(Scope) : TypeMeta`
   module EvalType
     abstract def eval_type(scope : Scope) : TypeMeta
   end
 
+  # *EvalType* by returning the *TypeMeta* from
+  # the result of evaling.
+  #
+  # **Note:** `#eval(scope)` must return a *TypeNode*.
   module AutoEvalType
     include EvalType
 
@@ -12,7 +17,11 @@ module Magiika
     end
   end
 
-  module SelfEvalType
+  # *EvalType* by returning the *TypeMeta** of self.
+  #
+  # **Note:** Can be included or extended.
+  # **Note:** Recursive inherit.
+  private module SelfEvalType
     private macro recursive_inherited
       macro included
         include EvalType
@@ -40,15 +49,20 @@ module Magiika
     recursive_inherited
   end
 
+  # **Feature:**
+  # - `#type_meta? : TypeMeta?`
+  # - `#type_meta : TypeMeta`
   module HasTypeMeta
     abstract def type_meta? : TypeMeta?
     abstract def type_meta : TypeMeta
   end
 
+  # A *Node* that is a type.
+  # Each class is given a *TypeMeta*.
   abstract class TypeNode < Node
-    extend HasTypeMeta
     include SelfEvalType
     extend SelfEvalType
+    extend HasTypeMeta
 
     private TYPE_BASE = true
     class_getter? type_base : ::Bool = TYPE_BASE
@@ -72,7 +86,7 @@ module Magiika
           def self.type_meta? : TypeMeta?
             @@type_meta
           end
-        
+
           def self.type_meta : TypeMeta
             @@type_meta
           end
@@ -80,11 +94,11 @@ module Magiika
           def type_meta? : TypeMeta?
             @@type_meta
           end
-        
+
           def type_meta : TypeMeta
             @@type_meta
           end
-        
+
           def self.type_base? : ::Bool
             {{ @type.has_constant?("TYPE_BASE") &&
                @type.constant("TYPE_BASE") == true }}
@@ -98,13 +112,16 @@ module Magiika
     recursive_inherited
   end
 
+  # *TypeNode* where each instance can have its own
+  # *TypeMeta* in addition to the class-level *TypeMeta*
+  # that comes with *TypeNode*.
   abstract class InstTypeNode < TypeNode
     include HasTypeMeta
-    
+
     private TYPE_BASE = true
 
     @type_meta : TypeMeta? = nil
-    
+
     getter? type_meta : TypeMeta?
     def type_meta : TypeMeta
       @type_meta || raise Error::Internal.new(

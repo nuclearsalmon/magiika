@@ -1,30 +1,29 @@
 module Magiika
   class Node::ClsInst < InstTypeNode
-    delegate name, to: @from_cls
-    delegate cls_scope, to: @from_cls
-    delegate inst_scope_base, to: @from_cls
-    getter inst_scope : Scope::Cls
+    include SubscopingFeat
+
+    delegate name, to: @cls
 
     @inst_scope : Scope::Cls
-    @from_cls : Node::Cls
+    @cls : Node::Cls
 
     def initialize(
-        @from_cls : Node::Cls,
+        @cls : Node::Cls,
         args : FnArgs,
         position : Position? = nil)
       super(position)
 
       @inst_scope = Scope::Cls.new(
-        @from_cls.name,
-        @from_cls.cls_scope,
+        @cls.name,
+        @cls.cls_scope,
         position,
-        @from_cls.inst_scope_base.variables)
+        @cls.inst_scope_base.variables)
 
       initialize_by_fn(args)
     end
 
     private def initialize_by_fn(args : FnArgs)
-      init_fn = @from_cls.cls_scope.get("init")
+      init_fn = @cls.cls_scope.get("init")
       Util.is_a!(init_fn, Node::Fn)
       init_fn = init_fn.as(Node::Fn)
 
@@ -36,16 +35,19 @@ module Magiika
     end
 
     def superclass : Node::Cls
-      @from_cls
+      @cls
     end
 
+    def scope : Scope::Cls
+      @inst_scope
+    end
 
     # ⭐ Members
     # ---
 
     def []?(ident : String) : Node?
       meta = @inst_scope.get?(ident)
-      meta = @from_cls.cls_scope.get?(ident) if meta.nil?
+      meta = @cls.cls_scope.get?(ident) if meta.nil?
       return meta.as(Node::Meta).try(&.value)
     end
 

@@ -1,7 +1,5 @@
 module Magiika
   class Node::Bool < TypeNode
-    extend SelfEvalType
-
     def initialize(@value : ::Bool, position : Position)
       super(position)
     end

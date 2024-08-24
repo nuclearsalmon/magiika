@@ -172,7 +172,7 @@ module Magiika
 
     def call_safe(
         args : FnArgs,
-        scope : Scope,
+        arg_scope : Scope,
         deep_analysis : ::Bool = false) : MatchResult | TypeNode
       match_result, node_args_hash = match_args(args, deep_analysis)
 
@@ -181,7 +181,7 @@ module Magiika
 
       type_node_args_hash = Hash(String, TypeNode).new
       node_args_hash.each { |key, value|
-        type_value = value.eval(scope)
+        type_value = value.eval(arg_scope)
         unless type_value.is_a?(TypeNode)
           raise Error::Internal.new(
             "Expected TypeNode, " +
@@ -195,9 +195,9 @@ module Magiika
 
     def call_safe_raise(
         args : FnArgs,
-        scope : Scope,
+        arg_scope : Scope,
         deep_analysis : ::Bool = false) : TypeNode
-      result = call_safe(args, scope, deep_analysis)
+      result = call_safe(args, arg_scope, deep_analysis)
 
       result.as(MatchResult).raise if result.is_a?(MatchResult)
       return result.as(TypeNode)

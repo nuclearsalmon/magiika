@@ -38,6 +38,7 @@ module Magiika
         @abstract,
         cls_scope,
         inst_scope_base,
+        scope,
         self.position?)
 
       cls_scope.set("this", cls)

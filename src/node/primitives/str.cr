@@ -1,7 +1,5 @@
 module Magiika
   class Node::Str < TypeNode
-    extend SelfEvalType
-
     protected getter value : ::String
 
     def initialize(@value : ::String, position : Position? = nil)

@@ -1,5 +1,33 @@
 module Magiika::Syntax
   protected def register_define_cls
+    group :cls_stmt do
+      rule :if_else
+
+      rule :instance_define_fn
+      rule :static_define_fn
+
+      rule :define_cls
+
+      rule :instance_define_var
+      rule :static_define_var
+
+      rule :assign
+      rule :cash_stmt
+
+      rule :cond
+    end
+
+    group :cls_stmts do
+      ignore :NEWLINE
+      ignore :INLINE_NEWLINE
+
+      rule :cls_stmts, :cls_stmt do |context|
+        context.absorb(:cls_stmts)
+        context.absorb(:cls_stmt)
+      end
+      rule :cls_stmt
+    end
+
     group :any_cls_def do
       rule :NAME
       rule :CLS_T, :NAME do |context|
@@ -12,12 +40,12 @@ module Magiika::Syntax
 
       rule :R_BRC
 
-      rule :stmts, :R_BRC  do |context|
-        context.become(:stmts)
+      rule :cls_stmts, :R_BRC  do |context|
+        context.become(:cls_stmts)
       end
 
       # error trap
-      rule :stmts do |context|
+      rule :cls_stmts do |context|
         position = context.after_last_position
         raise Error::ExpectedCharacter.new("Expected \"}\".", position)
       end
@@ -40,12 +68,16 @@ module Magiika::Syntax
     group :define_cls do
       ignore :NEWLINE
 
-      rule :S_QUOT, :any_cls_def, :_define_cls do |context|
+      rule :COLON, :any_cls_def, :cls_body_block do |context|
         name_t = context[:any_cls_def].token
         name = name_t.value
         pos = name_t.position
 
-        cls_def_ctx = context[:_define_cls]
+        body = context[:cls_body_block].nodes
+
+        cls = Node::DefCls.new(name, false, body, pos)
+
+        context.become(cls)
       end
     end
   end

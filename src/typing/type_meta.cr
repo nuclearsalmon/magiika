@@ -1,4 +1,5 @@
 module Magiika
+  # Typing-related metadata associated with a *TypeNode*.
   class TypeMeta
     include EvalType
 
@@ -10,7 +11,7 @@ module Magiika
     getter id : Typing::TypeID
     getter name : ::String
     getter reference : TypeNode.class | InstTypeNode
-    
+
     def initialize(
         @id : Typing::TypeID,
         @name : ::String,

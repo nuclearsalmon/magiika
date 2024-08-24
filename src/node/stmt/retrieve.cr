@@ -11,17 +11,17 @@ module Magiika
     def eval(scope : Scope) : TypeNode
       meta = scope.get(@ident)
 
-      case meta.visibility
-      when Visibility::Public then
+      case meta.access
+      when Access::Public then
         meta.value.eval(scope)
-      when Visibility::Protected then
+      when Access::Protected then
         if (scope.responds_to?(:find_scope) &&
             (value = meta.value).responds_to?(:defining_scope) &&
             scope.find_scope(value.defining_scope))
           meta.value.eval(scope)
         end
         raise Error::Lazy.new("Access denied: Protected")
-      when Visibility::Private then
+      when Access::Private then
         if (scope.responds_to?(:find_private_scope) &&
             (value = meta.value).responds_to?(:defining_scope) &&
             scope.find_private_scope(value.defining_scope))
@@ -29,7 +29,7 @@ module Magiika
         end
         raise Error::Lazy.new("Access denied: Private")
       else
-        raise Error::Lazy.new("Unknown visiblity: #{meta.visibility}")
+        raise Error::Lazy.new("Unknown visiblity: #{meta.access}")
       end
     end
 

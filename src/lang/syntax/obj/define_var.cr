@@ -20,27 +20,21 @@ module Magiika::Syntax
           name,
           value,
           type,
-          Visibility::Public)
+          Access::Public)
         context.become(node)
       end
     end
 
-    group :global_define_var do
-      rule :S_QUOT, :_define_var do |context|
+    group :instance_define_var do
+      rule :DOT, :_define_var do |context|
         context.become(:_define_var)
       end
     end
 
-    #group :instance_define_var do
-    #  rule :DOT, :_define_var do |context|
-    #    context.become(:_define_var)
-    #  end
-    #end
-
-    #group :static_define_var do
-    #  rule :COLON, :_define_var do |context|
-    #    context.become(:_define_var)
-    #  end
-    #end
+    group :static_define_var do
+      rule :COLON, :_define_var do |context|
+        context.become(:_define_var)
+      end
+    end
   end
 end

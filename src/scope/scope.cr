@@ -21,7 +21,7 @@ module Magiika
         ident : String,
         args : FnArgs,
         deep_analysis : Bool = false) \
-          : {MatchResult, {Function, Hash(String, Node)}?}?
+          : {MatchResult, {Node::Fn, Hash(String, Node)}?}?
       variable = get?(ident)
       return nil unless variable.is_a?(Node::Fn)
 
@@ -35,7 +35,7 @@ module Magiika
         ident : String,
         args : FnArgs,
         deep_analysis : Bool = false) \
-          : {MatchResult, {Function, Hash(String, Node)}?}
+          : {MatchResult, {Node::Fn, Hash(String, Node)}?}
       fn = get_fn?(ident, args, deep_analysis)
       return fn unless fn.nil?
       raise Error::UndefinedVariable.new(ident, self)
