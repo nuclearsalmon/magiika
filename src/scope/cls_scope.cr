@@ -11,9 +11,9 @@ module Magiika
 
       # Delegate to parent scope if not found
       if @parent.is_a?(Scope::Cls)
-        return @parent.as(Scope::Cls).get(ident, access)
+        return @parent.as(Scope::Cls).get?(ident, access)
       else
-        return @parent.get(ident)
+        return @parent.get?(ident)
       end
 
       nil

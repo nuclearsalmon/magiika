@@ -1,6 +1,6 @@
 module Magiika
   abstract class Scope
-    getter name : String
+    property name : String
 
     def position? : Position?
       @position

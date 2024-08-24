@@ -9,25 +9,46 @@ module Magiika
 
     def initialize(
         @cls : Node::Cls,
-        args : FnArgs,
+        args : FnArgs = FnArgs.new,
         position : Position? = nil)
       super(position)
 
       @inst_scope = Scope::Cls.new(
-        @cls.name,
+        "#{@cls.name}\#unregistered",
         @cls.cls_scope,
         position,
         @cls.inst_scope_base.variables)
 
       initialize_by_fn(args)
+
+      pp @inst_scope
+    end
+
+    def register_type : TypeMeta
+      type_meta = super
+      id = type_meta.id
+      @inst_scope.name = "#{@cls.name}\##{id}"
+      type_meta
+    end
+
+    def unregister_type : Nil
+      super
+      @inst_scope.name = "#{@cls.name}\#unregistered"
     end
 
     private def initialize_by_fn(args : FnArgs)
-      init_fn = @cls.cls_scope.get("init")
+      init_fn = @cls.cls_scope.get?("init")
+      return if init_fn.nil?
+
       Util.is_a!(init_fn, Node::Fn)
       init_fn = init_fn.as(Node::Fn)
 
-      init_fn.call_safe_raise(args, @inst_scope)
+      Scope::Fn.use(
+          @cls.name + "_init",
+          @inst_scope,
+          position) do |init_scope|
+        init_fn.call_safe_raise(args, init_scope)
+      end
     end
 
     def type_name : String
