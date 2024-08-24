@@ -20,8 +20,6 @@ module Magiika
         @cls.inst_scope_base.variables)
 
       initialize_by_fn(args)
-
-      pp @inst_scope
     end
 
     def register_type : TypeMeta

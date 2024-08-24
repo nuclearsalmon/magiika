@@ -17,7 +17,7 @@ module Magiika
       end
     end
 
-    protected def cleanup : ::Nil
+    def cleanup : ::Nil
       @variables.each { |key, value|
         if value.is_a?(Node::Cls)
           if value.is_a?(InstTypeNode)

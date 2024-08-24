@@ -17,6 +17,7 @@ module Magiika::Syntax
 
         node = Node::DefineVar.new(
           pos,
+          true,
           name,
           value,
           type,

@@ -1,7 +1,12 @@
 module Magiika
   class Node::DefFn < Node
+    getter name : String
+    getter returns : FnRet?
+    def static? : ::Bool; @static; end
+
     def initialize(
         position : Position,
+        @static : ::Bool,
         @name : String,
         @params : FnParams,
         @statements : Array(Node),

@@ -1,17 +1,22 @@
 module Magiika
   class Node::DefineVar < Node
-    @ident : String
+    @name : String
     @value : Node
     @unresolved_type : EvalType?
     @access : Access
 
     def initialize(
         position : Position?,
-        @ident : ::String,
+        @static : ::Bool,
+        @name : ::String,
         @value : Node,
         @unresolved_type : EvalType? = nil,
         @access : Access = Access::Public)
       super(position)
+    end
+
+    def static? : ::Bool
+      @static
     end
 
     def eval(scope : Scope) : TypeNode
@@ -21,8 +26,8 @@ module Magiika
         raise Error::Internal.new("Expected a TypeNode, got: #{value}")
       end
 
-      if scope.exist?(@ident)
-        raise Error::Internal.new("Variable already exists: \'#{@ident}\'")
+      if scope.exist?(@name)
+        raise Error::Internal.new("Variable already exists: \'#{@name}\'")
       end
 
       unresolved_type = @unresolved_type
@@ -35,7 +40,7 @@ module Magiika
         descriptors: nil,
         access: @access)
 
-      scope.set(@ident, meta)
+      scope.set(@name, meta)
 
       return value
     end

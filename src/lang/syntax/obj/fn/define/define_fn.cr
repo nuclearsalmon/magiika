@@ -57,36 +57,42 @@ module Magiika::Syntax
     group :define_fn do
       ignore :NEWLINE
 
-      rule :any_fn_def, :_define_fn do |context|
-        name_t = context[:any_fn_def].token
-        name = name_t.value
-        pos = name_t.position
-
-        fn_def_ctx = context[:_define_fn]
-        params = (
-          fn_def_ctx[:_params]?.try(&.nodes) ||
-          FnParams.new)
-          .as(Array(Node::FnParam)?)
-        body = fn_def_ctx[:_body].nodes
-        ret = fn_def_ctx[:_ret]?.try(&.node)
-
-        fn_ret = ret.nil? ? nil : FnRet.new(_type: ret.as(Node::Resolver))
-
-        fn = Node::DefFn.new(pos, name, params, body, fn_ret)
-        context.become(fn)
-      end
+      rule :any_fn_def, :_define_fn
     end
 
     group :instance_define_fn do
       rule :DOT, :define_fn do |context|
         context.become(:define_fn)
+
+        define_fn(context, false)
       end
     end
 
     group :static_define_fn do
       rule :COLON, :define_fn do |context|
         context.become(:define_fn)
+
+        define_fn(context, true)
       end
     end
+  end
+
+  private def define_fn(context, static : ::Bool)
+    name_t = context[:any_fn_def].token
+    name = name_t.value
+    pos = name_t.position
+
+    fn_def_ctx = context[:_define_fn]
+    params = (
+      fn_def_ctx[:_params]?.try(&.nodes) ||
+      FnParams.new)
+      .as(Array(Node::FnParam)?)
+    body = fn_def_ctx[:_body].nodes
+    ret = fn_def_ctx[:_ret]?.try(&.node)
+
+    fn_ret = ret.nil? ? nil : FnRet.new(_type: ret.as(Node::Resolver))
+
+    fn = Node::DefFn.new(pos, static, name, params, body, fn_ret)
+    context.become(fn)
   end
 end
