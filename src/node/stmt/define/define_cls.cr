@@ -13,17 +13,24 @@ module Magiika
       inst_scope_base = Scope::Cls.new(@name + "_inst", defining_scope, @position)
 
       @stmts.each { |stmt|
-        if (stmt.is_a?(Node::DefFn))
-          stmt_fn = stmt.as(Node::DefFn)
-          if stmt_fn.name == "init"
-            ret = stmt_fn.returns
+        if stmt.is_a?(Node::DefFn)
+          stmt = stmt.as(Node::DefFn)
+          if stmt.name == "init"
+            ret = stmt.returns
             if !ret.nil? && ret._type != self
               raise Error::Lazy.new("wrong type for constructor")
             end
-          elsif !(stmt_fn.static?)
-            stmt_fn.eval(inst_scope_base)
+          elsif !(stmt.static?)
+            stmt.eval(inst_scope_base)
           else
-            stmt_fn.eval(cls_scope)
+            stmt.eval(cls_scope)
+          end
+        elsif stmt.is_a?(Node::DefineVar)
+          stmt = stmt.as(Node::DefineVar)
+          if stmt.static?
+            stmt.eval(cls_scope)
+          else
+            stmt.eval(inst_scope_base)
           end
         else
           stmt.eval(cls_scope)

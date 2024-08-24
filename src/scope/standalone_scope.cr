@@ -27,6 +27,10 @@ module Magiika
       @variables.has_key?(ident)
     end
 
+    def exist_here?(ident : String) : ::Bool
+      @variables.has_key?(ident)
+    end
+
     def find_global_scope : Global
       return self
     end

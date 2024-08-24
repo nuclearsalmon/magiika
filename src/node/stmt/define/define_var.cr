@@ -26,7 +26,7 @@ module Magiika
         raise Error::Internal.new("Expected a TypeNode, got: #{value}")
       end
 
-      if scope.exist?(@name)
+      if scope.exist_here?(@name)
         raise Error::Internal.new("Variable already exists: \'#{@name}\'")
       end
 
@@ -40,7 +40,11 @@ module Magiika
         descriptors: nil,
         access: @access)
 
-      scope.set(@name, meta)
+      if scope.responds_to?(:set_here)
+        scope.set_here(@name, meta)
+      else
+        scope.set(@name, meta)
+      end
 
       return value
     end

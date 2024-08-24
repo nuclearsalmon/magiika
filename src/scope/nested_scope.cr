@@ -21,7 +21,7 @@ module Magiika
       @parent.get?(ident).as(Node::Meta?)
     end
 
-    def set(ident : String, meta : Node::Meta) : ::Nil
+    def set(ident : String, meta : Node::Meta, here : ::Bool = false) : ::Nil
       if exist_here?(ident)
         # check if the existing variable is a constant
         existing_value = @variables[ident]?
@@ -32,13 +32,17 @@ module Magiika
 
         # update variable in the current scope
         @variables[ident] = meta
-      elsif exist_elsewhere?(ident)
+      elsif !here && exist_elsewhere?(ident)
         # update variable in the parent scope where it exists
         @parent.set(ident, meta)
       else
         # create variable in the current scope
         @variables[ident] = meta
       end
+    end
+
+    def set_here(ident : String, meta : Node::Meta) : ::Nil
+      set(ident, meta, here: true)
     end
 
     def exist?(ident : String) : ::Bool
