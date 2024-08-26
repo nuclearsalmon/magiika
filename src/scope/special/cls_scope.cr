@@ -1,5 +1,3 @@
-require "./nested_scope"
-
 module Magiika
   class Scope::Cls < Scope::Nested
     # overriding get? to handle access

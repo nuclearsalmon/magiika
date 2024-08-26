@@ -7,7 +7,7 @@ module Magiika
       raise Error::Internal.new("Compound scope should contain at least two scopes.") if @scopes.size < 2
     end
 
-    def seek(&block : Scope ->)
+    def seek(&block : Scope -> R) : R? forall R
       @scopes.each { |scope|
         result = scope.seek(&block)
         break result unless result.nil?
@@ -35,9 +35,9 @@ module Magiika
       return false
     end
 
-    def find_global_scope() : Scope::Global
+    def find_base_scope : Scope::Standalone
       raise Error::Internal.new("Compound scope cannot be empty.") if @scopes.size < 1
-      @scopes[-1].find_global_scope
+      @scopes[-1].find_base_scope
     end
 
     # this is...kind of terrible...but potentially convenient...

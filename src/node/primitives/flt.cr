@@ -93,15 +93,6 @@ module Magiika
       {% end %}
     end
 
-    private def self.__cash(scope : Scope::Fn) : TypeNode
-      MembersFeat.get_scoped_vars self
-
-      {% begin %}
-        puts Node::Str.new(self_node.to_s_internal).to_s_internal
-      {% end %}
-      return Node::Nil.instance.as(TypeNode)
-    end
-
     MembersFeat.def_fn "_+",
       __pos,
       nil,

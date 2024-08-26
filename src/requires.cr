@@ -35,8 +35,7 @@ require "./node/cls/cls_inst"
 require "./node/stmt/**"
 
 require "./scope/scope"
-require "./scope/standalone_scope"
-require "./scope/*"
+require "./scope/**"
 
 require "./lang/syntax_macros"
 require "./lang/syntax/**"

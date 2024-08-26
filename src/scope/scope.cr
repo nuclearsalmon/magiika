@@ -9,7 +9,7 @@ module Magiika
     def initialize(@name : String, @position : Position? = nil)
     end
 
-    def seek(&block : Scope ->)
+    def seek(&block : Scope -> R) : R? forall R
       block.call(self)
     end
 
@@ -52,6 +52,6 @@ module Magiika
 
     abstract def exist?(ident : String) : ::Bool
 
-    abstract def find_global_scope() : Scope::Global
+    abstract def find_base_scope : Scope::Standalone
   end
 end

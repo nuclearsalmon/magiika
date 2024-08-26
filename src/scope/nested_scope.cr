@@ -1,6 +1,3 @@
-require "./scope"
-
-
 module Magiika
   class Scope::Nested < Scope
     protected getter parent : Scope
@@ -15,7 +12,43 @@ module Magiika
       super(name, position)
     end
 
-    def seek(&block : Scope ->)
+    def inject(args : Hash(String, TypeNode)) ::Nil
+      args.each{ |name, value|
+        set(name, value)
+      }
+    end
+
+    def set(ident : String, meta : Node::Meta) : ::Nil
+      super(ident, meta)
+      value = meta.value
+      if value.is_a?(InstTypeNode)
+        value.register_type
+      end
+    end
+
+    def cleanup : ::Nil
+      @variables.each { |key, value|
+        if value.is_a?(Node::Cls)
+          if value.is_a?(InstTypeNode)
+            value.unregister_type
+          end
+        end
+      }
+    end
+
+    def self.use(
+        name : String,
+        parent : Scope,
+        position : Position? = nil)
+      scope = new(name, parent, position)
+      begin
+        yield scope
+      ensure
+        scope.cleanup
+      end
+    end
+
+    def seek(&block : Scope -> R) : R? forall R
       result = @parent.seek(&block)
       return result unless result.nil?
       block.call(self)
@@ -67,11 +100,11 @@ module Magiika
       @parent.exist?(ident)
     end
 
-    def find_global_scope : Scope::Global
-      @parent.find_global_scope
+    def find_base_scope : Scope::Standalone
+      @parent.find_base_scope
     end
 
-    def find_scope(scope : Scope, i : Int32 = 0) : ::Bool
+    private def find_scope(scope : Scope, i : Int32) : ::Bool
       if (parent = @parent) == scope
         true
       elsif parent.responds_to?(:find_scope)
@@ -81,29 +114,15 @@ module Magiika
             " when traversing \"#{@parent}\".")
         end
 
-        parent.find_scope(scope)
+        i += 1
+        parent.find_scope(scope, i)
       else
         false
       end
     end
 
-    def find_private_scope(scope : Scope) : ::Bool
-      prev_scope = @parent
-      i = 0
-      loop do
-        break unless prev_scope.is_a?(Scope::Cls)
-        return true if prev_scope == scope
-
-        prev_scope = prev_scope.parent
-        i += 1
-
-        if i >= 64
-          raise Error::Internal.new(
-            "Potentially infinite scope chain detected" +
-            " when traversing \"#{@parent}\".")
-        end
-      end
-      false
+    def find_scope(scope : Scope) : ::Bool
+      find_scope(scope, 0)
     end
   end
 end

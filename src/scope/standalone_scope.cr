@@ -1,6 +1,3 @@
-require "./scope"
-
-
 module Magiika
   class Scope::Standalone < Scope
     @variables = Hash(String, Node::Meta).new
@@ -31,7 +28,7 @@ module Magiika
       @variables.has_key?(ident)
     end
 
-    def find_global_scope : Global
+    def find_base_scope : Scope::Standalone
       return self
     end
   end
