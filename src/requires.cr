@@ -4,6 +4,7 @@ require "./util/macros"
 require "./util/object_extensions"
 require "./util/algo"
 require "./util/ansi"
+require "./util/access_control"
 
 require "./misc/error"
 require "./misc/access"

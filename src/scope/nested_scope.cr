@@ -15,6 +15,12 @@ module Magiika
       super(name, position)
     end
 
+    def seek(&block : Scope ->)
+      result = @parent.seek(&block)
+      return result unless result.nil?
+      block.call(self)
+    end
+
     def get?(ident : String) : Node::Meta?
       variable = @variables[ident]?
       return variable if variable

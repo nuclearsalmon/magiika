@@ -9,6 +9,10 @@ module Magiika
     def initialize(@name : String, @position : Position? = nil)
     end
 
+    def seek(&block : Scope ->)
+      block.call(self)
+    end
+
     abstract def get?(ident : String) : Node::Meta?
 
     def get(ident : String) : Node::Meta

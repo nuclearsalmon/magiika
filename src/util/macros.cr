@@ -12,6 +12,19 @@ module Magiika::Util
           return result if result
         end
       }
+
+      raise NotImplementedError.new("Unknown method: #{call.stringify}")
+    end
+  end
+
+  macro iterative_forward_missing_to?(delegate)
+    macro method_missing(call)
+      {{delegate}}.each { |delegate_element|
+        if delegate_element.responds_to?(:\{{call.name.id}})
+          result = delegate_element.\{{call}}
+          return result if result
+        end
+      }
     end
   end
 

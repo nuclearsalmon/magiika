@@ -7,6 +7,14 @@ module Magiika::Syntax
     end
 
     group :instance_define_var do
+      rule :ACCESS, :DOT, :_define_var do |context|
+        access = get_access(context)
+
+        context.become(:_define_var)
+
+        define_var(context, false, access)
+      end
+
       rule :DOT, :_define_var do |context|
         context.become(:_define_var)
 
@@ -20,10 +28,33 @@ module Magiika::Syntax
 
         define_var(context, true)
       end
+
+      rule :ACCESS, :COLON, :_define_var do |context|
+        access = get_access(context)
+
+        context.become(:_define_var)
+
+        define_var(context, true, access)
+      end
     end
   end
 
-  private def define_var(context, static : ::Bool)
+  private def get_access(context) : Access
+    access_str = context[:ACCESS].token.value
+    case access_str
+    when "prot"
+      return Access::Protected
+    when "priv"
+      return Access::Private
+    else
+      raise Error::Lazy.new("Unknown access string: #{access_str}")
+    end
+  end
+
+  private def define_var(
+      context,
+      static : ::Bool,
+      access : Access = Access::Public)
     type_t = context[:any_def][:_TYPE]?.try(&.token)
     type = type_t ?
       Node::Resolver.new(type_t.value, type_t.position) :
@@ -41,7 +72,7 @@ module Magiika::Syntax
       name,
       value,
       type,
-      Access::Public)
+      access)
     context.become(node)
   end
 end

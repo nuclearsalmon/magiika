@@ -7,6 +7,13 @@ module Magiika
       raise Error::Internal.new("Compound scope should contain at least two scopes.") if @scopes.size < 2
     end
 
+    def seek(&block : Scope ->)
+      @scopes.each { |scope|
+        result = scope.seek(&block)
+        break result unless result.nil?
+      }
+    end
+
     def get?(ident : String) : Node::Meta?
       @scopes.each { |scope|
         obj = scope.get?(ident)

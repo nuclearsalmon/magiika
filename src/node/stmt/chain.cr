@@ -8,12 +8,24 @@ module Magiika
       node.scope if node.responds_to?(:scope)
     end
 
+    private def unpack_meta(node : Node) : Node
+      node.is_a?(Node::Meta) ? node.value : node
+    end
+
+    private def extract_scope(node : Node) : Scope
+      scope = get_scope(node)
+      if scope.nil?
+        raise Error::Lazy.new("No scope for #{node.pretty_inspect}")
+      end
+
+      scope
+    end
+
     def eval(scope : Scope) : Node
       with_node = @stmts[0].eval(scope)
-      with_scope = get_scope(with_node)
-      if with_scope.nil?
-        raise Error::Lazy.new("No scope for #{with_node.pretty_inspect}")
-      end
+
+      with_node = unpack_meta(with_node)
+      with_scope = extract_scope(with_node)
 
       @stmts[1..].each_with_index(2) { |stmt, index|
         if stmt.is_a?(Node::Call)
@@ -23,15 +35,12 @@ module Magiika
         end
 
         if index < @stmts.size
-          with_scope = get_scope(with_node)
-
-          if with_scope.nil?
-            raise Error::Lazy.new("No scope for #{with_node.pretty_inspect}")
-          end
+          with_node = unpack_meta(with_node)
+          with_scope = extract_scope(with_node)
         end
       }
 
-      return with_node
+      unpack_meta(with_node)
     end
   end
 end

@@ -33,6 +33,8 @@ module Magiika::Syntax
 
     token :BOOL, /(?>true|false)/
 
+    token :ACCESS, /(?>prot|priv)/
+
 
     # multi-character operators and tokens
     # ------------------------------------------------------
