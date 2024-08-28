@@ -11,9 +11,9 @@ module Magiika
       ARGV.delete_at(0)
     end
 
-    show_tokenization : Bool = false
-    show_logs : Bool = false
-    show_ast : Bool = false
+    show_tokenization : ::Bool = false
+    show_logs : ::Bool = false
+    show_ast : ::Bool = false
 
     # define options parser
     option_parser = OptionParser.new do |parser|

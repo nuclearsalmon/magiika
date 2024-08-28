@@ -7,6 +7,8 @@ module Magiika
     @name : ::String
     @reference : TypeNode.class | InstTypeNode
     @superclass : TypeMeta?
+    @reference_locations : Array(TypeReferenceLocation) = \
+      Array(TypeReferenceLocation).new
 
     getter id : Typing::TypeID
     getter name : ::String
@@ -94,6 +96,18 @@ module Magiika
 
     def valid? : ::Bool
       Typing::TYPE_IDS.has_key?(self.id)
+    end
+
+    def reference_type(
+        position : Position? = nil,
+        scope : Scope? = nil) : ::Nil
+      trl = TypeReferenceLocation.new(position, scope)
+      @reference_locations.push(trl)
+    end
+
+    def unreference_type : ::Bool
+      @reference_locations.pop()
+      @reference_locations.empty?
     end
   end
 end

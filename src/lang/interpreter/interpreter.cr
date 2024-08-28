@@ -5,9 +5,9 @@ class Magiika::Interpreter
   @parser : Merlin::Parser(Symbol, Node) = \
     @@parser_builder.build
 
-  property show_tokenization : Bool = false
-  property show_ast : Bool = false
-  property show_logs : Bool = false
+  property show_tokenization : ::Bool = false
+  property show_ast : ::Bool = false
+  property show_logs : ::Bool = false
 
   def tokenize(
       instructions : String,
@@ -63,7 +63,7 @@ class Magiika::Interpreter
     print "🌟 #{ ANSI::MAGIIKA_ACCENT }#{ msg }#{ ANSI::RESET }\n"
   end
 
-  private def print_warning(msg : String) : Nil
+  private def print_warning(msg : String) : ::Nil
     print "💫 #{ ANSI::MAGIIKA_WARNING }#{ msg }#{ ANSI::RESET }\n"
   end
 
@@ -80,7 +80,7 @@ class Magiika::Interpreter
       "Crystal traceback:\n   #{ filtered_backtrace.join("\n   ") }")
   end
 
-  def run_file(file_path : String) : Nil
+  def run_file(file_path : String) : ::Nil
     if @show_logs
       Magiika.change_log_level(::Log::Severity::Debug)
     else
@@ -110,7 +110,7 @@ class Magiika::Interpreter
     exit(1)
   end
 
-  def run_interactive : Nil
+  def run_interactive : ::Nil
     if @show_logs
       Magiika.change_log_level(::Log::Severity::Debug)
     else

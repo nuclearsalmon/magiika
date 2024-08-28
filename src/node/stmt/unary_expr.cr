@@ -13,7 +13,7 @@ module Magiika
       extended_oper = @r_side ? @oper : ("_" + @oper)
 
       if (!(obj.responds_to?(:scope)) || \
-          (obj_oper = obj.scope.get?(extended_oper)).nil?)
+          (obj_oper = obj.scope.retrieve?(extended_oper)).nil?)
         raise Error::UndefinedMethod.new(extended_oper, obj, position?)
       else
         obj_oper = obj_oper.eval(scope)

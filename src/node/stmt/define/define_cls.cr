@@ -9,8 +9,14 @@ module Magiika
     end
 
     private def process_stmts(defining_scope : Scope) : Tuple(Scope::Cls, Scope::Cls)
-      cls_scope = Scope::Cls.new(@name + "_cls", defining_scope, @position)
-      inst_scope_base = Scope::Cls.new(@name + "_inst", defining_scope, @position)
+      cls_scope = Scope::Cls.new(
+        name: @name,
+        parent: defining_scope,
+        position: @position)
+      inst_scope_base = Scope::Cls.new(
+        name: @name + "_inst",
+        parent: defining_scope,
+        position: @position)
 
       @stmts.each { |stmt|
         if stmt.is_a?(Node::DefFn)
@@ -52,8 +58,8 @@ module Magiika
         scope,
         self.position?)
 
-      cls_scope.set("this", cls)
-      scope.set(@name, cls)
+      cls_scope.define("this", cls)
+      scope.define(@name, cls)
       cls
     end
 

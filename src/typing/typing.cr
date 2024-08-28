@@ -7,10 +7,18 @@ module Magiika::Typing
   TYPE_REGISTRY_MUTEX = Mutex.new
 
   def register_type(
-      type_name : ::String, 
-      reference : TypeNode.class | InstTypeNode, 
+      type_name : ::String,
+      reference : TypeNode.class | InstTypeNode,
       type_superclass : ::Class) : TypeMeta
     TYPE_REGISTRY_MUTEX.lock
+
+    # look to see if reference already exists
+    begin
+      existing_type_meta = (TYPE_IDS.each_value.find { |meta|
+        reference == meta.reference
+      })
+      return existing_type_meta unless existing_type_meta.nil?
+    end
 
     # find lowest unused key
     id = 0i32

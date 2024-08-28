@@ -92,7 +92,14 @@ module Magiika::Syntax
 
     fn_ret = ret.nil? ? nil : FnRet.new(_type: ret.as(Node::Resolver))
 
-    fn = Node::DefFn.new(static, name, params, body, fn_ret, pos)
+    fn = Node::DefFn.new(
+      static: static,
+      name: name,
+      params: params,
+      statements: body,
+      returns: fn_ret,
+      access: Access::Public,
+      position: pos)
     context.become(fn)
   end
 end

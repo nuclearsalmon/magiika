@@ -28,8 +28,8 @@ module Magiika
       with_scope = extract_scope(with_node)
 
       @stmts[1..].each_with_index(2) { |stmt, index|
-        if stmt.is_a?(Node::Call)
-          with_node = stmt.eval(with_scope, scope)
+        if stmt.is_a?(CallerEvalFeat)
+          with_node = stmt.caller_eval(with_scope, scope)
         else
           with_node = stmt.eval(with_scope)
         end

@@ -128,27 +128,47 @@ module Magiika
         "Type meta is nil for #{self.class.name}")
     end
 
-    def register_type : TypeMeta
-      unless @type_meta.nil?
-        raise Error::Internal.new("#{self.type_name} already registered.")
+    def reference_type(
+        position : Position? = nil,
+        scope : Scope? = nil) : TypeMeta
+      type_meta = @type_meta
+      if type_meta.nil?
+        type_meta = Typing.register_type(
+          type_name: type_name,
+          reference: self,
+          type_superclass: {{ @type.superclass }}
+        )
+        @type_meta = type_meta
       end
 
-      type_meta = Typing.register_type(
-        type_name: type_name,
-        reference: self,
-        type_superclass: {{ @type.superclass }}
-      )
-      @type_meta = type_meta
+      type_meta.reference_type(position, scope)
       type_meta
     end
 
-    def unregister_type : ::Nil
+    def unreference_type : ::Bool
       type_meta = @type_meta
       if type_meta.nil?
-        raise Error::Internal.new("#{self.type_name} was never assigned an instance type meta.")
+        raise Error::Internal.new(
+          "#{self.type_name} was never assigned an instance type meta.")
       end
-      Typing.unregister_type(type_meta.id)
-      @type_meta = nil
+
+      if type_meta.unreference_type()
+        @type_meta = nil
+        true
+      else
+        false
+      end
     end
+
+    #def unregister_type : ::Nil
+    #  type_meta = @type_meta
+    #  if type_meta.nil?
+    #    raise Error::Internal.new(
+    #      "#{self.type_name} was never assigned an instance type meta.")
+    #  end
+    #
+    #  Typing.unregister_type(type_meta.id)
+    #  @type_meta = nil
+    #end
   end
 end

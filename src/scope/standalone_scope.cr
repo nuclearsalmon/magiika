@@ -1,31 +1,81 @@
 module Magiika
   class Scope::Standalone < Scope
-    @variables = Hash(String, Node::Meta).new
+    protected getter variables : Hash(String, Node::Meta)
 
-    def position : Position
-      @position.not_nil!
+    def initialize(
+        name : String,
+        position : Position? = nil,
+        @variables : Hash(String, Node::Meta) = \
+          Hash(String, Node::Meta).new)
+      super(name, position)
     end
 
-    def get?(ident : String) : Node::Meta?
-      @variables[ident]?
+    def cleanup : ::Nil
+      @variables.each_value { |meta|
+        unreference_type(meta.value)
+      }
     end
 
-    def set(ident : String, meta : Node::Meta) : ::Nil
-      # check if the existing variable is a constant
-      if @variables[ident]?.try(&.const?)
+
+    # ✨ Setting values
+    # ---
+
+    def define(name : String, meta : Node::Meta) : ::Nil
+      if @variables.has_key?(name)
+        raise Error::Internal.new("Variable already exists: \'#{@name}\'")
+      else
+        reference_type(meta.value)
+        @variables[name] = meta
+      end
+    end
+
+    def replace(name : String, meta : Node::Meta) : ::Nil
+      prev_meta = @variables[name]?
+      if prev_meta.nil?
+        raise Error::Internal.new("Variable does not exist: \'#{@name}\'")
+      end
+
+      if prev_meta.const?
         raise Error::Lazy.new("Cannot modify a constant value.")
       end
 
-      # create variable in the current scope
-      @variables[ident] = meta
+      unreference_type(prev_meta.value)
+      reference_type(meta.value)
+      @variables[name] = meta
     end
 
-    def exist?(ident : String) : ::Bool
-      @variables.has_key?(ident)
+    def assign(name : String, meta : Node::Meta) : ::Nil
+      prev_meta = @variables[name]?
+      unless prev_meta.nil?
+        if prev_meta.const?
+          raise Error::Lazy.new("Cannot modify a constant value.")
+        end
+
+        unreference_type(prev_meta.value)
+      end
+
+      reference_type(meta.value)
+      @variables[name] = meta
     end
 
-    def exist_here?(ident : String) : ::Bool
-      @variables.has_key?(ident)
+
+    # ✨ Retrieving values
+    # ---
+
+    def retrieve?(name : String) : Node::Meta?
+      @variables[name]?
+    end
+
+
+    # ✨ Iterate or locate
+    # ---
+
+    def exist?(name : String) : ::Bool
+      @variables.has_key?(name)
+    end
+
+    def exist_here?(name : String) : ::Bool
+      exist?(name)
     end
 
     def find_base_scope : Scope::Standalone

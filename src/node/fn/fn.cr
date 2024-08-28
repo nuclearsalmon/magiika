@@ -106,13 +106,6 @@ module Magiika
       end
     end
 
-    # argument scope injection operation
-    protected def inject(
-        args : Hash(String, TypeNode),
-        method_scope : Scope) : ::Nil
-      method_scope.inject(args)
-    end
-
     # evaluation operation
     protected abstract def method_eval(
       method_scope : Scope) : TypeNode
@@ -147,9 +140,14 @@ module Magiika
 
     # call operation
     def call(args : Hash(String, TypeNode)) : TypeNode
-      Scope::Fn.use(@name, @defining_scope, position) do |method_scope|
+      Scope::Fn.use(
+          name: @name,
+          parent: @defining_scope,
+          position: position) do |method_scope|
         # inject args into scope
-        inject(args, method_scope)
+        args.each { |key, value|
+          method_scope.define(key, value)
+        }
 
         # perform operation
         result = method_eval(method_scope)

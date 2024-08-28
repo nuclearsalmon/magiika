@@ -13,7 +13,7 @@ module Magiika
       right = @right.eval(scope)
 
       if (!(left.responds_to?(:scope)) || \
-          (left_oper = left.scope.get?(@oper)).nil?)
+          (left_oper = left.scope.retrieve?(@oper)).nil?)
         raise Error::UndefinedMethod.new(@oper, left, position?)
       else
         left_oper = left_oper.eval(scope)

@@ -4,7 +4,71 @@ module Magiika
 
     def initialize(@scopes : Array(Scope))
       super(position)
-      raise Error::Internal.new("Compound scope should contain at least two scopes.") if @scopes.size < 2
+      raise Error::Internal.new("Compound scope must contain at least two scopes.") if @scopes.size < 2
+    end
+
+    def cleanup : ::Nil; end
+
+
+    # ✨ Setting values
+    # ---
+
+    def define(name : String, meta : Node::Meta) : ::Nil
+      if exist?(name)
+        raise Error::Internal.new("Variable already exists: \'#{@name}\'")
+      else
+        @scopes[0].define(name, meta)
+      end
+    end
+
+    def replace(name : String, meta : Node::Meta) : ::Nil
+      scope = find_var_scope(name)
+      if scope.nil?
+        raise Error::Internal.new("Variable does not exist: \'#{@name}\'")
+      else
+        scope.replace(name, meta)
+      end
+    end
+
+    def assign(name : String, meta : Node::Meta) : ::Nil
+      scope = find_var_scope(name)
+      if scope.nil?
+        @scopes[0].assign(name, meta)
+      else
+        scope.assign(name, meta)
+      end
+    end
+
+
+    # ✨ Retrieving values
+    # ---
+
+    def retrieve?(name : String) : Node::Meta?
+      @scopes.each { |scope|
+        meta = scope.retrieve?(name)
+        return meta unless meta.nil?
+      }
+    end
+
+
+    # ✨ Iterate or locate
+    # ---
+
+    def exist?(name : String) : ::Bool
+      @scopes.each { |scope|
+        return true if scope.exist?(name)
+      }
+      return false
+    end
+
+    def exist_here?(name : String) : ::Bool
+      exist?(name)
+    end
+
+    private def find_var_scope(name : String) : Scope?
+      @scopes.each { |scope|
+        return scope if scope.exist?(name)
+      }
     end
 
     def seek(&block : Scope -> R) : R? forall R
@@ -14,33 +78,9 @@ module Magiika
       }
     end
 
-    def get?(ident : String) : Node::Meta?
-      @scopes.each { |scope|
-        obj = scope.get?(ident)
-        return obj unless obj.nil?
-      }
-      return nil
-    end
-
-    def set(ident : String, meta : Node::Meta) : ::Nil
-      raise Error::Internal.new("Compound scope cannot be empty.") if @scopes.size < 1
-      @scopes[0].set(ident, meta)
-    end
-
-    def exist?(ident : String) : ::Bool
-      @scopes.each { |scope|
-        ret = scope.exist?(ident)
-        return true if ret == true
-      }
-      return false
-    end
-
     def find_base_scope : Scope::Standalone
       raise Error::Internal.new("Compound scope cannot be empty.") if @scopes.size < 1
       @scopes[-1].find_base_scope
     end
-
-    # this is...kind of terrible...but potentially convenient...
-    Util.iterative_forward_missing_to @scopes
   end
 end

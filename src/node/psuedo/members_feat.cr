@@ -6,14 +6,16 @@ module Magiika::MembersFeat
     include SubscopingFeat
 
     getter scope : Scope::Standalone = \
-      Scope::Standalone.new(self.type_name, self.position?)
+      Scope::Standalone.new(
+        self.type_name,
+        position: self.position?)
   end
 
   macro extended
     extend SubscopingFeat
 
     class_getter scope : Scope::Standalone = \
-      Scope::Standalone.new(self.type_name, nil)
+      Scope::Standalone.new(self.type_name)
 
     def scope : Scope::Standalone
       self.class.scope
@@ -33,7 +35,7 @@ module Magiika::MembersFeat
     node = Node::NativeFn.new(self.scope, name, params, body, fn_ret)
     meta = Node::Meta.new(node, Node::NativeFn, nil, access)
 
-    scope.set(name, meta)
+    scope.define(name, meta)
   end
 
   macro def_fn(name, body_fn, params, ret_type)
@@ -56,7 +58,7 @@ module Magiika::MembersFeat
   # define variables by pulling from scope
   macro get_scoped_vars(*params)
     {% for param in params %}
-      {{ param }}_meta : TypeNode = scope.get({{ param.stringify }})
+      {{ param }}_meta : TypeNode = scope.retrieve({{ param.stringify }})
       {{ param }}_node : TypeNode = {{ param }}_meta.value
     {% end %}
   end

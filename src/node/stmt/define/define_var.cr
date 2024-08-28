@@ -6,12 +6,12 @@ module Magiika
     @access : Access
 
     def initialize(
-        position : Position?,
         @static : ::Bool,
         @name : ::String,
         @value : Node,
         @unresolved_type : EvalType? = nil,
-        @access : Access = Access::Public)
+        @access : Access = Access::Public,
+        position : Position? = nil)
       super(position)
     end
 
@@ -40,12 +40,7 @@ module Magiika
         descriptors: nil,
         access: @access)
 
-      if scope.responds_to?(:set_here)
-        scope.set_here(@name, meta)
-      else
-        scope.set(@name, meta)
-      end
-
+      scope.define(@name, meta)
       return value
     end
 

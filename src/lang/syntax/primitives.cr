@@ -18,7 +18,7 @@ module Magiika::Syntax
       rule :BOOL do |context|
         token = context.token
 
-        bool_value : Bool
+        bool_value : ::Bool
         case token.value
         when "true"
           bool_value = true

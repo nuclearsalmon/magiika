@@ -25,7 +25,6 @@ module Magiika::Syntax
           position,
           name,
           value,
-          AssignMode::Replace,
           op)
         context.become(node)
       end

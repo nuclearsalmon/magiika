@@ -17,12 +17,14 @@ module Magiika
       @mutex.lock
 
       value = @resolved_type
-      if value.nil?
-        value = scope.get(@ident)
-        @resolved_type = value
-      end
+      return value unless value.nil?
 
-      return value
+      meta = scope.retrieve?(@ident)
+      if meta.nil?
+        Node::Nil.instance
+      else
+        @resolved_type = meta.value
+      end
     ensure
       @mutex.unlock
     end

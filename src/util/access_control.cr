@@ -1,3 +1,10 @@
+# Metadata for access level within a scope
+enum Magiika::Access
+  Public
+  Protected
+  Private
+end
+
 module Magiika::Util
   extend self
 
@@ -34,7 +41,9 @@ module Magiika::Util
     access ? access : Access::Public
   end
 
-  def access_of?(evaluating_scope : Scope, caller_scope : Scope? = nil) : Access
+  def access_of?(
+      evaluating_scope : Scope,
+      caller_scope : Scope? = nil) : Access
     if !caller_scope.nil? && !caller_scope.is_a?(Scope::Cls)
       # attempt to seek to class scope
       tmp_scope = caller_scope.seek { |scope|

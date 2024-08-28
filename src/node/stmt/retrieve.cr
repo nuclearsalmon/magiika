@@ -1,5 +1,7 @@
 module Magiika
   class Node::Retrieve < Node
+    include CallerEvalFeat
+
     getter ident : String
 
     def initialize(
@@ -8,10 +10,12 @@ module Magiika
       super(position)
     end
 
-    def eval(eval_scope : Scope, caller_scope : Scope? = nil) : TypeNode
+    def eval(
+        eval_scope : Scope,
+        caller_scope : Scope? = nil) : TypeNode
       caller_scope = eval_scope if caller_scope.nil?
 
-      meta = eval_scope.get(@ident)
+      meta = eval_scope.retrieve(@ident)
 
       access_rights = Util.access_of?(eval_scope, caller_scope)
       allow_access = Util.access?(access_rights, meta.access)
@@ -24,8 +28,22 @@ module Magiika
       meta
     end
 
-    def eval_bool(scope : Scope) : ::Bool
-      scope.get(@ident).eval_bool(scope)
+    def caller_eval(
+        eval_scope : Scope,
+        caller_scope : Scope? = nil) : TypeNode
+      eval(eval_scope, caller_scope)
     end
+
+    def eval_bool(
+        eval_scope : Scope,
+        caller_scope : Scope? = nil) : ::Bool
+      eval(eval_scope, caller_scope).eval_bool(eval_scope)
+    end
+
+    def caller_eval_bool(
+      eval_scope : Scope,
+      caller_scope : Scope? = nil) : ::Bool
+    eval_bool(eval_scope, caller_scope)
+  end
   end
 end

@@ -10,6 +10,7 @@ module Magiika
         @params : FnParams,
         @statements : Array(Node),
         @returns : FnRet? = nil,
+        @access : Access = Access::Public,
         position : Position? = nil)
       super(position)
     end
@@ -24,12 +25,15 @@ module Magiika
         @returns,
         @position
       )
-      assign = Node::Assign.new(
-        nil,
-        @name,
-        fn,
-        AssignMode::Any)
-      assign.eval(scope)
+
+      meta = Node::Meta.new(
+        value: fn,
+        resolved_type: nil,  # fixme : fn type
+        descriptors: nil,
+        access: @access)
+
+      scope.define(@name, meta)
+      return fn
     end
   end
 end

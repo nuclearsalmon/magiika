@@ -1,5 +1,7 @@
 module Magiika
   class Node::Call < Node
+    include CallerEvalFeat
+
     def initialize(
         @target : Node,
         @args : FnArgs,
@@ -21,6 +23,18 @@ module Magiika
       raise Error::Lazy.new(
         "Only functions are callable." +
         " Attempted to call #{target}, resulting from #{target}.")
+    end
+
+    def caller_eval(
+        eval_scope : Scope,
+        caller_scope : Scope? = nil) : TypeNode
+      eval(eval_scope, caller_scope)
+    end
+
+    def caller_eval_bool(
+        eval_scope : Scope,
+        caller_scope : Scope? = nil) : ::Bool
+      eval_bool(eval_scope, caller_scope)
     end
   end
 end

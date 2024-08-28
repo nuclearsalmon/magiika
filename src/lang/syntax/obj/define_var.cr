@@ -56,9 +56,9 @@ module Magiika::Syntax
       static : ::Bool,
       access : Access = Access::Public)
     type_t = context[:any_def][:_TYPE]?.try(&.token)
-    type = type_t ?
+    type = (type_t ?
       Node::Resolver.new(type_t.value, type_t.position) :
-      nil
+      nil)
 
     name_t = context[:any_def][:NAME].token
     name = name_t.value
@@ -67,12 +67,12 @@ module Magiika::Syntax
     pos = name_t.position
 
     node = Node::DefineVar.new(
-      pos,
-      static,
-      name,
-      value,
-      type,
-      access)
+      static: static,
+      name: name,
+      value: value,
+      unresolved_type: type,
+      access: access,
+      position: pos)
     context.become(node)
   end
 end

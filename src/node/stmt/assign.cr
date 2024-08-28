@@ -1,45 +1,29 @@
 module Magiika
-  enum AssignMode
-    Declare  # declare a new value (no pre-existing value)
-    Replace  # replace an existing value
-    Any      # any of the modes, doesn't care
-  end
-
   class Node::Assign < Node
     def initialize(
         position : Position?,
-        @ident : String,
+        @name : String,
         @value : Node,
-        @mode : AssignMode = AssignMode::Any,
         @oper : String = "=")
       super(position)
     end
 
+    private def handle_oper(value : TypeNode) : ::Nil
+      case @oper
+      when "="  # NOP
+      else
+        raise Error::Internal.new("Unknown assignment operator: \'#{@oper}\'")
+      end
+    end
+
     def eval(scope : Scope) : TypeNode
       value = @value.eval(scope)
-
       unless value.is_a?(TypeNode)
         raise Error::Internal.new("Expected a TypeNode, got: #{value}")
       end
 
-      if @mode == AssignMode::Declare && scope.exist?(@ident)
-        raise Error::Internal.new("Variable already exists: \'#{@ident}\'")
-      end
-      if @mode == AssignMode::Replace && !scope.exist?(@ident)
-        raise Error::Internal.new("Variable does not exist: \'#{@ident}\'")
-      end
-
-      case @oper
-      when "="
-        if scope.responds_to?(:set_here)
-          scope.set_here(@ident, value)
-        else
-          scope.set(@ident, value)
-        end
-      else
-        raise Error::Internal.new("Unknown assignment operator: \'#{@oper}\'")
-      end
-
+      handle_oper(value)
+      scope.replace(@name, value)
       return value
     end
 

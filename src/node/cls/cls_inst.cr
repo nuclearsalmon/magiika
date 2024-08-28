@@ -22,29 +22,35 @@ module Magiika
       initialize_by_fn(args)
     end
 
-    def register_type : TypeMeta
-      type_meta = super
-      id = type_meta.id
-      @inst_scope.name = "#{@cls.name}\##{id}"
-      type_meta
+    def reference_type(*args, **kwargs) : TypeMeta
+      meta = super(*args, **kwargs)
+      @inst_scope.name = "#{@cls.name}\##{meta.id}"
+      meta
     end
 
-    def unregister_type : Nil
-      super
-      @inst_scope.name = "#{@cls.name}\#unregistered"
+    def unreference_type : ::Bool
+      res = super
+
+      s_id = (
+        (meta = self.type_meta?).nil? ?
+        "unregistered" :
+        meta.id.to_s)
+      @inst_scope.name = "#{@cls.name}\##{s_id}"
+
+      return res
     end
 
     private def initialize_by_fn(args : FnArgs)
-      init_fn = @cls.cls_scope.get?("init")
+      init_fn = @cls.cls_scope.retrieve?("init")
       return if init_fn.nil?
 
       Util.is_a!(init_fn, Node::Fn)
       init_fn = init_fn.as(Node::Fn)
 
       Scope::Fn.use(
-          @cls.name + "_init",
-          @inst_scope,
-          position) do |init_scope|
+          name: @cls.name + "_init",
+          parent: @inst_scope,
+          position: position) do |init_scope|
         init_fn.call_safe_raise(args, init_scope)
       end
     end

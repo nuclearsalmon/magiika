@@ -1,7 +1,7 @@
 module Magiika
   class MatchResult
     def initialize(
-        @matched : Bool = true,
+        @matched : ::Bool = true,
         @errors : Array(String)? = nil)
     end
 
@@ -46,7 +46,7 @@ module Magiika
       return Error::InternalMatchFail.new(errors)
     end
 
-    def raise : Nil
+    def raise : ::Nil
       ex = defer_raise
       raise ex unless ex.nil?
     end
