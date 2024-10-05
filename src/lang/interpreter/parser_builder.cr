@@ -3,8 +3,6 @@ class Magiika::Interpreter
     include Syntax
 
     def initialize
-      super
-
       register_tokens
       register_root
       register_commons

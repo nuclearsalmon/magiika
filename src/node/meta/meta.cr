@@ -1,7 +1,6 @@
 module Magiika
   # Metadata for a stored Node
   class Node::Meta < TypeNode
-    @value : TypeNode
     getter value : TypeNode
 
     @resolved_type : TypeMeta? = nil

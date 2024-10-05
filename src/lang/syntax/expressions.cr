@@ -28,7 +28,6 @@ module Magiika::Syntax
     group :un_pofx_op do
       un_expr_rule :value, :INC
       un_expr_rule :value, :DEC
-      un_expr_rule :value, :CASH
 
       rule :value
     end

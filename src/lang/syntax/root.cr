@@ -1,9 +1,13 @@
 module Magiika::Syntax
   protected def register_root
-    root do
+    root :root
+    
+    group :root do
       ignore :COMMENT
       ignore :SPACE
       ignore :LINE_CONT
+      ignore :NEWLINE
+      ignore :INLINE_NEWLINE
       ignore_trailing :NEWLINE
       ignore_trailing :INLINE_NEWLINE
       ignore_trailing :LINE_CONT
@@ -34,9 +38,6 @@ module Magiika::Syntax
     end
 
     group :stmts do
-      ignore :NEWLINE
-      ignore :INLINE_NEWLINE
-
       rule :stmts, :stmt do |context|
         context.absorb(:stmts)
         context.absorb(:stmt)

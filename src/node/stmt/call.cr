@@ -12,9 +12,12 @@ module Magiika
     def eval(scope : Scope, arg_scope : Scope ? = nil) : TypeNode
       target = @target.eval(scope)
 
-      arg_scope = scope if arg_scope.nil?
+      if target.is_a?(Node::Meta)
+        target = target.value
+      end
 
       if target.is_a?(Node::Fn)
+        arg_scope = scope if arg_scope.nil?
         return target.as(Node::Fn).call_safe_raise(@args, arg_scope)
       elsif target.is_a?(Node::Cls)
         return ClsInst.new(target.as(Node::Cls), @args, position)
