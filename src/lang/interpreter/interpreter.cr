@@ -1,13 +1,18 @@
 require "./parser_builder"
 
 class Magiika::Interpreter
-  @@parser_builder = ParserBuilder.new
-  @parser : Merlin::Parser(Symbol, Node) = \
-    @@parser_builder.build
+  @parser : Merlin::Parser(Symbol, Node) = build_parser
 
   property show_tokenization : ::Bool = false
   property show_ast : ::Bool = false
   property show_logs : ::Bool = false
+
+  private def self.build_parser
+    builder = Merlin::ParserBuilder(Symbol, Node).new { |builder|
+      Syntax.apply_syntax(builder)
+    }
+    builder.build
+  end
 
   def tokenize(
       instructions : String,

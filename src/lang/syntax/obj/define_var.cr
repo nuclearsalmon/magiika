@@ -1,45 +1,5 @@
 module Magiika::Syntax
-  protected def register_define_var
-    group :_define_var do
-      ignore :NEWLINE
-
-      rule :any_def, :ASSIGN, :cond
-    end
-
-    group :instance_define_var do
-      rule :ACCESS, :DOT, :_define_var do |context|
-        access = get_access(context)
-
-        context.become(:_define_var)
-
-        define_var(context, false, access)
-      end
-
-      rule :DOT, :_define_var do |context|
-        context.become(:_define_var)
-
-        define_var(context, false)
-      end
-    end
-
-    group :static_define_var do
-      rule :COLON, :_define_var do |context|
-        context.become(:_define_var)
-
-        define_var(context, true)
-      end
-
-      rule :ACCESS, :COLON, :_define_var do |context|
-        access = get_access(context)
-
-        context.become(:_define_var)
-
-        define_var(context, true, access)
-      end
-    end
-  end
-
-  private def get_access(context) : Access
+  protected def self.get_access(context) : Access
     access_str = context[:ACCESS].token.value
     case access_str
     when "prot"
@@ -51,7 +11,7 @@ module Magiika::Syntax
     end
   end
 
-  private def define_var(
+  protected def self.define_var(
       context,
       static : ::Bool,
       access : Access = Access::Public)
@@ -74,5 +34,45 @@ module Magiika::Syntax
       access: access,
       position: pos)
     context.become(node)
+  end
+
+  define_syntax do
+    group :_define_var do
+      ignore :NEWLINE
+
+      rule :any_def, :ASSIGN, :cond
+    end
+
+    group :instance_define_var do
+      rule :ACCESS, :DOT, :_define_var do |context|
+        access = Syntax.get_access(context)
+
+        context.become(:_define_var)
+
+        Syntax.define_var(context, false, access)
+      end
+
+      rule :DOT, :_define_var do |context|
+        context.become(:_define_var)
+
+        Syntax.define_var(context, false)
+      end
+    end
+
+    group :static_define_var do
+      rule :COLON, :_define_var do |context|
+        context.become(:_define_var)
+
+        Syntax.define_var(context, true)
+      end
+
+      rule :ACCESS, :COLON, :_define_var do |context|
+        access = Syntax.get_access(context)
+
+        context.become(:_define_var)
+
+        Syntax.define_var(context, true, access)
+      end
+    end
   end
 end

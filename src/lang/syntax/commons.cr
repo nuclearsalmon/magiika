@@ -1,5 +1,5 @@
 module Magiika::Syntax
-  protected def register_commons
+  define_syntax do
     group :typed_def do
       ignore :SPACE
 

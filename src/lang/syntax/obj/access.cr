@@ -1,5 +1,5 @@
 module Magiika::Syntax
-  protected def register_access
+  define_syntax do
     group :retrieve do
       rule :NAME do |context|
         name_t = context.token

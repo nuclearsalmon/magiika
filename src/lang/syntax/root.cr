@@ -1,5 +1,5 @@
 module Magiika::Syntax
-  protected def register_root
+  define_syntax do
     root :root
     
     group :root do

@@ -1,5 +1,5 @@
 module Magiika::Syntax
-  protected def register_call_fn
+  define_syntax do
     group :fn_arg do
       rule :NAME, :EQ, :value do |context|
         name = context[:NAME].token.value

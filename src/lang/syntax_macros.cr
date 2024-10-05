@@ -1,4 +1,18 @@
 module Magiika::Syntax
+  macro define_syntax(&block)
+    @@syntax_definitions << ->(builder : Merlin::ParserBuilder(Symbol, Node)) {
+      builder.with_self {
+        {{block.body}}
+      }
+    }
+  end
+
+  @@syntax_definitions = [] of Proc(Merlin::ParserBuilder(Symbol, Node), Nil)
+
+  def self.apply_syntax(builder)
+    @@syntax_definitions.each &.call(builder)
+  end
+
   private macro bin_expr_rule(l_s, op_s, r_s)
     {% l_ss = l_s.stringify %}
     {% if l_ss.upcase == l_ss %}

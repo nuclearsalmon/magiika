@@ -1,5 +1,5 @@
 module Magiika::Syntax
-  protected def register_define_fn_body
+  define_syntax do
     group :fn_stmt do
       rule :if_else
       rule :assign

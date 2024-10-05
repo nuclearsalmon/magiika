@@ -1,5 +1,5 @@
 module Magiika::Syntax
-  protected def register_conditions
+  define_syntax do
     group :cond do
       rule :CASH, :cond do |context|
         position = context[:CASH].token.position

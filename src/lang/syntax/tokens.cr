@@ -1,5 +1,5 @@
 module Magiika::Syntax
-  protected def register_tokens
+  define_syntax do
     # comments
     # ------------------------------------------------------
     #token :COMMENT, /#([^\r\n].*)/

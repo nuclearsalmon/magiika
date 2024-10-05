@@ -1,5 +1,5 @@
 module Magiika::Syntax
-  protected def register_define_fn_params
+  define_syntax do
     group :fn_param do
       rule :any_def, :ASSIGN, :cond do |context|
         name = context[:any_def][:NAME].token.value

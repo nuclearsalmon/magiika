@@ -1,5 +1,5 @@
 module Magiika::Syntax
-  protected def register_define_cls
+  define_syntax do
     group :cls_stmt do
       rule :if_else
 

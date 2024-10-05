@@ -1,5 +1,31 @@
 module Magiika::Syntax
-  protected def register_define_fn
+  protected def self.define_fn(context, static : ::Bool)
+    name_t = context[:any_fn_def].token
+    name = name_t.value
+    pos = name_t.position
+
+    fn_def_ctx = context[:_define_fn]
+    params = (
+      fn_def_ctx[:_params]?.try(&.nodes) ||
+      FnParams.new)
+      .as(Array(Node::FnParam)?)
+    body = fn_def_ctx[:_body].nodes
+    ret = fn_def_ctx[:_ret]?.try(&.node)
+
+    fn_ret = ret.nil? ? nil : FnRet.new(_type: ret.as(Node::Resolver))
+
+    fn = Node::DefFn.new(
+      static: static,
+      name: name,
+      params: params,
+      statements: body,
+      returns: fn_ret,
+      access: Access::Public,
+      position: pos)
+    context.become(fn)
+  end
+  
+  define_syntax do
     group :any_fn_def do
       rule :NAME
       rule :FN_T, :NAME do |context|
@@ -64,7 +90,7 @@ module Magiika::Syntax
       rule :DOT, :define_fn do |context|
         context.become(:define_fn)
 
-        define_fn(context, false)
+        Syntax.define_fn(context, false)
       end
     end
 
@@ -72,34 +98,8 @@ module Magiika::Syntax
       rule :COLON, :define_fn do |context|
         context.become(:define_fn)
 
-        define_fn(context, true)
+        Syntax.define_fn(context, true)
       end
     end
-  end
-
-  private def define_fn(context, static : ::Bool)
-    name_t = context[:any_fn_def].token
-    name = name_t.value
-    pos = name_t.position
-
-    fn_def_ctx = context[:_define_fn]
-    params = (
-      fn_def_ctx[:_params]?.try(&.nodes) ||
-      FnParams.new)
-      .as(Array(Node::FnParam)?)
-    body = fn_def_ctx[:_body].nodes
-    ret = fn_def_ctx[:_ret]?.try(&.node)
-
-    fn_ret = ret.nil? ? nil : FnRet.new(_type: ret.as(Node::Resolver))
-
-    fn = Node::DefFn.new(
-      static: static,
-      name: name,
-      params: params,
-      statements: body,
-      returns: fn_ret,
-      access: Access::Public,
-      position: pos)
-    context.become(fn)
   end
 end

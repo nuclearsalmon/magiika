@@ -1,5 +1,5 @@
 module Magiika::Syntax
-  protected def register_if_else
+  define_syntax do
     group :stmts_block do
       ignore(:NEWLINE)
 

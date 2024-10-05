@@ -1,5 +1,5 @@
 module Magiika::Syntax
-  protected def register_expressions
+  define_syntax do
     group :expr do
       bin_expr_rule :expr, :ADD, :term
       bin_expr_rule :expr, :SUB, :term

@@ -1,5 +1,5 @@
 module Magiika::Syntax
-  protected def register_chain
+  define_syntax do
     group :chain_stmt do
       rule :fn_call
       rule :retrieve
@@ -16,7 +16,7 @@ module Magiika::Syntax
     group :chain do
       rule :chain_stmts do |context|
         stmts = context.nodes
-        position = context.position
+        position = context.first_position
 
         if stmts.size == 1
           context.become(stmts[0])
