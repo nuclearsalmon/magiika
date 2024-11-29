@@ -1,17 +1,27 @@
 module Magiika::Syntax
   define_syntax do
-    group :cond do
-      rule :CASH, :cond do |context|
+    group :cash_cond do
+      ignore_trailing :NEWLINE
+      ignore_trailing :INLINE_NEWLINE
+
+      rule :CASH, :SPACE, :nocash_cond do |context|
         position = context[:CASH].token.position
-        cond = context[:cond].node
+        cond = context[:nocash_cond].node
         node = Node::CashPrintStringify.new(position, cond)
 
         context.become(node)
       end
+    end
 
-      bin_expr_rule :cond, :BOR, :and_cond
-      bin_expr_rule :cond, :OR, :and_cond
+    group :nocash_cond do
+      bin_expr_rule :nocash_cond, :BOR, :and_cond
+      bin_expr_rule :nocash_cond, :OR, :and_cond
       rule :and_cond
+    end
+
+    group :cond do
+      rule :cash_cond
+      rule :nocash_cond
     end
 
     group :and_cond do

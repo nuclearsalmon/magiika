@@ -1,16 +1,14 @@
 module Magiika::Syntax
   define_syntax do
     root :root
-    
+
     group :root do
-      ignore :COMMENT
-      ignore :SPACE
-      ignore :LINE_CONT
-      ignore :NEWLINE
-      ignore :INLINE_NEWLINE
-      ignore_trailing :NEWLINE
-      ignore_trailing :INLINE_NEWLINE
-      ignore_trailing :LINE_CONT
+      inherited_ignore :COMMENT
+      inherited_ignore :SPACE
+      inherited_ignore :LINE_CONT
+      inherited_ignore_trailing :NEWLINE
+      inherited_ignore_trailing :INLINE_NEWLINE
+      inherited_ignore_trailing :LINE_CONT
 
       rule :stmts do |context|
         filename = context.node(0).position.filename
@@ -38,6 +36,9 @@ module Magiika::Syntax
     end
 
     group :stmts do
+      ignore :NEWLINE
+      ignore :INLINE_NEWLINE
+
       rule :stmts, :stmt do |context|
         context.absorb(:stmts)
         context.absorb(:stmt)

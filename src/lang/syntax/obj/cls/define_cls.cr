@@ -36,7 +36,7 @@ module Magiika::Syntax
     end
 
     group :_cls_body_block do
-      ignore(:NEWLINE)
+      inherited_ignore :NEWLINE
 
       rule :R_BRC
 
@@ -52,7 +52,7 @@ module Magiika::Syntax
     end
 
     group :cls_body_block do
-      ignore :NEWLINE
+      inherited_ignore :NEWLINE
 
       rule :L_BRC, :_cls_body_block do |context|
         context.become(:_cls_body_block)
