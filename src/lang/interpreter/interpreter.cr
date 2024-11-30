@@ -1,5 +1,3 @@
-require "./parser_builder"
-
 class Magiika::Interpreter
   @parser : Merlin::Parser(Symbol, Node) = build_parser
 
@@ -8,7 +6,9 @@ class Magiika::Interpreter
   property show_logs : ::Bool = false
 
   private def self.build_parser
-    builder = Merlin::ParserBuilder(Symbol, Node).new { |builder|
+    builder = Merlin::ParserBuilder(Symbol, Node).new(
+      :"<EOL>"
+    ) { |builder|
       Syntax.apply_syntax(builder)
     }
     builder.build
