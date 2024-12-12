@@ -7,7 +7,9 @@ module Magiika::Syntax
 
     group :chain_stmts do
       rule :chain_stmts, :DOT, :chain_stmt do |context|
-        context.flatten
+        context.drop(:DOT)
+        context.absorb(:chain_stmts)
+        context.absorb(:chain_stmt)
       end
 
       rule :chain_stmt

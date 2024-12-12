@@ -1,18 +1,15 @@
 class Magiika::Interpreter
+  private def self.build_parser
+    (Merlin::ParserBuilder(Symbol, Node).new { |builder|
+      Syntax.apply_syntax(builder)
+    }).build
+  end
+
   @parser : Merlin::Parser(Symbol, Node) = build_parser
 
   property show_tokenization : ::Bool = false
   property show_ast : ::Bool = false
   property show_logs : ::Bool = false
-
-  private def self.build_parser
-    builder = Merlin::ParserBuilder(Symbol, Node).new(
-      :"<EOL>"
-    ) { |builder|
-      Syntax.apply_syntax(builder)
-    }
-    builder.build
-  end
 
   def tokenize(
       instructions : String,
