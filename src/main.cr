@@ -4,20 +4,14 @@ require "./magiika"
 module Magiika
   def main
     # get file, if supplied
-    file : String? = ARGV[0]?
-    if file.nil? || file.starts_with?('-')
-      file = nil
-    else
-      ARGV.delete_at(0)
-    end
-
+    file : String? = nil
     show_tokenization : ::Bool = false
     show_logs : ::Bool = false
     show_ast : ::Bool = false
 
     # define options parser
     option_parser = OptionParser.new do |parser|
-      parser.banner = "✨ Usage: magiika [FILE] [options]"
+      parser.banner = "✨ Usage: magiika [options] [FILE]"
       parser.on("--show-tokens", "DEVTOOL: Show tokenization.") do
         show_tokenization = true
       end
@@ -37,9 +31,26 @@ module Magiika
         exit(1)
       end
       parser.invalid_option do |option_flag|
-        STDERR.puts "💫 Error: #{option_flag} is not a valid option."
-        STDERR.puts parser
-        exit(1)
+        # Only error if it's actually an option
+        if option_flag.starts_with?('-')
+          STDERR.puts "💫 Error: #{option_flag} is not a valid option."
+          STDERR.puts parser
+          exit(1)
+        end
+      end
+
+      # Handle unknown args (potential file)
+      parser.unknown_args do |before, _|
+        if before.size > 0
+          potential_file = before[0]
+          if File.file?(potential_file)
+            # Found a valid file
+            file = potential_file
+          elsif potential_file.ends_with?(/\.(?:mg|magi|magiika)/)
+            STDERR.puts "💫 Error: file '#{potential_file}' does not exist"
+            exit(1)
+          end
+        end
       end
     end
 
@@ -56,7 +67,7 @@ module Magiika
     if file.nil?
       interpreter.run_interactive
     else
-      interpreter.run_file(file)
+      interpreter.run_file(file.not_nil!)
     end
   end
 end
