@@ -42,6 +42,7 @@ module Magiika::Syntax
 
       rule :cls_stmts, :R_BRC  do |context|
         context.become(:cls_stmts)
+        context.flatten
       end
 
       # error trap

@@ -11,6 +11,7 @@ module Magiika::Syntax
       inherited_ignore_trailing :LINE_CONT
 
       rule :stmts do |context|
+        context.flatten
         filename = context.node(0).position.filename
 
         root_node = Node::Stmts.new(

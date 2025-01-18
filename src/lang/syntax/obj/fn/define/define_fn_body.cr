@@ -14,7 +14,8 @@ module Magiika::Syntax
       ignore :INLINE_NEWLINE
 
       rule :fn_stmts, :fn_stmt do |context|
-        context.flatten
+        context.absorb(:fn_stmts)
+        context.absorb(:fn_stmt)
       end
       rule :fn_stmt
     end
