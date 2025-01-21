@@ -12,6 +12,12 @@ module Magiika
     # define options parser
     option_parser = OptionParser.new do |parser|
       parser.banner = "✨ Usage: magiika [options] [FILE]"
+
+      parser.on("-h", "--help", "Show this help") do
+        puts parser
+        exit
+      end
+      
       parser.on("--show-tokens", "DEVTOOL: Show tokenization.") do
         show_tokenization = true
       end
@@ -21,10 +27,7 @@ module Magiika
       parser.on("--show-ast", "DEVTOOL: Show abstract syntax tree") do
         show_ast = true
       end
-      parser.on("-h", "--help", "Show this help") do
-        puts parser
-        exit
-      end
+      
       parser.missing_option do |option_flag|
         STDERR.puts "💫 Error: #{option_flag} is missing something."
         STDERR.puts parser

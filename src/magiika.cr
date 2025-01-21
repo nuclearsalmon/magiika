@@ -50,7 +50,6 @@ module Magiika
     end
   end
 
-  #Log = ::Log.for("root")
   class_getter :log_level
   @@log_level : ::Log::Severity = s_to_log_level(INITIAL_LOG_LEVEL)
 
