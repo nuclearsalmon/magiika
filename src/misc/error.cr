@@ -4,7 +4,7 @@ module Magiika::Error
 
   # not implemented
   class NotImplemented < Exception
-    def initialize(message : String? = nil, cause : Exception? = nil)
+    def initialize(message : ::String? = nil, cause : Exception? = nil)
       super("Not implemented#{message.nil? ? "." : ": " + message }", cause)
     end
 
@@ -13,9 +13,15 @@ module Magiika::Error
     end
   end
 
+  class NotImplementedMacro < NotImplemented
+    def initialize(message : ::String? = nil, cause : Exception? = nil)
+      super("Should have been implemented via macro#{message.nil? ? "." : ": " + message }", cause)
+    end
+  end
+
   # an error for when im too lazy to be giving the code a proper error type
   class Lazy < Exception
-    def initialize(message : String, cause : Exception? = nil)
+    def initialize(message : ::String, cause : Exception? = nil)
       super(message, cause)
     end
 
@@ -26,7 +32,7 @@ module Magiika::Error
 
   # a general, probably non-recoverable error
   class Internal < Exception
-    def initialize(message : String, cause : Exception? = nil)
+    def initialize(message : ::String, cause : Exception? = nil)
       super(message, cause)
     end
 
@@ -44,7 +50,7 @@ module Magiika::Error
 
   # when a match fail occurs internally (and is probably not recoverable)
   class InternalMatchFail < Internal
-    def initialize(errors : Array(String))
+    def initialize(errors : Array(::String))
       error_string = Util.terminated_concat(errors)
       super(error_string)
     end
@@ -59,16 +65,16 @@ module Magiika::Error
     getter title, position
 
     def initialize(
-        @title : String,
-        @message : String,
+        @title : ::String,
+        @message : ::String,
         @position : Position? = nil)
       super(message)
     end
 
-    def to_s : String
+    def to_s : ::String
       position = @position
 
-      message = @message.as(String)
+      message = @message.as(::String)
       #message = "#{@title}"
       message += " @ #{position.to_s}" unless position.nil?
       #message += "\n\n   #{@message}"
@@ -80,7 +86,7 @@ module Magiika::Error
   # does not follow naming convention
   class NamingConvention < Safe
     def initialize(
-        @message : String,
+        @message : ::String,
         @position : Position? = nil)
       super(
         "NAMING CONVENTION",
@@ -92,7 +98,7 @@ module Magiika::Error
   # missing character in syntax
   class ExpectedCharacter < Safe
     def initialize(
-        @message : String,
+        @message : ::String,
         @position : Position? = nil)
       super(
         "EXPECTED CHARACTER",
@@ -104,15 +110,15 @@ module Magiika::Error
   # expected one type, got another
   class Type < Safe
     def initialize(
-        found_type : TypeMeta,
-        expected_type : TypeMeta,
-        message : String? = nil,
+        found_type : AnyObject,
+        expected_type : AnyObject,
+        message : ::String? = nil,
         position : Position? = nil)
       full_message = "Type error"
       full_message += ": '#{message}'" unless message.nil?
       full_message += "."
-      full_message += "\nFound: '#{found_type.name}'"
-      full_message += "\nExpected: '#{expected_type.name}'"
+      full_message += "\nFound: '#{found_type.type_name}'"
+      full_message += "\nExpected: '#{expected_type.type_name}'"
 
       super(
         "TYPE ERROR",
@@ -124,24 +130,24 @@ module Magiika::Error
   # attempted to access an undefined variable
   class UndefinedVariable < Safe
     def initialize(
-        ident : String,
+        name : ::String,
         scope : Scope,
         position : Position? = nil)
       super(
         "UNDEFINED VARIABLE",
-        "Undefined variable: '#{ident}'",
+        "Undefined variable: '#{name}'",
         position)
     end
   end
 
   class UndefinedMethod < Safe
     def initialize(
-        ident : String,
-        target : Node? = nil,
+        name : ::String,
+        target : AnyObject? = nil,
         position : Position? = nil)
       super(
         "UNDEFINED METHOD",
-        "Undefined method: \"#{ident}\"" +
+        "Undefined method: \"#{name}\"" +
         (target.nil? ? "" : " on #{target.type_name}"),
         position)
     end

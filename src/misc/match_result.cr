@@ -2,19 +2,19 @@ module Magiika
   class MatchResult
     def initialize(
         @matched : ::Bool = true,
-        @errors : Array(String)? = nil)
+        @errors : Array(::String)? = nil)
     end
 
     def errors
       errors = @errors
       if errors.nil?
-        errors = Array(String).new
+        errors = Array(::String).new
         @errors = errors
       end
       errors
     end
 
-    def add_error(error : String)
+    def add_error(error : ::String)
       errors << error
       @matched = false
     end
@@ -27,7 +27,7 @@ module Magiika
       @matched && errors.empty?
     end
 
-    def errors? : Array(String)?
+    def errors? : Array(::String)?
       @errors
     end
 

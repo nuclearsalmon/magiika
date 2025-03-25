@@ -4,7 +4,7 @@ require "./magiika"
 module Magiika
   def main
     # get file, if supplied
-    file : String? = nil
+    file : ::String? = nil
     show_tokenization : ::Bool = false
     show_logs : ::Bool = false
     show_ast : ::Bool = false

@@ -27,7 +27,7 @@ module Magiika
   # 💫 Logging setup
   # --------------------------------------------------------
 
-  private def s_to_log_level(level : String) : ::Log::Severity
+  private def s_to_log_level(level : ::String) : ::Log::Severity
     case level.upcase
     when "TRACE"
       ::Log::Severity::Trace

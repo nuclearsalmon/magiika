@@ -1,43 +1,49 @@
 require "./version"
 
-require "./util/macros"
-require "./util/object_extensions"
-require "./util/algo"
-require "./util/ansi"
-require "./util/access_control"
+require "./constants"
 
+require "./misc/macros"
+require "./misc/object_extensions"
+require "./misc/algo"
+require "./misc/ansi"
 require "./misc/error"
 require "./misc/match_result"
 
-require "./node/node"
+require "./misc/feat/positionable"
+require "./object/object"
+require "./object/meta_object"
 
-require "./typing/typing"
-require "./typing/type_node"
-require "./typing/type_ref_location"
-require "./typing/type_meta"
-require "./typing/resolver"
-require "./typing/union"
+require "./typing/type_ids"
+require "./object/type_constraint"
+require "./object/slot"
+require "./object/union"
 
-require "./node/psuedo/**"
-
-require "./node/fn/extra"
-require "./node/fn/fn"
-require "./node/fn/**"
-
-require "./node/primitives/**"
-
-require "./node/meta/desc/desc"
-require "./node/meta/meta"
-
-require "./node/cls/cls"
-require "./node/cls/cls_inst"
-
-require "./node/stmt/**"
-
+require "./security/access_control"
 require "./scope/scope"
-require "./scope/standalone_scope"
-require "./scope/**"
+require "./scope/global_scope"
+require "./scope/class_scope"
 
-require "./lang/syntax_macros"
-require "./lang/syntax/**"
-require "./lang/interpreter"
+require "./misc/feat/**"
+
+require "./ast/ast"
+
+require "./object/function/parameter"
+require "./object/function/argument"
+require "./object/function/function"
+require "./object/function/abstract_function"
+require "./object/function/native_function"
+require "./object/function/runtime_function"
+
+require "./misc/number"
+require "./object/primitives/primitive_object"
+require "./object/primitives/*"
+
+require "./object/class/class"
+require "./object/class/class_init_method"
+require "./object/class/class_instance"
+
+require "./ast/**"
+
+require "./interpreter/syntax_macros"
+require "./interpreter/syntax/**"
+require "./interpreter/interpreter"
