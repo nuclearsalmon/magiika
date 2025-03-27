@@ -4,34 +4,33 @@ module Magiika
       super(position)
     end
 
-    private def extract_scope(node : AnyObject) : Scope
-      if node.is_a?(SubScopingFeat)
-        node.scope
+    private def extract_scope(obj : AnyObject) : Scope
+      if obj.is_a?(SubScopingFeat)
+        obj.scope
       else
-        raise Error::Lazy.new("No scope for #{node.pretty_inspect}")
+        raise Error::Lazy.new("No scope for #{obj.pretty_inspect}")
       end
     end
 
     def eval(scope : Scope) : AnyObject
-      with_node = @stmts[0].eval(scope)
-
-      with_node = Object::Slot.unpack(with_node)
-      with_scope = extract_scope(with_node)
+      with_obj = @stmts[0].eval(scope)
+      with_obj = Object::Slot.unpack(with_obj)
+      with_scope = extract_scope(with_obj)
 
       @stmts[1..].each_with_index(2) { |stmt, index|
         if stmt.is_a?(CallerEvalFeat)
-          with_node = stmt.caller_eval(with_scope, scope)
+          with_obj = stmt.caller_eval(with_scope, scope)
         else
-          with_node = stmt.eval(with_scope)
+          with_obj = stmt.eval(with_scope)
         end
 
         if index < @stmts.size
-          with_node = Object::Slot.unpack(with_node)
-          with_scope = extract_scope(with_node)
+          with_obj = Object::Slot.unpack(with_obj)
+          with_scope = extract_scope(with_obj)
         end
       }
 
-      Object::Slot.unpack(with_node)
+      Object::Slot.unpack(with_obj)
     end
   end
 end

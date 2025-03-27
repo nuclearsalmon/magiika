@@ -56,6 +56,7 @@ module Magiika::Syntax
     end
 
     group :cls_info_block do
+      rule :L_SQBRC, :R_SQBRC
       rule :L_SQBRC, :cls_info_stmts, :R_SQBRC do |context|
         context.become(:cls_info_stmts)
       end
@@ -79,7 +80,7 @@ module Magiika::Syntax
         name = name_t.value
         pos = name_t.position
 
-        info_stmts = context[:cls_info_block].nodes
+        info_stmts = context[:cls_info_block].nodes? || [] of Ast
         body_stmts = context[:cls_body_block].nodes
 
         cls = Ast::DefineClass.new(name, false, info_stmts, body_stmts, pos)

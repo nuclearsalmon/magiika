@@ -10,16 +10,14 @@ module Magiika::Syntax
       Array(Ast::Parameter).new)
       .as(Array(Ast::Parameter)?)
     body = fn_def_ctx[:_body].nodes
-    ret = fn_def_ctx[:_ret]?.try(&.node)
-
-    fn_ret = ret.as(Ast::Retrieve | Nil)
+    returns = fn_def_ctx[:_ret]?.try(&.node)
 
     fn = Ast::DefineFunction.new(
       static: static,
       name: name,
       parameters: parameters,
       statements: body,
-      returns: fn_ret,
+      returns: returns,
       access: Access::Public,
       position: pos)
     context.become(fn)

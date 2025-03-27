@@ -35,18 +35,18 @@ module Magiika
       stmts.each { |stmt|
         case stmt
         when Ast::DefineFunction
-          stmt = stmt.as(Ast::DefineFunction)
-          if stmt.static?
+          if stmt.as(Ast::DefineFunction).static?
             stmt.eval(local_scope)
-            next
           end
+          next
         when Ast::DefineVariable
-          stmt = stmt.as(Ast::DefineVariable)
-
           if stmt.as(Ast::DefineVariable).static?
             stmt.eval(local_scope)
-            next
           end
+          next
+        when Ast::DefineClass
+          stmt.eval(local_scope)
+          next
         end
         @instance_stmts << stmt
       }
@@ -81,7 +81,9 @@ module Magiika
 
     def create_instance_scope(instance : Object::ClassInstance) : Tuple(Scope, Scope)
       ext_instance = instance.extended_instance
-      parent_instance_scope = ext_instance.try(&.create_instance_scope[0])
+      parent_instance_scope = ext_instance \
+        .try(&.create_instance_scope[0])
+        .try(&.dup(parent: @scope)) || @scope  # reference static scope
 
       instance_scope = Scope.new(
         name: "#{@name}\##{self.type_id}",

@@ -3,14 +3,16 @@ module Magiika
     include CallerEvalFeat
 
     def initialize(
-        @name : ::String,
-        position : Position? = nil)
+      @name : ::String,
+      position : Position? = nil,
+    )
       super(position)
     end
 
     def eval(
-        eval_scope : Scope,
-        caller_scope : Scope? = nil) : AnyObject
+      eval_scope : Scope,
+      caller_scope : Scope? = nil,
+    ) : AnyObject
       caller_scope = eval_scope if caller_scope.nil?
 
       info = eval_scope.retrieve(@name)
@@ -27,21 +29,24 @@ module Magiika
     end
 
     def caller_eval(
-        eval_scope : Scope,
-        caller_scope : Scope? = nil) : AnyObject
+      eval_scope : Scope,
+      caller_scope : Scope? = nil,
+    ) : AnyObject
       eval(eval_scope, caller_scope)
     end
 
     def eval_bool(
-        eval_scope : Scope,
-        caller_scope : Scope? = nil) : ::Bool
+      eval_scope : Scope,
+      caller_scope : Scope? = nil,
+    ) : ::Bool
       eval(eval_scope, caller_scope).eval_bool(eval_scope)
     end
 
     def caller_eval_bool(
       eval_scope : Scope,
-      caller_scope : Scope? = nil) : ::Bool
-    eval_bool(eval_scope, caller_scope)
-  end
+      caller_scope : Scope? = nil,
+    ) : ::Bool
+      eval_bool(eval_scope, caller_scope)
+    end
   end
 end
