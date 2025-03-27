@@ -1,7 +1,7 @@
 name: magiika
 version: 0.1.0
 
-crystal: '>= 1.12.2'
+crystal: '>= 1.15.1'
 
 authors:
   - Gustav Dersjö <gustav.dersjo@gmail.com>

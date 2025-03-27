@@ -13,7 +13,7 @@ safely.
 
 ## 📦 Dependencies
 
-- `Crystal >= 1.8.2 (LLVM: 15.0.7)`:
+- `Crystal >= 1.15.1 (LLVM: 19.1.7)`:
   <br>Magiika is interpreted using Crystal.
 - `github:drum445/dotenv >= 0.5.0`:
   <br>For parsing `.env` files.
