@@ -48,6 +48,9 @@ module Magiika::Syntax
     end
 
     group :cls_info_stmts do
+      inherited_ignore :NEWLINE
+      inherited_ignore :INLINE_NEWLINE
+      
       rule :cls_info_stmts, :cls_info_stmt do |context|
         context.absorb(:cls_info_stmts, overwrite_subcontexts: false)
         context.absorb(:cls_info_stmt, overwrite_subcontexts: false)

@@ -44,21 +44,23 @@ module Magiika
     end
 
     def self.is_of?(other : Magiika::AnyObject) : ::Bool
+      # FIXME: this seems to misbehave.
       self.is_a?(typeof(other))
     end
 
     def is_of?(other : Magiika::AnyObject) : ::Bool
+      # FIXME: this seems to misbehave.
       self.is_a?(typeof(other))
     end
 
     def self.is_of!(other : Magiika::AnyObject, message : ::String? = nil) : ::Bool
       return true if self.is_of?(other)
-      raise Error::Type.new(other, self, message)
+      raise Error::Type.new(self, other, message)
     end
 
     def is_of!(other : Magiika::AnyObject, message : ::String? = nil) : ::Bool
       return true if self.is_of?(other)
-      raise Error::Type.new(other, self, message)
+      raise Error::Type.new(self, other, message)
     end
 
     def self.superclass : Magiika::Object
