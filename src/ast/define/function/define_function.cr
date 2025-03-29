@@ -3,15 +3,19 @@ module Magiika
     getter? static : ::Bool
     getter name : ::String
     getter parameters : Array(Ast::Parameter)
-    getter statements : Array(Ast)
+    getter statements : Array(Ast)?
     getter returns : Ast?
     getter access : Access
+    
+    def abstract? : ::Bool
+      @statements.nil?
+    end
 
     def initialize(
         @static : ::Bool,
         @name : ::String,
         @parameters : Array(Ast::Parameter),
-        @statements : Array(Ast),
+        @statements : Array(Ast)? = nil,
         @returns : Ast? = nil,
         @access : Access = Access::Public,
         position : Position? = nil)
@@ -24,14 +28,24 @@ module Magiika
       }
       returns = @returns.try(&.eval(scope))
 
-      function = Object::RuntimeFunction.new(
-        statements: @statements,
-        defining_scope: scope,
-        static: @static,
-        name: @name,
-        parameters: parameters,
-        returns: returns,
-        position: @position)
+      if (statements = @statements).nil?
+        function = Object::AbstractFunction.new(
+          defining_scope: scope,
+          static: @static,
+          name: @name,
+          parameters: parameters,
+          returns: returns,
+          position: @position)
+      else
+        function = Object::RuntimeFunction.new(
+          statements: statements,
+          defining_scope: scope,
+          static: @static,
+          name: @name,
+          parameters: parameters,
+          returns: returns,
+          position: @position)
+      end
 
       slot = Object::Slot.new(
         value: function,

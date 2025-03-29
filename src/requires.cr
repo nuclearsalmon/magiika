@@ -2,8 +2,10 @@ require "./version"
 
 require "./constants"
 
-require "./misc/macros"
-require "./misc/object_extensions"
+require "./misc/is_of"
+require "./misc/crystal_utils"
+alias Magiika::Util = CrystalUtils
+
 require "./misc/algo"
 require "./misc/ansi"
 require "./misc/error"

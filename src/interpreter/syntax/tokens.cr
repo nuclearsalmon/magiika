@@ -35,6 +35,7 @@ module Magiika::Syntax
 
     token :ACCESS, /(?>prot|priv)/
     token :EXTENDS, /extends/
+    token :ABSTRACT, /abstract/
 
 
     # multi-character operators and tokens

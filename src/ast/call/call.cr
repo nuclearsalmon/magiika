@@ -20,7 +20,7 @@ module Magiika
       if target.is_a?(Object::Function)
         return target.as(Object::Function).call_safe_raise(args, arg_scope)
       elsif target.is_a?(Object::Class)
-        inst = target.as(Object::Class).create_instance(position)
+        inst = target.as(Object::Class).create_instance(position: position)
         inst.run_constructor(args, arg_scope)
         return inst
       end

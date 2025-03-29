@@ -1,20 +1,28 @@
 module Magiika::Syntax
+  protected def self.define_class(context, abstract_ : ::Bool)
+    name_t = context[:cls_ident].token
+    name = name_t.value
+    pos = name_t.position
+
+    info_stmts = context[:cls_info_block].nodes? || [] of Ast
+    body_stmts = context[:cls_body_block].nodes? || [] of Ast
+
+    cls = Ast::DefineClass.new(name, abstract_, info_stmts, body_stmts, pos)
+
+    context.become(cls)
+  end
+  
   define_syntax do
     group :cls_body_stmt do
-      rule :if_else
+      rule :define_abstract_instance_method
+      rule :define_abstract_static_method
+      rule :define_instance_method
+      rule :define_static_method
 
-      rule :instance_define_fn
-      rule :static_define_fn
-
-      rule :define_cls
+      rule :define_class
 
       rule :instance_define_var
       rule :static_define_var
-
-      rule :assign
-      rule :cash_stmt
-
-      rule :cond
     end
 
     group :cls_body_stmts do
@@ -30,6 +38,8 @@ module Magiika::Syntax
 
     group :cls_body_block do
       inherited_ignore :NEWLINE
+
+      rule :L_BRC, :R_BRC
 
       rule :L_BRC, :cls_body_stmts, :R_BRC do |context|
         context.become(:cls_body_stmts)
@@ -50,7 +60,7 @@ module Magiika::Syntax
     group :cls_info_stmts do
       inherited_ignore :NEWLINE
       inherited_ignore :INLINE_NEWLINE
-      
+
       rule :cls_info_stmts, :cls_info_stmt do |context|
         context.absorb(:cls_info_stmts, overwrite_subcontexts: false)
         context.absorb(:cls_info_stmt, overwrite_subcontexts: false)
@@ -74,21 +84,16 @@ module Magiika::Syntax
       end
     end
 
-    group :define_cls do
+    group :define_class do
       noignore :NEWLINE
       noignore :INLINE_NEWLINE
 
       rule :COLON, :cls_ident, :cls_info_block, :cls_body_block do |context|
-        name_t = context[:cls_ident].token
-        name = name_t.value
-        pos = name_t.position
+        Syntax.define_class(context, abstract_: false)
+      end
 
-        info_stmts = context[:cls_info_block].nodes? || [] of Ast
-        body_stmts = context[:cls_body_block].nodes
-
-        cls = Ast::DefineClass.new(name, false, info_stmts, body_stmts, pos)
-
-        context.become(cls)
+      rule :COLON, :ABSTRACT, :cls_ident, :cls_info_block, :cls_body_block do |context|
+        Syntax.define_class(context, abstract_: true)
       end
     end
   end

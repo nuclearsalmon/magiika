@@ -13,7 +13,7 @@ module Magiika
 
     getter cls : Class
     getter extended_instance : self? = nil
-    @scope : Scope = Scope.new(name: "temporary")
+    protected getter scope : Scope = Scope.new(name: "temporary")
 
     def initialize(
       @cls : Class,
@@ -23,7 +23,7 @@ module Magiika
 
       # create instance of extended class
       unless (extended_cls = @cls.extended_cls).nil?
-        @extended_instance = extended_cls.create_instance(position)
+        @extended_instance = extended_cls.create_instance(position: position)
       end
 
       # create instance scope
@@ -41,20 +41,10 @@ module Magiika
         # run constructor
         init_fn = init_fn.as(Object::Function)
         init_fn.call_safe_raise(args, arg_scope)
-
-        # delete init functions
-        delete_init_fns
       end
 
-      # check if all initialized
+      # check that all fields are initialized
       check_all_initialized
-    end
-
-    private def delete_init_fns : ::Nil
-      @scope.seek { |scope|
-        scope.delete("init")
-        next nil # nil
-      }
     end
 
     private def check_all_initialized : ::Nil

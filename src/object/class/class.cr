@@ -28,6 +28,24 @@ module Magiika
       @scope, local_scope = create_static_scope
       @scope.define(THIS_NAME, self)
       init_statements(statements, local_scope)
+      check_no_abstracts unless is_abstract?
+    end
+
+    private def check_no_abstracts : ::Nil
+      # build simulated instance scope
+      simulated_inst_scope = create_instance().scope
+      @instance_stmts.each { |stmt| stmt.eval(simulated_inst_scope) }
+
+      scopes = [@scope, simulated_inst_scope]
+      scopes.each { |scope|
+        filter = Set(AnyObject).new\
+          .tap(&.add(Object::AbstractFunction))
+        slots = scope.surface_slots(filter)
+        name = slots.first_key?
+        raise Error::Lazy.new(
+          "Abstract method `#{name}` not implemented in class `#{@name}`."
+        ) unless name.nil?
+      }
     end
 
     private def init_statements(stmts : Array(Ast), local_scope : Scope) : ::Nil
@@ -35,12 +53,16 @@ module Magiika
       stmts.each { |stmt|
         case stmt
         when Ast::DefineFunction
-          if stmt.as(Ast::DefineFunction).static?
+          if stmt.abstract? && !is_abstract?
+            raise Error::Lazy.new(
+              "Abstract method #{stmt.name} not implemented in class #{@name}.")
+          end
+          if stmt.static?
             stmt.eval(local_scope)
           end
           next
         when Ast::DefineVariable
-          if stmt.as(Ast::DefineVariable).static?
+          if stmt.static?
             stmt.eval(local_scope)
           end
           next

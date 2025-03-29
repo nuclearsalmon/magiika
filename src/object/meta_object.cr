@@ -35,9 +35,7 @@ abstract class Magiika::MetaObject < Magiika::Object
   # maintain a reference to the original holder of the ID. Failure to do
   # so will result in invalid type IDs.
   def finalize : ::Nil
-    if @dupe.nil?
-      Typing.release_id(@type_id)
-    end
+    Typing.release_id(@type_id) if @dupe.nil?
   end
 
   def is_of?(other : Magiika::AnyObject) : ::Bool

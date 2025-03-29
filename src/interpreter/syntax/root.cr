@@ -24,9 +24,9 @@ module Magiika::Syntax
     group :stmt do
       rule :if_else
 
-      rule :static_define_fn
+      rule :define_static_method
 
-      rule :define_cls
+      rule :define_class
 
       rule :static_define_var
 

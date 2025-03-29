@@ -9,6 +9,14 @@ module Magiika
 
   abstract class Object
     include Positionable
+    
+    def self.is_of?(other) : ::Bool
+      raise Error::NotImplemented.new("This should have been implemented by macro.")
+    end
+    def is_of?(other) : ::Bool
+      raise Error::NotImplemented.new("This should have been implemented by macro.")
+    end
+    include IsOf
 
     private macro recursive_inherited
       macro inherited
@@ -42,17 +50,7 @@ module Magiika
     def eval_bool(scope : Scope) : ::Bool
       false
     end
-
-    def self.is_of?(other : Magiika::AnyObject) : ::Bool
-      # FIXME: this seems to misbehave.
-      self.is_a?(typeof(other))
-    end
-
-    def is_of?(other : Magiika::AnyObject) : ::Bool
-      # FIXME: this seems to misbehave.
-      self.is_a?(typeof(other))
-    end
-
+      
     def self.is_of!(other : Magiika::AnyObject, message : ::String? = nil) : ::Bool
       return true if self.is_of?(other)
       raise Error::Type.new(self, other, message)

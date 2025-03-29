@@ -215,11 +215,27 @@ class Magiika::Scope
     end
   end
 
-  def each_slot(&block : (::String, Object::Slot) -> ::Nil) : ::Nil
+  def each_slot(&block : (::String, Object::Slot) -> _) : ::Nil
     @variables.each { |name, slot|
-      block.call(name, slot)
+      result = block.call(name, slot)
+      return result unless result.nil?
     }
     @parent.try(&.each_slot(&block))
+  end
+
+  def surface_slots(type_filter : Set(AnyObject)?) : Hash(String, Object::Slot)
+    surface_slots = Hash(String, Object::Slot).new
+    each_slot { |name, slot|
+      surface_slots[name] = slot unless surface_slots.has_key?(name)
+      next nil  # signal to not break the loop
+    }
+
+    # remove slots that don't match the type filter
+    surface_slots.select! { |name, slot|
+      type_filter.nil? || \
+      type_filter.empty? || \
+      type_filter.any? { |t| slot.value.is_of?(t) }
+    }
   end
 
   def find_base_scope : Scope
