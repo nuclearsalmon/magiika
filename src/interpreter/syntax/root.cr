@@ -59,6 +59,9 @@ module Magiika::Syntax
 
     group :value do
       rule :chain
+      rule :fn_call
+      rule :retrieve
+      rule :assign
       rule :literal
       rule :L_PAR, :enclosed_value, :R_PAR do |context|
         context.become(:enclosed_value)
@@ -79,7 +82,6 @@ module Magiika::Syntax
 
     group :enclosed_value do
       rule :static_define_var
-      rule :assign
       rule :cond
     end
   end

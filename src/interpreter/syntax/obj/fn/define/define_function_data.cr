@@ -15,8 +15,8 @@ module Magiika::Syntax
       end
 
       rule :any_def do |context|
-        name = context[:any_def][:NAME].token.value
-        _type_t = context[:any_def][:_TYPE]?.try(&.token)
+        name = context[:NAME].token.value
+        _type_t = context[:_TYPE]?.try(&.token)
         _type = (_type_t.nil? ?
           nil : Ast::Retrieve.new(_type_t.value, position: _type_t.position))
 

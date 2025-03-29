@@ -26,12 +26,8 @@ module Magiika::Syntax
         stmts = context.nodes
         position = context.first_position
 
-        if stmts.size == 1
-          context.become(stmts[0])
-        else
-          chain = Ast::Chain.new(stmts, position)
-          context.become(chain)
-        end
+        chain = Ast::Chain.new(stmts, position)
+        context.become(chain)
       end
     end
   end
