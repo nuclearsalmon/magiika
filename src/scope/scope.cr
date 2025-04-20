@@ -12,7 +12,7 @@ class Magiika::Scope
     @name : ::String,
     @position : Position? = nil,
     @parent : Scope? = nil,
-    @variables : Hash(::String, Object::Slot) = Hash(::String, Object::Slot).new,
+    @variables = Hash(::String, Object::Slot).new
   )
   end
 
@@ -72,11 +72,17 @@ class Magiika::Scope
     result
   end
 
+  protected def ensure_slot(info : AnyObject) : Object::Slot
+    info.is_a?(Object::Slot) ? info : Object::Slot.new(info)
+  end
+
   # ✨ Setting values
   # ---
 
   # define a new value
-  def define(name : ::String, info : Object::Slot) : ::Nil
+  def define(name : ::String, info : AnyObject) : ::Nil
+    info = ensure_slot(info)
+
     if @variables.has_key?(name)
       raise Error::Internal.new("Variable already exists: '#{@name}'")
     else
@@ -84,17 +90,15 @@ class Magiika::Scope
     end
   end
 
-  def define(name : ::String, value : AnyObject) : ::Nil
-    define(name, Object::Slot.new(value))
-  end
-
-  def define(pairs : Hash(::String, AnyObject | Object::Slot))
+  def define(pairs : Hash(::String, AnyObject))
     ::Nil
     pairs.each { |name, value| define(name, value) }
   end
 
   # replace an existing value
-  def replace(name : ::String, info : Object::Slot) : ::Nil
+  def replace(name : ::String, info : AnyObject) : ::Nil
+    info = ensure_slot(info)
+
     prev_info = @variables[name]?
     if prev_info.nil?
       parent = @parent
@@ -111,17 +115,15 @@ class Magiika::Scope
     @variables[name] = info
   end
 
-  def replace(name : ::String, value : AnyObject) : ::Nil
-    replace(name, Object::Slot.new(value))
-  end
-
-  def replace(pairs : Hash(::String, AnyObject | Object::Slot))
+  def replace(pairs : Hash(::String, AnyObject))
     ::Nil
     pairs.each { |name, value| replace(name, value) }
   end
 
   # assign (define or replace) a value
-  def assign(name : ::String, info : Object::Slot) : ::Nil
+  def assign(name : ::String, info : AnyObject) : ::Nil
+    info = ensure_slot(info)
+
     prev_info = @variables[name]?
     if prev_info.nil?
       parent = @parent
@@ -136,11 +138,7 @@ class Magiika::Scope
     @variables[name] = info
   end
 
-  def assign(name : ::String, value : AnyObject) : ::Nil
-    assign(name, Object::Slot.new(value))
-  end
-
-  def assign(pairs : Hash(::String, AnyObject | Object::Slot))
+  def assign(pairs : Hash(::String, AnyObject))
     ::Nil
     pairs.each { |name, value| assign(name, value) }
   end

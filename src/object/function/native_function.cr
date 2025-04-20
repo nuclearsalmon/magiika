@@ -1,5 +1,7 @@
 module Magiika
   class Object::NativeFunction < Object::Function
+    # NOTE: This is a bit of a hack to allow the compiler
+    #       to infer the correct type for the proc.
     @proc : Proc(Scope, AnyObject) | Proc(Scope, Object) | Proc(Scope, Object.class)
 
     def initialize(@proc : Proc(Scope, AnyObject), *args, **kwargs)

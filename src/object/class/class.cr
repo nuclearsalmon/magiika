@@ -1,13 +1,11 @@
 module Magiika
   class Object::Class < MetaObject
-    include SubScopingFeat
-
     getter name : ::String
     getter? is_abstract : ::Bool
     getter defining_scope : Scope
     getter extended_cls : Object::Class?
 
-    @scope : Scope
+    getter scope : Scope
     getter instance_stmts : Array(Ast) = Array(Ast).new
 
     def initialize(
@@ -138,10 +136,6 @@ module Magiika
 
     def superclass : Object::Class?
       @extended_cls
-    end
-
-    def scope : Scope
-      @scope
     end
 
     def is_of?(other : ::Object) : ::Bool

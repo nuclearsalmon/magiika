@@ -36,7 +36,7 @@ require "./object/function/abstract_function"
 require "./object/function/native_function"
 require "./object/function/runtime_function"
 
-require "./misc/number"
+require "./object/primitives/number"
 require "./object/primitives/primitive_object"
 require "./object/primitives/*"
 

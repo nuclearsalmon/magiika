@@ -6,13 +6,17 @@ module Magiika
     getter access : Access
     
     def initialize(
-      @value : AnyObject, 
+      value : AnyObject, 
       @final : ::Bool = false, 
       @access : Access = Access::Public,
       *args,
       **kwargs
     )
-      super(*args, **kwargs)
+      if value.is_a?(Object::Slot) || value.is_a?(Object::Slot.class) 
+        raise Error::Internal.new("A #{{{ @type }}} may not directly contain a #{{{ @type }}}.")
+      end
+      @value = value
+      super(*args, **kwargs, allow_slot: false)
     end
 
     def value=(value : AnyObject) : AnyObject

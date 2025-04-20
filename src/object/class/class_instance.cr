@@ -1,7 +1,5 @@
 module Magiika
   class Object::ClassInstance < MetaObject
-    include SubScopingFeat
-
     # note: don't run constructor in initialize,
     #  it shall be a separate function. this lets us initialize
     #  fields before calling the constructor, including in the parent class instance.
@@ -13,13 +11,22 @@ module Magiika
 
     getter cls : Class
     getter extended_instance : self? = nil
-    protected getter scope : Scope = Scope.new(name: "temporary")
+    getter scope : Scope = Scope.new(name: {{ @type }}.type_name)
+
+    def self.scope : Scope
+      raise Error::Internal.new(
+        "To get the static scope of a " +
+        "ClassInstance it's supposed to " +
+        "go through the Class it is referencing."
+      )
+    end
 
     def initialize(
       @cls : Class,
       position : Position? = nil,
     )
       super(@cls, position: position)
+      @scope.name = self.type_name
 
       # create instance of extended class
       unless (extended_cls = @cls.extended_cls).nil?
@@ -64,10 +71,6 @@ module Magiika
 
     def eval(scope : Scope) : self
       self
-    end
-
-    def scope : Scope
-      @scope
     end
 
     def []?(name : ::String) : AnyObject?

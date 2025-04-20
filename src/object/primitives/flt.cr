@@ -1,14 +1,17 @@
 class Magiika::Object::Flt < Magiika::PrimitiveObject
-  extend MembersFeat
   include Magiika::Psuedo::Number
 
-  getter value : InternalNumberType
+  def_static_scope()
+  def_scope()
+  getter value : InternalFloatType
 
   def initialize(
     @value : InternalFloatType,
     position : Position? = nil,
   )
     super(position)
+    init_scope()
+    def_natives()
   end
 
   def to_s_internal : ::String
@@ -22,99 +25,63 @@ class Magiika::Object::Flt < Magiika::PrimitiveObject
   # ⭐ Members
   # ---
 
-  private def self.__neg(scope : Scope) : Object
-    MembersFeat.get_scoped_vars self
+  private def def_natives() : ::Nil
+    def_native(
+      name: "_+",
+      returns: Object::Flt
+    ) do |scope|
+      self
+    end
 
-    {% begin %}
-      self_value = self_obj.as(Object::Flt).value.to_f32
-
-      return Object::Flt.new(-self_value).as(Object)
-    {% end %}
-  end
-
-  private def self.__pos(scope : Scope) : AnyObject
-    MembersFeat.get_scoped_vars self
-
-    {% begin %}
-      return self_obj
-    {% end %}
-  end
-
-  private def self._add(scope : Scope) : Object
-    MembersFeat.get_scoped_vars self, other
-
-    {% begin %}
-      self_value = self_obj.as(Object::Flt).value.to_f32
-      other_value = other_obj.as(Psuedo::Number).value.to_f32
-
+    def_native(
+      name: "_-",
+      returns: Object::Flt
+    ) do |scope|
+      Object::Flt.new(-self.value)
+    end
+  
+    def_native(
+      name: "+",
+      parameters: [Object::Parameter.new("other", NUMBER_UNION)],
+      returns: Object::Flt
+    ) do |scope|
+      self_value = self.value.to_f32
+      other_value = scope.retrieve("other").value.as(Psuedo::Number).value.to_f32
       result = self_value + other_value
-      return Object::Flt.new(result.to_f32).as(Object)
-    {% end %}
-  end
-
-  private def self._sub(scope : Scope) : Object
-    MembersFeat.get_scoped_vars self, other
-
-    {% begin %}
-      self_value = self_obj.as(Object::Flt).value.to_f32
-      other_value = other_obj.as(Psuedo::Number).value.to_f32
-
+      Object::Flt.new(result)
+    end
+  
+    def_native(
+      name: "-",
+      parameters: [Object::Parameter.new("other", NUMBER_UNION)],
+      returns: Object::Flt
+    ) do |scope|
+      self_value = self.value.to_f32
+      other_value = scope.retrieve("other").value.as(Psuedo::Number).value.to_f32
       result = self_value - other_value
-      return Object::Flt.new(result.to_f32).as(Object)
-    {% end %}
-  end
-
-  private def self._mul(scope : Scope) : Object
-    MembersFeat.get_scoped_vars self, other
-
-    {% begin %}
-      self_value = self_obj.as(Object::Flt).value.to_f32
-      other_value = other_obj.as(Psuedo::Number).value.to_f32
-
+      Object::Flt.new(result)
+    end
+  
+    def_native(
+      name: "*",
+      parameters: [Object::Parameter.new("other", NUMBER_UNION)],
+      returns: Object::Flt
+    ) do |scope|
+      self_value = self.value.to_f32
+      other_value = scope.retrieve("other").value.as(Psuedo::Number).value.to_f32
       result = self_value * other_value
-      return Object::Flt.new(result.to_f32).as(Object)
-    {% end %}
-  end
-
-  private def self._div(scope : Scope) : Object
-    MembersFeat.get_scoped_vars self, other
-
-    {% begin %}
-      self_value = self_obj.as(Object::Flt).value.to_f32
-      other_value = other_obj.as(Psuedo::Number).value.to_f32
-
+      Object::Flt.new(result)
+    end 
+  
+    def_native(
+      name: "/",
+      parameters: [Object::Parameter.new("other", NUMBER_UNION)],
+      returns: Object::Flt
+    ) do |scope|
+      self_value = self.value.to_f32
+      other_value = scope.retrieve("other").value.as(Psuedo::Number).value.to_f32
       result = self_value / other_value
-      return Object::Flt.new(result.to_f32).as(Object)
-    {% end %}
+      Object::Flt.new(result)
+    end
   end
-
-  MembersFeat.def_fn "_+",
-    __pos,
-    nil,
-    Object::Flt
-
-  MembersFeat.def_fn "_-",
-    __neg,
-    nil,
-    Object::Flt
-
-  MembersFeat.def_fn "+",
-    _add,
-    [Object::Parameter.new("other", NUMBER_UNION)],
-    Object::Flt
-
-  MembersFeat.def_fn "-",
-    _sub,
-    [Object::Parameter.new("other", NUMBER_UNION)],
-    Object::Flt
-
-  MembersFeat.def_fn "*",
-    _mul,
-    [Object::Parameter.new("other", NUMBER_UNION)],
-    Object::Flt
-
-  MembersFeat.def_fn "/",
-    _div,
-    [Object::Parameter.new("other", NUMBER_UNION)],
-    Object::Flt
 end

@@ -6,7 +6,6 @@ module Magiika
 
     def initialize(
       @defining_scope : Scope,
-      @static : ::Bool,
       @name : ::String,
       @parameters : Array(Parameter),
       @returns : AnyObject? = nil,
@@ -145,17 +144,14 @@ module Magiika
     end
 
     def pretty_sig
-      (@static ? ":" : ".") +
-        "#{@name}(" +
-        (@parameters.map { |param|
-          param_value = param.default_value
-
-          "\n  :" +
-            param.name.to_s +
-            (param_value.nil? ? "" : " = #{param_value.to_s_internal}")
-        }).join(separator = ",") +
-        ")" +
-        (@returns.nil? ? "" : "-> #{@returns}")
+      "#{@name}(" +
+      (@parameters.map { |param|
+        param_value = param.default_value
+        ("\n  :" + param.name.to_s + 
+         (param_value.nil? ? "" : " = #{param_value.to_s_internal}"))
+      }).join(separator = ",") +
+      ")" +
+      (@returns.nil? ? "" : "-> #{@returns}")
     end
 
     def to_s_internal : ::String

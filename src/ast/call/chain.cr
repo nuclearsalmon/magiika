@@ -5,7 +5,7 @@ module Magiika
     end
 
     private def extract_scope(obj : AnyObject) : Scope
-      if obj.is_a?(SubScopingFeat)
+      if obj.responds_to?(:scope)
         obj.scope
       else
         raise Error::Lazy.new("No scope for #{obj.pretty_inspect}")

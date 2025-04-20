@@ -31,7 +31,6 @@ module Magiika
       if (statements = @statements).nil?
         function = Object::AbstractFunction.new(
           defining_scope: scope,
-          static: @static,
           name: @name,
           parameters: parameters,
           returns: returns,
@@ -40,7 +39,6 @@ module Magiika
         function = Object::RuntimeFunction.new(
           statements: statements,
           defining_scope: scope,
-          static: @static,
           name: @name,
           parameters: parameters,
           returns: returns,

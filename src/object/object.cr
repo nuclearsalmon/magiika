@@ -9,38 +9,81 @@ module Magiika
 
   abstract class Object
     include Positionable
-    
-    def self.is_of?(other) : ::Bool
-      raise Error::NotImplemented.new("This should have been implemented by macro.")
-    end
-    def is_of?(other) : ::Bool
-      raise Error::NotImplemented.new("This should have been implemented by macro.")
-    end
     include IsOf
 
-    private macro recursive_inherited
+    private macro recursive_inherited_object
       macro inherited
         {% verbatim do %}
           def self.type_name : ::String
             {{ @type.name.stringify.split("::")[-1] }}
           end
 
-          def self.superclass : Magiika::Object
+          def self.superclass : Magiika::AnyObject
             {{ @type.superclass }}
           end
 
-          recursive_inherited
+          recursive_inherited_object
         {% end %}
       end
     end
+    recursive_inherited_object
 
-    recursive_inherited
+    private module DefNative
+      protected def def_native(
+        name : ::String, 
+        const : ::Bool = false,
+        parameters : Array(Object::Parameter) = Array(Object::Parameter).new, 
+        returns : AnyObject? = nil,
+        access : Access = Access::Public,
+        &body : Proc(Scope, Magiika::Object | Magiika::Object.class)
+      ) : ::Nil
+        scope = self.scope
+        if (scls = self.superclass).is_a?(Magiika::Object) && scls.scope == scope
+          raise Error::Internal.new("#{self} does not own this scope.")
+        end
 
-    def initialize(@position : Position? = nil)
+        method = Object::NativeFunction.new(
+          proc: body, 
+          defining_scope: self.scope,
+          name: name,
+          parameters: parameters,
+          returns: returns)
+        slot = Slot.new(
+          value: method,
+          final: const,
+          type: Object::NativeFunction,
+          access: access)
+        scope.define(name, slot)
+      end
+    end
+    include DefNative
+    extend DefNative
+
+    macro def_static_scope()
+      class_getter scope = Scope.new(name: {{ @type }}.type_name)
     end
 
-    def self.as_type : Type
-      Type.new(self)
+    macro def_scope()
+      getter scope = Scope.new(name: {{ @type }}.type_name)
+    end
+
+    macro init_scope(scope = @scope)
+      {{ scope }}.name = self.type_name
+    end
+    
+    def_static_scope()
+    def_scope()
+
+    def initialize(@position : Position? = nil)
+      init_scope(@scope)
+    end
+
+    def_native(
+      name: "type",
+      const: true,
+      returns: self
+    ) do |scope|
+      self
     end
 
     def self.eval_bool(scope : Scope) : ::Bool
@@ -61,11 +104,11 @@ module Magiika
       raise Error::Type.new(self, other, message)
     end
 
-    def self.superclass : Magiika::Object
+    def self.superclass : Magiika::AnyObject
       self # return self (Object) as the superclass
     end
 
-    def superclass : Magiika::Object
+    def superclass : Magiika::AnyObject
       self.class.superclass
     end
 
