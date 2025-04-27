@@ -5,7 +5,7 @@ module Magiika
     getter defining_scope : Scope
     getter extended_cls : Object::Class?
 
-    getter scope : Scope
+    #getter scope : Scope
     getter instance_stmts : Array(Ast) = Array(Ast).new
 
     def initialize(
@@ -24,7 +24,7 @@ module Magiika
       end
 
       @scope, local_scope = create_static_scope
-      @scope.define(THIS_NAME, self)
+      #@scope.define(THIS_NAME, self)
       init_statements(statements, local_scope)
       check_no_abstracts unless is_abstract?
     end
@@ -102,7 +102,7 @@ module Magiika
     def create_instance_scope(instance : Object::ClassInstance) : Tuple(Scope, Scope)
       ext_instance = instance.extended_instance
       parent_instance_scope = ext_instance \
-        .try(&.create_instance_scope[0])
+        .try(&.cls.create_instance_scope(ext_instance.not_nil!)[0])
         .try(&.dup(parent: @scope)) || @scope  # reference static scope
 
       instance_scope = Scope.new(
@@ -113,11 +113,11 @@ module Magiika
       injected_defining_scope = @defining_scope.dup(parent: parent_instance_scope)
       local_instance_scope = instance_scope.dup(parent: injected_defining_scope)
 
-      instance_scope.define(THIS_NAME, self)
+      #instance_scope.define(THIS_NAME, self)
       if (extended_cls = @extended_cls)
         instance_scope.define("superclass", extended_cls)
       end
-      instance_scope.define(SELF_NAME, instance)
+      #instance_scope.define(SELF_NAME, instance)
 
       return {instance_scope, local_instance_scope}
     end

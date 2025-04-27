@@ -10,17 +10,17 @@ module Magiika
 
     def eval(scope : Scope) : AnyObject
       obj = @obj.eval(scope)
-      extended_oper = @r_side ? @oper : ("_" + @oper)
+      extended_oper = @r_side ? @oper : ("_#{@oper}")
 
-      if (!(obj.responds_to?(:scope)) || \
-          (obj_oper = obj.scope.retrieve?(extended_oper)).nil?)
+      if (obj_oper = obj.scope.retrieve?(extended_oper).try(&.value)).nil?
         raise Error::UndefinedMethod.new(extended_oper, obj, position?)
       else
-        obj_oper = obj_oper.eval(scope)
-
         if obj_oper.is_a?(Object::Function)
-          return obj_oper.as(Object::Function).call_safe_raise(
-            [Object::Argument.new(obj, SELF_NAME)], scope)
+          args = [] of Object::Argument
+
+          Util.obj_to_args!(obj, args)
+
+          return obj_oper.as(Object::Function).call_safe_raise(args, scope)
         else
           return obj_oper
         end

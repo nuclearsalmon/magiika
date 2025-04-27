@@ -5,7 +5,7 @@ module Magiika
     @proc : Proc(Scope, AnyObject) | Proc(Scope, Object) | Proc(Scope, Object.class)
 
     def initialize(@proc : Proc(Scope, AnyObject), *args, **kwargs)
-      super(*args, **kwargs)
+      super(*args, **kwargs, defining_scope: nil)
     end
 
     protected def method_eval(

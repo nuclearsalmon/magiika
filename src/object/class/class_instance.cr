@@ -11,22 +11,17 @@ module Magiika
 
     getter cls : Class
     getter extended_instance : self? = nil
-    getter scope : Scope = Scope.new(name: {{ @type }}.type_name)
+    #getter scope : Scope = Scope.new(name: {{ @type }}.type_name)
 
     def self.scope : Scope
-      raise Error::Internal.new(
-        "To get the static scope of a " +
-        "ClassInstance it's supposed to " +
-        "go through the Class it is referencing."
-      )
+      raise Error::Internal.new("Calling `self.scope` on a class instance is not allowed.")
     end
 
     def initialize(
       @cls : Class,
       position : Position? = nil,
     )
-      super(@cls, position: position)
-      @scope.name = self.type_name
+      super(dupe: @cls, position: position)
 
       # create instance of extended class
       unless (extended_cls = @cls.extended_cls).nil?
@@ -34,7 +29,7 @@ module Magiika
       end
 
       # create instance scope
-      @scope, local_scope = create_instance_scope
+      @scope, local_scope = @cls.create_instance_scope(self)
       @cls.instance_stmts.each { |stmt| stmt.eval(local_scope) }
     end
 
@@ -63,10 +58,6 @@ module Magiika
         }
         nil
       }
-    end
-
-    def create_instance_scope : Tuple(Scope, Scope)
-      @cls.create_instance_scope(self)
     end
 
     def eval(scope : Scope) : self

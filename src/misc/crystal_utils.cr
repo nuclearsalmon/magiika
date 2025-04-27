@@ -3,10 +3,6 @@ require "./is_of"
 module CrystalUtils
   extend self
 
-  macro env_exists?(key)
-    !ENV.fetch(key, nil).nil?
-  end
-
   macro upcase?(obj)
     ((s = {{obj}}.to_s).upcase == s)
   end
@@ -31,10 +27,38 @@ module CrystalUtils
   macro pvar(stmt)
     puts "{{ stmt }}:\n  #{ {{ stmt }}.pretty_inspect }"
   end
+
+  def s_to_bool(
+      str : ::String, 
+      case_sensitive : ::Bool = true,
+      matches : Array(String) = ["true", "false"]
+    ) : ::Bool
+    str = str.downcase unless case_sensitive
+    match = matches[0] # "true"
+    match = match.downcase unless case_sensitive
+    return true if str == match
+    
+    match = matches[1] # "false" 
+    match = match.downcase unless case_sensitive
+    return false if str == match
+    raise ::Exception::TypeCastError.new("cast to Bool failed: #{str}")
+  end
+
+  macro env_exists?(key)
+    !(ENV.[{{ key }}]?.nil?)
+  end
+
+  # for use in compile-time expressions
+  def env_to_bool(key : ::String) : ::Bool
+    value = ENV.[key]?.try &.downcase || "false"
+    return false if value == "false"
+    return true if value == "true"
+    raise ::TypeCastError.new("cast to Bool failed: #{ENV.[key]? || "false"}")
+  end
 end
 
-EXTEND_OBJECT = CrystalUtils.env_exists?("EXTEND_OBJECT")
-{% if EXTEND_OBJECT == true %}
+CRYSTAL_UTILS_DO_PATCH = CrystalUtil.env_to_bool("CRYSTAL_UTILS_DO_PATCH")
+{% if CRYSTAL_UTILS_DO_PATCH %}
   class ::Object
     include IsOf
 
@@ -56,6 +80,12 @@ EXTEND_OBJECT = CrystalUtils.env_exists?("EXTEND_OBJECT")
 
     def to_class : ::Object.class
       Util.to_class self
+    end
+  end
+
+  class ::String
+    def to_bool : ::Bool
+      Util.s_to_bool(self)
     end
   end
 {% end %}

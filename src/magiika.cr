@@ -22,7 +22,8 @@ module Magiika
   INHERITANCE_LIMIT = ENV.fetch("INHERITANCE_LIMIT", "128").to_i
   # Initial log level to apply
   INITIAL_LOG_LEVEL = ENV.fetch("INITIAL_LOG_LEVEL", "INFO")
-
+  # Whether to allow monkeypatching of objects
+  ALLOW_MONKEY_PATCHING = CrystalUtils.env_to_bool("ALLOW_MONKEY_PATCHING")
 
   # 💫 Logging setup
   # --------------------------------------------------------

@@ -25,65 +25,70 @@ module Magiika
           recursive_inherited_object
         {% end %}
       end
+
+      class_getter scope : Scope = begin
+        name = "#{{{ @type }}.type_name} - static"
+        parent = self.superclass.try(&.scope)
+        Scope.new(name: name, parent: parent)
+      end
+
+      protected class_getter inst_base_scope : Scope = begin
+        name = "#{{{ @type }}.type_name} - instance base"
+        parent = self.superclass.try(&.inst_base_scope)
+        Scope.new(name: name, parent: parent)
+      end
+
+      getter scope : Scope = begin
+        name = "#{{{ @type }}.type_name} - instance"
+        parent = @@inst_base_scope
+        Scope.new(name: name, parent: parent)
+      end
     end
     recursive_inherited_object
 
-    private module DefNative
-      protected def def_native(
-        name : ::String, 
-        const : ::Bool = false,
-        parameters : Array(Object::Parameter) = Array(Object::Parameter).new, 
-        returns : AnyObject? = nil,
-        access : Access = Access::Public,
-        &body : Proc(Scope, Magiika::Object | Magiika::Object.class)
-      ) : ::Nil
-        scope = self.scope
-        if (scls = self.superclass).is_a?(Magiika::Object) && scls.scope == scope
-          raise Error::Internal.new("#{self} does not own this scope.")
-        end
-
-        method = Object::NativeFunction.new(
-          proc: body, 
-          defining_scope: self.scope,
-          name: name,
-          parameters: parameters,
-          returns: returns)
-        slot = Slot.new(
-          value: method,
-          final: const,
-          type: Object::NativeFunction,
-          access: access)
-        scope.define(name, slot)
+    protected def self.def_native(
+      name : ::String,
+      static : ::Bool = false,
+      parameters : Array(Object::Parameter) = Array(Object::Parameter).new, 
+      returns : AnyObject? = nil,
+      access : Access = Access::Public,
+      &body : Proc(Scope, Magiika::Object | Magiika::Object.class)
+    ) : ::Nil
+      # inject self/this into parameters
+      unless static
+        parameters.unshift(Object::Parameter.new("self", self))
       end
-    end
-    include DefNative
-    extend DefNative
+      parameters.unshift(Object::Parameter.new("this", self))
+      
+      # create method
+      method = Object::NativeFunction.new(
+        proc: body, 
+        name: name,
+        parameters: parameters,
+        returns: returns)
 
-    macro def_static_scope()
-      class_getter scope = Scope.new(name: {{ @type }}.type_name)
-    end
+      # create slot
+      slot = Slot.new(
+        value: method,
+        final: !Magiika::ALLOW_MONKEY_PATCHING,
+        type: Object::NativeFunction,
+        access: access)
 
-    macro def_scope()
-      getter scope = Scope.new(name: {{ @type }}.type_name)
-    end
-
-    macro init_scope(scope = @scope)
-      {{ scope }}.name = self.type_name
-    end
-    
-    def_static_scope()
-    def_scope()
-
-    def initialize(@position : Position? = nil)
-      init_scope(@scope)
+      # define in scope
+      scope = static ? @@scope : @@inst_base_scope
+      scope.define(name, slot)
     end
 
     def_native(
       name: "type",
-      const: true,
+      static: true,
       returns: self
     ) do |scope|
       self
+    end
+
+    def initialize(@position : Position? = nil)
+      @scope.name = self.type_name  # set name to instance's type name
     end
 
     def self.eval_bool(scope : Scope) : ::Bool
@@ -91,7 +96,7 @@ module Magiika
     end
 
     def eval_bool(scope : Scope) : ::Bool
-      false
+      self.class.eval_bool(scope)
     end
       
     def self.is_of!(other : Magiika::AnyObject, message : ::String? = nil) : ::Bool
@@ -104,11 +109,11 @@ module Magiika
       raise Error::Type.new(self, other, message)
     end
 
-    def self.superclass : Magiika::AnyObject
-      self # return self (Object) as the superclass
+    def self.superclass : Magiika::AnyObject?
+      nil
     end
 
-    def superclass : Magiika::AnyObject
+    def superclass : Magiika::AnyObject?
       self.class.superclass
     end
 

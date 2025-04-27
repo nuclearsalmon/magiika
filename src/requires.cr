@@ -4,7 +4,8 @@ require "./constants"
 
 require "./misc/is_of"
 require "./misc/crystal_utils"
-alias Magiika::Util = CrystalUtils
+alias Magiika::U = CrystalUtils
+require "./misc/util"
 
 require "./misc/algo"
 require "./misc/ansi"

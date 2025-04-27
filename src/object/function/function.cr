@@ -1,22 +1,36 @@
 module Magiika
   abstract class Object::Function < Object
+    @defining_scope : Scope?
     getter name : ::String
     getter parameters : Array(Parameter)
     getter returns : AnyObject?
 
     def initialize(
-      @defining_scope : Scope,
+      @defining_scope : Scope?,
       @name : ::String,
       @parameters : Array(Parameter),
       @returns : AnyObject? = nil,
       position : Position? = nil,
     )
-      # FIXME: check that there are no param duplicates
-      super(position)
+      # Check that the name starts with a lowercase character
       if !(Util.downcase?(@name[0]))
         raise Error::NamingConvention.new(
-          "Function names must start with a lowercase character.")
+          "Function and Method names must start with a lowercase character.")
       end
+
+      # Check that there are no param duplicates
+      begin
+        param_names = Set(::String).new
+        @parameters.each do |param|
+          name = param.name.lchop("**").lchop("*")  # Remove ** and * prefixes for kwargs/args
+          if param_names.includes?(name)
+            raise Error::Internal.new("Duplicate parameter name: '#{name}'")
+          end
+          param_names.add(name)
+        end
+      end
+
+      super(position)
     end
 
     def match_args(
@@ -104,8 +118,9 @@ module Magiika
     def call(args : Hash(::String, AnyObject)) : AnyObject
       Scope.use(
         name: @name,
-        parent: @defining_scope,
-        position: position) do |method_scope|
+        parent: @defining_scope,  # may be nil
+        position: position
+      ) do |method_scope|
         # inject args into scope
         args.each { |key, value|
           method_scope.define(key, value)
@@ -121,7 +136,7 @@ module Magiika
 
     def call_safe(
       args : Array(Argument),
-      arg_scope : Scope,
+      arg_scope : Scope,  # FIXME this doesn't actually do anything
       deep_analysis : ::Bool = false,
     ) : MatchResult | AnyObject
       match_result, args_hash = match_args(args, deep_analysis)
