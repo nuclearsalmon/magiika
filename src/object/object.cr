@@ -5,7 +5,8 @@
 # These are the fundamental building blocks for most values in the language.
 
 module Magiika
-  alias AnyObject = Magiika::Object | Magiika::Object.class
+  #alias AnyObject = Magiika::Object | Magiika::Object.class
+  alias AnyObject = Magiika::Object
 
   abstract class Object
     include Positionable
@@ -18,41 +19,47 @@ module Magiika
             {{ @type.name.stringify.split("::")[-1] }}
           end
 
-          def self.superclass : Magiika::AnyObject
+          def self.superclass : Magiika::AnyObject?
             {{ @type.superclass }}
           end
 
           recursive_inherited_object
         {% end %}
       end
-
-      class_getter scope : Scope = begin
-        name = "#{{{ @type }}.type_name} - static"
-        parent = self.superclass.try(&.scope)
-        Scope.new(name: name, parent: parent)
-      end
-
-      protected class_getter inst_base_scope : Scope = begin
-        name = "#{{{ @type }}.type_name} - instance base"
-        parent = self.superclass.try(&.inst_base_scope)
-        Scope.new(name: name, parent: parent)
-      end
-
-      getter scope : Scope = begin
-        name = "#{{{ @type }}.type_name} - instance"
-        parent = @@inst_base_scope
-        Scope.new(name: name, parent: parent)
-      end
     end
     recursive_inherited_object
 
-    protected def self.def_native(
+    getter scope : Scope
+
+    def initialize(
+      global_scope : Scope? = nil,
+      @position : Position? = nil
+    )
+      @scope = create_scope(global_scope, position)
+    end
+
+    def self.superclass : Magiika::AnyObject?
+      nil
+    end
+
+    def superclass : Magiika::AnyObject?
+      self.class.superclass
+    end
+
+    protected abstract def create_scope(
+      global_scope : Scope?, 
+      position : Position?
+    ) : Scope
+
+    abstract def type_id : Typing::TypeID
+
+    protected def def_native(
       name : ::String,
       static : ::Bool = false,
       parameters : Array(Object::Parameter) = Array(Object::Parameter).new, 
       returns : AnyObject? = nil,
       access : Access = Access::Public,
-      &body : Proc(Scope, Magiika::Object | Magiika::Object.class)
+      &body : Proc(Scope, Magiika::Object)
     ) : ::Nil
       # inject self/this into parameters
       unless static
@@ -75,8 +82,8 @@ module Magiika
         access: access)
 
       # define in scope
-      scope = static ? @@scope : @@inst_base_scope
-      scope.define(name, slot)
+      target_scope = static ? @scope : @inst_base_scope
+      target_scope.define(name, slot)
     end
 
     def_native(
@@ -85,10 +92,6 @@ module Magiika
       returns: self
     ) do |scope|
       self
-    end
-
-    def initialize(@position : Position? = nil)
-      @scope.name = self.type_name  # set name to instance's type name
     end
 
     def self.eval_bool(scope : Scope) : ::Bool
@@ -139,6 +142,61 @@ module Magiika
 
     def to_s_internal : ::String
       "#{type_name} @ #{position.to_s}"
+    end
+  end
+
+  abstract class Type < Object
+    private PLACEHOLDER_SCOPE = Scope.new("placeholder")
+    getter type_id : Typing::TypeID
+    protected getter inst_base_scope : Scope = PLACEHOLDER_SCOPE
+
+    def initialize(
+      global_scope : Scope? = nil,
+      position : Position? = nil
+    )
+      @type_id = Typing.aquire_id
+      super(global_scope: global_scope, position: position)
+    end
+
+    protected def create_scope(
+      global_scope : Scope,
+      position : Position?
+    ) : Scope
+      # Create type-level scopes
+      name = "#{self.class.type_name} - static"
+      parent = self.class.superclass.try(&.scope)
+      main_scope = Scope.new(name: name, parent: parent || global_scope)
+  
+      # Create instance base scope - overwrite the placeholder
+      name = "#{self.class.type_name} - instance base"
+      parent = self.class.superclass.try(&.inst_base_scope)
+      @inst_base_scope = Scope.new(name: name, parent: parent || global_scope)
+  
+      main_scope
+    end
+
+    # Factory method for creating instances
+    protected abstract def create_instance(position : Position? = nil, **args) : Instance
+  end
+
+  abstract class Instance < Object
+    getter cls : Type
+    delegate type_id, to: @cls
+
+    def initialize(
+      @cls : Type,
+      global_scope : Scope,
+      position : Position? = nil
+    )
+      super(global_scope: global_scope, position: position)
+    end
+
+    protected def create_scope(
+      global_scope : Scope,
+      position : Position?
+    ) : Scope
+      name = "#{self.class.type_name} - instance"
+      Scope.new(name: name, parent: @cls.inst_base_scope)
     end
   end
 end

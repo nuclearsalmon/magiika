@@ -1,11 +1,9 @@
 module Magiika
-  class Object::Class < MetaObject
+  class Object::Class < Type
     getter name : ::String
     getter? is_abstract : ::Bool
     getter defining_scope : Scope
     getter extended_cls : Object::Class?
-
-    #getter scope : Scope
     getter instance_stmts : Array(Ast) = Array(Ast).new
 
     def initialize(
@@ -13,7 +11,8 @@ module Magiika
       @is_abstract : ::Bool,
       @defining_scope : Scope,
       statements : Array(Ast),
-      @extends_cls : Object::Class? = nil,
+      global_scope : Scope,
+      @extended_cls : Object::Class? = nil,
       position : Position? = nil,
     )
       super(position: position)
@@ -72,7 +71,7 @@ module Magiika
       }
     end
 
-    def create_instance(position : Position? = nil) : Object::ClassInstance
+    protected def create_instance(position : Position? = nil, **args) : Object::ClassInstance
       Object::ClassInstance.new(cls: self, position: position)
     end
 

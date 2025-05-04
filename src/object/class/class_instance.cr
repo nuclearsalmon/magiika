@@ -1,5 +1,5 @@
 module Magiika
-  class Object::ClassInstance < MetaObject
+  class Object::ClassInstance < Instance
     # note: don't run constructor in initialize,
     #  it shall be a separate function. this lets us initialize
     #  fields before calling the constructor, including in the parent class instance.
@@ -9,28 +9,21 @@ module Magiika
     delegate type_name, to: @cls
     delegate is_of?, to: @cls
 
-    getter cls : Class
     getter extended_instance : self? = nil
-    #getter scope : Scope = Scope.new(name: {{ @type }}.type_name)
-
-    def self.scope : Scope
-      raise Error::Internal.new("Calling `self.scope` on a class instance is not allowed.")
-    end
 
     def initialize(
       @cls : Class,
       position : Position? = nil,
     )
-      super(dupe: @cls, position: position)
+      super(cls: @cls, position: position)
 
       # create instance of extended class
       unless (extended_cls = @cls.extended_cls).nil?
         @extended_instance = extended_cls.create_instance(position: position)
       end
 
-      # create instance scope
-      @scope, local_scope = @cls.create_instance_scope(self)
-      @cls.instance_stmts.each { |stmt| stmt.eval(local_scope) }
+      # Initialize instance scopes
+      @cls.instance_stmts.each { |stmt| stmt.eval(@scope) }
     end
 
     def run_constructor(args : Array(Object::Argument), arg_scope : Scope) : ::Nil
