@@ -1,13 +1,5 @@
 module Magiika
-  class Object::Nil < PrimitiveObject
-    private def initialize
-      super(nil)
-    end
-
-    def self.instance
-      @@instance ||= new
-    end
-
+  class Object::Nil < SingletonType
     def to_s : ::String
       type_name
     end

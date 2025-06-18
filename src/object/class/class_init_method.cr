@@ -31,8 +31,8 @@ module Magiika
     end
 
     protected def method_eval(
-        method_scope : Scope) : AnyObject
-      result : AnyObject = Object::Nil.instance
+        method_scope : Scope) : Object
+      result : Object = Object::Nil.instance
       @statements.each { |stmt|
         result = stmt.eval(method_scope)
       }

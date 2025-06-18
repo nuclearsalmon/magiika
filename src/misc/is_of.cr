@@ -1,17 +1,10 @@
 module IsOf
   private macro recursive_inherited_is_of
-    def self.crystal_type : ::Object.class
-      {{ @type }}
-    end
-
-    def crystal_type : ::Object.class
-      {{ @type }}
-    end
-
-    protected def self.reverse_is_of?(
+    @[AlwaysInline]
+    def self.reverse_is_of?(
       reverse_self : ::Object | ::Object.class
     ) : ::Bool
-      reverse_self.is_a?({{ @type }})
+      reverse_self.is_a?(self) #{{ @type }})
     end
   
     def self.is_of?(other) : ::Bool

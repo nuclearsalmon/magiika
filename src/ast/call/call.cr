@@ -9,7 +9,7 @@ module Magiika
       super(position)
     end
 
-    def eval(scope : Scope, arg_scope : Scope? = nil) : AnyObject
+    def eval(scope : Scope, arg_scope : Scope? = nil) : Object
       target = @target.eval(scope)
       target = Object::Slot.unpack(target)
 
@@ -17,8 +17,8 @@ module Magiika
 
       args = @args.map { |arg| Object::Argument.from(arg, arg_scope) }
 
-      if target.is_a?(Object::Function)
-        return target.as(Object::Function).call_safe_raise(args, arg_scope)
+      if target.is_a?(Object::FunctionInstance)
+        return target.as(Object::FunctionInstance).call_safe_raise(args, arg_scope)
       elsif target.is_a?(Object::Class)
         inst = target.as(Object::Class).create_instance(position: position)
         inst.run_constructor(args, arg_scope)
@@ -32,7 +32,7 @@ module Magiika
 
     def caller_eval(
         eval_scope : Scope,
-        caller_scope : Scope? = nil) : AnyObject
+        caller_scope : Scope? = nil) : Object
       eval(eval_scope, caller_scope)
     end
 

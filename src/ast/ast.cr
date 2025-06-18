@@ -8,8 +8,8 @@ module Magiika
   module Ast
     include Positionable
 
-    def eval(scope : Scope) : AnyObject
-      Object::Nil.instance
+    def eval(scope : Scope) : Object
+      scope.definition(Object::Nil)
     end
 
     # Feel free to override for fasttrack evaluation of bool.

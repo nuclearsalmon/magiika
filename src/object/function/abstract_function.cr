@@ -1,10 +1,6 @@
-module Magiika
-  class Object::AbstractFunction < Object::Function
-    def initialize(*args, **kwargs)
-      super(*args, **kwargs)
-    end
-
-    protected def method_eval(method_scope : Scope) : AnyObject
+class Magiika::Object
+  class AbstractFunction < FunctionInstance
+    protected def method_eval(method_scope : Scope) : Object
       raise Error::Internal.new("Abst fn is not callable.")
     end
 

@@ -1,31 +1,44 @@
 module Magiika
   class Object::Class < Type
-    getter name : ::String
+    @name : ::String
     getter? is_abstract : ::Bool
-    getter defining_scope : Scope
     getter extended_cls : Object::Class?
     getter instance_stmts : Array(Ast) = Array(Ast).new
+
+    def type_name : ::String
+      @name
+    end
 
     def initialize(
       @name : ::String,
       @is_abstract : ::Bool,
-      @defining_scope : Scope,
+      defining_scope : Scope,
       statements : Array(Ast),
-      global_scope : Scope,
       @extended_cls : Object::Class? = nil,
       position : Position? = nil,
     )
-      super(position: position)
+      super(defining_scope: defining_scope, position: position)
 
       if !(Util.upcase?(@name[0]))
         raise Error::NamingConvention.new(
           "Class names must start with an uppercase character.")
       end
 
-      @scope, local_scope = create_static_scope
+      @static_scope, local_scope = create_static_scope
       #@scope.define(THIS_NAME, self)
       init_statements(statements, local_scope)
       check_no_abstracts unless is_abstract?
+    end
+
+    def create_instance(
+      *args, 
+      position : Position? = nil,
+      **kwargs
+    ) : ClassInstance
+      ClassInstance.new(
+        type: self,
+        position: position
+      )
     end
 
     private def check_no_abstracts : ::Nil
@@ -33,9 +46,9 @@ module Magiika
       simulated_inst_scope = create_instance().scope
       @instance_stmts.each { |stmt| stmt.eval(simulated_inst_scope) }
 
-      scopes = [@scope, simulated_inst_scope]
+      scopes = [@static_scope, simulated_inst_scope]
       scopes.each { |scope|
-        filter = Set(AnyObject).new\
+        filter = Set(Object).new\
           .tap(&.add(Object::AbstractFunction))
         slots = scope.surface_slots(filter)
         name = slots.first_key?
@@ -71,22 +84,18 @@ module Magiika
       }
     end
 
-    protected def create_instance(position : Position? = nil, **args) : Object::ClassInstance
-      Object::ClassInstance.new(cls: self, position: position)
-    end
-
     # returns a tuple of (static_scope, local_static_scope)
     private def create_static_scope : Tuple(Scope, Scope)
       static_scope : Scope
       local_static_scope : Scope
 
-      if (extends_cls = @extends_cls).nil?
+      if (extends_cls = @extended_cls).nil?
         static_scope = Scope.new(@name, @position)
 
         immediate_defining_scope = @defining_scope.dup(parent: nil)
         local_static_scope = static_scope.dup(parent: immediate_defining_scope)
       else
-        extends_static_scope = extends_cls.scope
+        extends_static_scope = extends_cls.static_scope
         static_scope = Scope.new(@name, @position, extends_static_scope)
 
         injected_defining_scope = @defining_scope.dup(parent: extends_static_scope)
@@ -102,7 +111,7 @@ module Magiika
       ext_instance = instance.extended_instance
       parent_instance_scope = ext_instance \
         .try(&.cls.create_instance_scope(ext_instance.not_nil!)[0])
-        .try(&.dup(parent: @scope)) || @scope  # reference static scope
+        .try(&.dup(parent: @static_scope)) || @static_scope  # reference static scope
 
       instance_scope = Scope.new(
         name: "#{@name}\##{self.type_id}",

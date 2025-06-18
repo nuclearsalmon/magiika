@@ -8,7 +8,7 @@ module Magiika
       super(position)
     end
 
-    def eval(scope : Scope) : AnyObject
+    def eval(scope : Scope) : Object
       value = @value.eval(scope)
       
       case @oper

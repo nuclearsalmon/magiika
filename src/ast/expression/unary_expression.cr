@@ -8,7 +8,7 @@ module Magiika
       super(position)
     end
 
-    def eval(scope : Scope) : AnyObject
+    def eval(scope : Scope) : Object
       obj = @obj.eval(scope)
       extended_oper = @r_side ? @oper : ("_#{@oper}")
 

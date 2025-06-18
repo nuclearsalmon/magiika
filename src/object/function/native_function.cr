@@ -1,15 +1,16 @@
 module Magiika
-  class Object::NativeFunction < Object::Function
-    # NOTE: This is a bit of a hack to allow the compiler
-    #       to infer the correct type for the proc.
-    @proc : Proc(Scope, AnyObject) | Proc(Scope, Object) | Proc(Scope, Object.class)
+  class Object::NativeFunction < Object::FunctionInstance
+    @proc : Proc(Scope, Object)
 
-    def initialize(@proc : Proc(Scope, AnyObject), *args, **kwargs)
-      super(*args, **kwargs, defining_scope: nil)
+    def initialize(
+      @proc : Proc(Scope, Object),
+      *args, **kwargs
+    )
+      super(*args, **kwargs)
     end
 
     protected def method_eval(
-        method_scope : Scope) : AnyObject
+        method_scope : Scope) : Object
       result = @proc.call(method_scope)
     end
 

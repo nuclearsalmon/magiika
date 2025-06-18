@@ -1,5 +1,5 @@
 module Magiika::NoEvalFeat
-  def eval(scope : Scope) : AnyObject
+  def eval(scope : Scope) : Object
     raise Error::NotImplemented.new("#{self.class} is not meant to be evaluated.")
   end
 

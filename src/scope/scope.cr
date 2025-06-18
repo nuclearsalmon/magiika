@@ -2,7 +2,26 @@ class Magiika::Scope
   property name : ::String
   getter? position : Position?
   protected getter variables : Hash(::String, Object::Slot)
-  @parent : Scope?
+  protected getter parent : Scope?
+
+  @cached_root_scope : Scope?
+  @cached_root_scope_mutex : Mutex = Mutex.new
+
+  def root_scope : Scope
+    @cached_root_scope_mutex.synchronize {
+      @cached_root_scope || update_cached_root_scope
+    }
+  end
+
+  def update_cached_root_scope : Scope
+    @cached_root_scope_mutex.synchronize {
+      root_scope = self
+      until root_scope.parent.try { |scope|
+        root_scope = scope
+      }.nil?; end
+      @root_scope = root_scope
+    }
+  end
 
   def position : Position
     position? || Position.new
@@ -14,6 +33,15 @@ class Magiika::Scope
     @parent : Scope? = nil,
     @variables = Hash(::String, Object::Slot).new
   )
+  end
+
+  def clone(
+    name : ::String = @name,
+    position : Position? = @position,
+    parent : Scope? = @parent,
+    variables : Hash(::String, Object::Slot) = @variables
+  ) : self
+    self.class.new(name, position.clone, parent, variables.dup)
   end
 
   def dup(
@@ -58,11 +86,14 @@ class Magiika::Scope
     position : Position? = nil,
     & : self -> R
   ) : R forall R
+    #what in the everloving FUCK is this doing and what
+    #is its usecase???
+
     scope = new(
       name: name,
       position: position,
       parent: defining_scope)
-
+ 
     begin
       result = yield scope
     ensure
@@ -72,15 +103,15 @@ class Magiika::Scope
     result
   end
 
-  protected def ensure_slot(info : AnyObject) : Object::Slot
-    info.is_a?(Object::Slot) ? info : Object::Slot.new(info)
+  protected def ensure_slot(info : Object) : Object::Slot
+    info.as?(Object::Slot) || Object::Slot.new(info, self)
   end
 
   # ✨ Setting values
   # ---
 
   # define a new value
-  def define(name : ::String, info : AnyObject) : ::Nil
+  def define(name : ::String, info : Object) : ::Nil
     info = ensure_slot(info)
 
     if @variables.has_key?(name)
@@ -90,13 +121,13 @@ class Magiika::Scope
     end
   end
 
-  def define(pairs : Hash(::String, AnyObject))
+  def define(pairs : Hash(::String, Object))
     ::Nil
     pairs.each { |name, value| define(name, value) }
   end
 
   # replace an existing value
-  def replace(name : ::String, info : AnyObject) : ::Nil
+  def replace(name : ::String, info : Object) : ::Nil
     info = ensure_slot(info)
 
     prev_info = @variables[name]?
@@ -115,13 +146,13 @@ class Magiika::Scope
     @variables[name] = info
   end
 
-  def replace(pairs : Hash(::String, AnyObject))
+  def replace(pairs : Hash(::String, Object))
     ::Nil
     pairs.each { |name, value| replace(name, value) }
   end
 
   # assign (define or replace) a value
-  def assign(name : ::String, info : AnyObject) : ::Nil
+  def assign(name : ::String, info : Object) : ::Nil
     info = ensure_slot(info)
 
     prev_info = @variables[name]?
@@ -138,7 +169,7 @@ class Magiika::Scope
     @variables[name] = info
   end
 
-  def assign(pairs : Hash(::String, AnyObject))
+  def assign(pairs : Hash(::String, Object))
     ::Nil
     pairs.each { |name, value| assign(name, value) }
   end
@@ -156,39 +187,75 @@ class Magiika::Scope
   # ✨ Retrieving values
   # ---
 
+  def retrieve_here?(name : ::String) : Object::Slot?
+    @variables[name]?
+  end
+
+  def retrieve_here(name : ::String) : Object::Slot?
+    if (slot = retrieve_here?(name)).nil?
+      raise UndefinedVariable.new(name, self)
+    else
+      slot
+    end
+  end
+
   def retrieve?(name : ::String) : Object::Slot?
-    @variables[name]? || @parent.try(&.retrieve?(name))
+    retrieve_here?(name) || @parent.try(&.retrieve?(name))
   end
 
   def retrieve(name : ::String) : Object::Slot
-    obj = retrieve?(name)
-    return obj unless obj.nil?
-    raise Error::UndefinedVariable.new(name, self)
+    if (slot = retrieve?(name)).nil?
+      raise Error::UndefinedVariable.new(name, self)
+    else
+      slot
+    end
+  end
+
+  def retrieve_type?(type : T.class) : Object::Slot? forall T
+    type_name = type.type_name
+    seek { |scope|
+      slot = scope.retrieve_here?(type_name)
+      next slot if !slot.nil? && slot.is_a?(T)
+    }
+  end
+
+  def retrieve_type(type : T.class) : Object::Slot forall T
+    if (slot = retrieve_type?(type)).nil?
+      raise Error::UndefinedVariable.new(type.type_name, self)
+    else
+      slot
+    end
+  end
+
+  def definition?(obj : T.class) : T? forall T
+    retrieve_type?(obj).try &slot.value.as(T?)
+  end
+
+  def definition(obj : T.class) : T forall T
+    retrieve_type(obj).value.as(T)
   end
 
   def retrieve_fn?(
     name : ::String,
     args : Array(Object::Argument),
     deep_analysis : ::Bool = false,
-  ) \
-     : {MatchResult, {Object::Function, Hash(::String, Object)}?}?
-      variable = retrieve?(name)
-      return nil unless variable.is_a?(Object::Function)
+  ) : {MatchResult, {Object::Function, Hash(::String, Object)}?}?
+    variable = retrieve?(name)
+    return nil unless variable.is_a?(Object::Function)
 
-      match_result, param_hash = variable.match_args(args, deep_analysis)
-      return deep_analysis ? {match_result, {variable, param_hash}} : ::Nil
-    end
+    match_result, param_hash = variable.match_args(args, deep_analysis)
+    return deep_analysis ? {match_result, {variable, param_hash}} : ::Nil
+  end
 
   def retrieve_fn(
     name : ::String,
     args : Array(Object::Argument),
     deep_analysis : ::Bool = false,
-  ) \
-     : {MatchResult, {Object::Function, Hash(::String, Object)}?}
-      fn = retrieve_fn?(name, args, deep_analysis)
-      return fn unless fn.nil?
-      raise Error::UndefinedVariable.new(name, self)
-    end
+  ) : {MatchResult, {Object::Function, Hash(::String, Object)}?}
+    fn = retrieve_fn?(name, args, deep_analysis)
+    return fn unless fn.nil?
+    raise Error::UndefinedVariable.new(name, self)
+  end
 
   # ✨ Iterate or locate
   # ---
@@ -205,12 +272,31 @@ class Magiika::Scope
     (parent = @parent).nil? ? false : parent.exist?(name)
   end
 
-  def seek(&block : Scope -> R) : R? forall R
-    if (result = block.call(self)).nil?
-      @parent.try(&.seek(&block))
-    else
-      result
+  private class ScopeIterator
+    include Iterator(Scope)
+
+    @scope : Scope?
+
+    def initialize(@scope : Scope)
     end
+
+    def next
+      scope = @scope
+      if scope.nil?
+        stop
+      else
+        @scope = scope.parent
+        scope
+      end
+    end
+  end
+
+  def seek(&block : Scope -> R) : R? forall R
+    ScopeIterator.new(self).each(&block)
+  end
+
+  def seek : Iterator(Scope)
+    ScopeIterator.new(self)
   end
 
   def each_slot(&block : (::String, Object::Slot) -> _) : ::Nil
@@ -221,7 +307,7 @@ class Magiika::Scope
     @parent.try(&.each_slot(&block))
   end
 
-  def surface_slots(type_filter : Set(AnyObject)?) : Hash(String, Object::Slot)
+  def surface_slots(type_filter : Set(Object)?) : Hash(String, Object::Slot)
     surface_slots = Hash(String, Object::Slot).new
     each_slot { |name, slot|
       surface_slots[name] = slot unless surface_slots.has_key?(name)
@@ -234,9 +320,5 @@ class Magiika::Scope
       type_filter.empty? || \
       type_filter.any? { |t| slot.value.is_of?(t) }
     }
-  end
-
-  def find_base_scope : Scope
-    (parent = @parent).nil? ? self : parent.find_base_scope
   end
 end

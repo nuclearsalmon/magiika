@@ -1,9 +1,13 @@
 module Magiika
-  class Object::String < PrimitiveObject
+  class Object::StrInstance < Instance
     protected getter value : ::String
 
-    def initialize(@value : ::String, position : Position? = nil)
-      super(position)
+    def initialize(
+      @value : ::String,
+      type : Object::Str,
+      position : Position? = nil
+    )
+      super(type, position)
     end
 
     def to_s_internal : ::String
@@ -13,5 +17,8 @@ module Magiika
     def eval_bool(scope : Scope) : ::Bool
       @value != ""
     end
+  end
+
+  class Object::Str < GenericType(Object::StrInstance)
   end
 end

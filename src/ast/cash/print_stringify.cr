@@ -6,10 +6,12 @@ module Magiika
       super(position)
     end
 
-    def eval(scope : Scope) : AnyObject
+    def eval(scope : Scope) : Object
       resolved_str = @stmt.eval(scope).to_s_internal
       print "✨ " + resolved_str + "\n"
-      Object::String.new(resolved_str)
+      
+      scope.definition(Magiika::Object::Str) \
+        .create_instance(resolved_str)
     end
   end
 end

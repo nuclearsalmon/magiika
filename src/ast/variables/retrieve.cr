@@ -12,7 +12,7 @@ module Magiika
     def eval(
       eval_scope : Scope,
       caller_scope : Scope? = nil,
-    ) : AnyObject
+    ) : Object
       caller_scope = eval_scope if caller_scope.nil?
 
       info = eval_scope.retrieve(@name)
@@ -31,7 +31,7 @@ module Magiika
     def caller_eval(
       eval_scope : Scope,
       caller_scope : Scope? = nil,
-    ) : AnyObject
+    ) : Object
       eval(eval_scope, caller_scope)
     end
 

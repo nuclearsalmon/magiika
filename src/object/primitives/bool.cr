@@ -1,13 +1,22 @@
-class Magiika::Object::Bool < Magiika::PrimitiveObject
-  def initialize(@value : ::Bool, position : Position? = nil)
-    super(position)
+module Magiika
+  class Object::BoolInstance < Instance
+    def initialize(
+      @value : ::Bool, 
+      type : Object::Bool,
+      position : Position? = nil
+    )
+      super(type, position)
+    end
+
+    def to_s_internal : ::String
+      return @value.to_s
+    end
+
+    def eval_bool(scope : Scope) : ::Bool
+      return @value
+    end
   end
 
-  def to_s_internal : ::String
-    return @value.to_s
-  end
-
-  def eval_bool(scope : Scope) : ::Bool
-    return @value
+  class Object::Bool < GenericType(Object::BoolInstance)
   end
 end

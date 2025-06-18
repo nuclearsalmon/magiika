@@ -1,40 +1,39 @@
 module Magiika
-  class Object::ClassInstance < Instance
+  class Object::ClassInstance < Magiika::Instance
     # note: don't run constructor in initialize,
     #  it shall be a separate function. this lets us initialize
     #  fields before calling the constructor, including in the parent class instance.
 
-    delegate name, to: @cls
-    delegate superclass, to: @cls
-    delegate type_name, to: @cls
-    delegate is_of?, to: @cls
+    delegate superclass, to: @type
+    delegate type_name, to: @type
+    delegate is_of?, to: @type
 
     getter extended_instance : self? = nil
 
-    def initialize(
-      @cls : Class,
+    protected def initialize(
+      type : Magiika::Object::Class,
       position : Position? = nil,
     )
-      super(cls: @cls, position: position)
+      super(type, position)
 
       # create instance of extended class
-      unless (extended_cls = @cls.extended_cls).nil?
+      unless (extended_cls = type.extended_cls).nil?
         @extended_instance = extended_cls.create_instance(position: position)
       end
 
       # Initialize instance scopes
-      @cls.instance_stmts.each { |stmt| stmt.eval(@scope) }
+      type.instance_stmts.each { |stmt| stmt.eval(@scope) }
     end
 
     def run_constructor(args : Array(Object::Argument), arg_scope : Scope) : ::Nil
       # retrieve constructor method
-      init_fn = @cls.scope.retrieve?("init")
+      init_fn = @type.static_scope.retrieve?("init")
 
       unless init_fn.nil?
-        Util.is_a!(init_fn, Object::Function)
+        Util.is_a!(init_fn, Object::FunctionInstance)
 
         # run constructor
-        init_fn = init_fn.as(Object::Function)
+        init_fn = init_fn.as(Object::FunctionInstance)
         init_fn.call_safe_raise(args, arg_scope)
       end
 
@@ -57,18 +56,18 @@ module Magiika
       self
     end
 
-    def []?(name : ::String) : AnyObject?
+    def []?(name : ::String) : Object?
       info = @scope.get?(name)
-      info = @cls.scope.get?(name) if info.nil?
+      info = @type.scope.get?(name) if info.nil?
       return info.as(Object::Slot).try(&.value)
     end
 
     def to_s_internal : ::String
-      "cls #{self.name}()"
+      "cls #{self.type_name}()"
     end
 
     def type_name : ::String
-      "Cls::#{self.name}()"
+      "Cls::#{self.type_name}()"
     end
   end
 end

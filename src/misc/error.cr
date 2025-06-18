@@ -110,8 +110,8 @@ module Magiika::Error
   # expected one type, got another
   class Type < Safe
     def initialize(
-        found_type : AnyObject,
-        expected_type : AnyObject,
+        found_type : Object,
+        expected_type : Object,
         message : ::String? = nil,
         position : Position? = nil)
       full_message = "Type error"
@@ -143,7 +143,7 @@ module Magiika::Error
   class UndefinedMethod < Safe
     def initialize(
         name : ::String,
-        target : AnyObject? = nil,
+        target : Object? = nil,
         position : Position? = nil)
       super(
         "UNDEFINED METHOD",

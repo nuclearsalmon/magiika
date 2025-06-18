@@ -8,7 +8,7 @@ module Magiika
       super(position)
     end
 
-    def eval(scope : Scope) : AnyObject
+    def eval(scope : Scope) : Object
       left = @left.eval(scope)
       right = @right.eval(scope)
 

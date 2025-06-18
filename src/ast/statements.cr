@@ -6,8 +6,8 @@ module Magiika
       super(position)
     end
 
-    def eval(scope : Scope) : AnyObject
-      result : AnyObject = Object::Nil.instance
+    def eval(scope : Scope) : Object
+      result : Object = scope.definition(Object::Nil)
       @statements.each { |stmt| result = stmt.eval(scope) }
       result
     end

@@ -20,11 +20,13 @@ module Magiika
         when Ast::ExtendsStmt
           extends_cls_name = stmt.as(Ast::ExtendsStmt).name
           extends_cls_tmp = defining_scope.retrieve(extends_cls_name).value
+          
+          cls_t = defining_scope.definition(Object::Class)
 
-          unless extends_cls_tmp.is_a?(Magiika::Object::Class)
+          unless extends_cls_tmp.is_of?(cls_t)
             raise Error::Type.new(
               extends_cls_tmp,
-              Magiika::Object::Class,
+              cls_t,
               "Cannot extend a non-class type. Extending an instance is also not allowed."
             )
           end
@@ -37,7 +39,7 @@ module Magiika
       ClassInfo.new(extends_cls)
     end
 
-    def eval(scope : Scope) : AnyObject
+    def eval(scope : Scope) : Object
       # process info statements
       cls_info = process_info_stmts(scope)
     

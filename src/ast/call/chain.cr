@@ -4,7 +4,7 @@ module Magiika
       super(position)
     end
 
-    private def extract_scope(obj : AnyObject) : Scope
+    private def extract_scope(obj : Object) : Scope
       if obj.responds_to?(:scope)
         obj.scope
       else
@@ -12,7 +12,7 @@ module Magiika
       end
     end
 
-    def eval(scope : Scope) : AnyObject
+    def eval(scope : Scope) : Object
       with_obj = @stmts[0].eval(scope)
       with_obj = Object::Slot.unpack(with_obj)
       with_scope = extract_scope(with_obj)

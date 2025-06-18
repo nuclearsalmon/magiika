@@ -16,14 +16,16 @@ module Magiika
       super(position)
     end
 
-    def eval(scope : Scope) : AnyObject
+    def eval(scope : Scope) : Object
       value = @value.eval(scope)
       type = @type.try(&.eval(scope))
 
       slot = Object::Slot.new(
         value: value,
-        type: type,
-        access: @access)
+        defining_scope: scope,
+        constrained_type: type,
+        access: @access,
+        position: @position)
 
       scope.define(@name, slot)
       return value

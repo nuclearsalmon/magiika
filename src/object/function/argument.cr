@@ -1,19 +1,21 @@
 module Magiika
   class Object::Argument < Object
-    getter value : AnyObject
+    getter value : Object
     getter name : ::String?
 
     def initialize(
-      @value : AnyObject,
+      @value : Object,
+      defining_scope : Scope,
       @name : ::String? = nil,
       position : Position? = nil
     )
-      super(position)
+      super(defining_scope: defining_scope, position: position)
     end
 
     def self.from(ast_argument : Ast::Argument, scope : Scope) : Object::Argument
       Object::Argument.new(
         value: ast_argument.value.eval(scope),
+        defining_scope: scope,
         name: ast_argument.name,
         position: ast_argument.position
       )

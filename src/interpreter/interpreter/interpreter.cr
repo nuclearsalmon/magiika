@@ -37,7 +37,7 @@ class Magiika::Interpreter
   def execute(
       instructions : ::String,
       scope : Scope,
-      filename : ::String? = nil) : AnyObject
+      filename : ::String? = nil) : Object
     # tokenize
     filename = filename.nil? ? scope.position.filename : filename
     tokens = tokenize(instructions, filename)
@@ -123,7 +123,7 @@ class Magiika::Interpreter
     create_signal_trap
 
     # create scope
-    scope = Scope::Global.new(Position.new)
+    scope = Scope::Global.new
 
     # print banner
     print \

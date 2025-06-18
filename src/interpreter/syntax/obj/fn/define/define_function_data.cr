@@ -3,26 +3,34 @@ module Magiika::Syntax
     group :function_parameter do
       rule :any_def, :ASSIGN, :cond do |context|
         name = context[:any_def][:NAME].token.value
-        _type_t = context[:any_def][:_TYPE]?.try(&.token)
-        _type = (_type_t.nil? ?
-          nil : Ast::Retrieve.new(_type_t.value, position: _type_t.position))
+
+        type_tok = context[:any_def][:_TYPE]?.try(&.token)
+        type = type_tok.try { |t| 
+          Ast::Retrieve.new(t.value, position: t.position)
+        }
 
         value = context[:cond].node
         position = context.first_position
 
-        node = Ast::Parameter.new(name, value, _type, position: position)
+        node = Ast::Parameter.new(name, value, type, position: position)
         context.become(node)
       end
 
       rule :any_def do |context|
         name = context[:NAME].token.value
-        _type_t = context[:_TYPE]?.try(&.token)
-        _type = (_type_t.nil? ?
-          nil : Ast::Retrieve.new(_type_t.value, position: _type_t.position))
+
+        type_tok = context[:any_def][:_TYPE]?.try(&.token)
+        type = type_tok.try { |t| 
+          Ast::Retrieve.new(t.value, position: t.position)
+        }
 
         position = context.first_position
 
-        node = Ast::Parameter.new(name, Object::Nil.instance, _type, position: position)
+        nil_type = Ast::LateNative.new(position) do |scope|
+          scope.definition(Object::Nil)          
+        end
+
+        node = Ast::Parameter.new(name, nil_type, type, position: position)
         context.become(node)
       end
     end

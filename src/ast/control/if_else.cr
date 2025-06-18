@@ -8,9 +8,9 @@ module Magiika
       super(position)
     end
 
-    def eval(scope : Scope) : AnyObject
+    def eval(scope : Scope) : Object
       target = @condition.eval_bool(scope) ? @on_true : @on_false
-      target.nil? ? Object::Nil.instance : target.eval(scope)
+      target.nil? ? scope.definition(Object::Nil) : target.eval(scope)
     end
   end
 end

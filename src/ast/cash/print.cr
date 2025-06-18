@@ -6,9 +6,9 @@ module Magiika
       super(position)
     end
 
-    def eval(scope : Scope) : AnyObject
+    def eval(scope : Scope) : Object
       print "✨ " + @stmt.eval(scope).to_s_internal + "\n"
-      Object::Nil.instance
+      scope.definition(Object::Nil)
     end
   end
 end
