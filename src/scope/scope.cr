@@ -214,7 +214,7 @@ class Magiika::Scope
   def retrieve_type?(type : T.class) : Object::Slot? forall T
     type_name = type.type_name
     seek { |scope|
-      slot = scope.retrieve_here?(type_name)
+      slot = scope.retrieve?(type_name)
       next slot if !slot.nil? && slot.is_a?(T)
     }
   end
@@ -222,6 +222,21 @@ class Magiika::Scope
   def retrieve_type(type : T.class) : Object::Slot forall T
     if (slot = retrieve_type?(type)).nil?
       raise Error::UndefinedVariable.new(type.type_name, self)
+    else
+      slot
+    end
+  end
+
+  def retrieve_type?(type_name : ::String) : Object::Slot?
+    seek { |scope|
+      slot = scope.retrieve?(type_name)
+      next slot if !slot.nil?
+    }
+  end
+
+  def retrieve_type(type_name : ::String) : Object::Slot
+    if (slot = retrieve_type?(type_name)).nil?
+      raise Error::UndefinedVariable.new(type_name, self)
     else
       slot
     end
@@ -307,7 +322,7 @@ class Magiika::Scope
     @parent.try(&.each_slot(&block))
   end
 
-  def surface_slots(type_filter : Set(Object)?) : Hash(String, Object::Slot)
+  def surface_slots(type_filter : Set(Object | Object.class)?) : Hash(String, Object::Slot)
     surface_slots = Hash(String, Object::Slot).new
     each_slot { |name, slot|
       surface_slots[name] = slot unless surface_slots.has_key?(name)

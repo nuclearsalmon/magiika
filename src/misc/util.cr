@@ -1,13 +1,20 @@
 module Magiika::Util
   include CrystalUtils
 
-  def obj_to_args!(obj : Object, args : Array(Object::Argument)) : Nil
-    # Note: Avoid doing this on Magiika::Object.class. It's fine on Magiika::Object.
-    unless obj.is_a?(Magiika::Object.class)
-      args << Object::Argument.new(obj, SELF_NAME)
-      args << Object::Argument.new(obj.class, THIS_NAME)
+  def obj_to_args!(
+    obj : Object, 
+    args : Array(Object::Argument),
+    scope : Scope
+  ) : Nil
+    case obj
+    when Instance
+      args << Object::Argument.new(
+        obj, scope, SELF_NAME)
+      args << Object::Argument.new(
+        obj.type, scope, THIS_NAME)
     else
-      args << Object::Argument.new(obj, THIS_NAME)
+      args << Object::Argument.new(
+        obj, scope, THIS_NAME)
     end
   end
 end

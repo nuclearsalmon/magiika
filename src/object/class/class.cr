@@ -48,7 +48,7 @@ module Magiika
 
       scopes = [@static_scope, simulated_inst_scope]
       scopes.each { |scope|
-        filter = Set(Object).new\
+        filter = Set(Object.class).new \
           .tap(&.add(Object::AbstractFunction))
         slots = scope.surface_slots(filter)
         name = slots.first_key?

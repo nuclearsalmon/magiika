@@ -15,12 +15,12 @@ module Magiika
       if (obj_oper = obj.scope.retrieve?(extended_oper).try(&.value)).nil?
         raise Error::UndefinedMethod.new(extended_oper, obj, position?)
       else
-        if obj_oper.is_a?(Object::Function)
+        if obj_oper.is_a?(Object::FunctionInstance)
           args = [] of Object::Argument
 
-          Util.obj_to_args!(obj, args)
+          Util.obj_to_args!(obj, args, scope)
 
-          return obj_oper.as(Object::Function).call_safe_raise(args, scope)
+          return obj_oper.as(Object::FunctionInstance).call_safe_raise(args, scope)
         else
           return obj_oper
         end

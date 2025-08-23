@@ -3,14 +3,14 @@ module Magiika
     getter? static : ::Bool
     @name : ::String
     @value : Ast
-    @type : Ast?
+    @type : LateType?
     @access : Access
 
     def initialize(
         @static : ::Bool,
         @name : ::String,
         @value : Ast,
-        @type : Ast? = nil,
+        @type : LateType? = nil,
         @access : Access = Access::Public,
         position : Position? = nil)
       super(position)

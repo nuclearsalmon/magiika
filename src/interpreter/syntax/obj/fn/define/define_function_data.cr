@@ -6,13 +6,13 @@ module Magiika::Syntax
 
         type_tok = context[:any_def][:_TYPE]?.try(&.token)
         type = type_tok.try { |t| 
-          Ast::Retrieve.new(t.value, position: t.position)
+          Ast::LateType.new(t.value, t.position)
         }
 
         value = context[:cond].node
         position = context.first_position
 
-        node = Ast::Parameter.new(name, value, type, position: position)
+        node = Ast::Parameter.new(name, type, value, position: position)
         context.become(node)
       end
 
@@ -21,16 +21,12 @@ module Magiika::Syntax
 
         type_tok = context[:any_def][:_TYPE]?.try(&.token)
         type = type_tok.try { |t| 
-          Ast::Retrieve.new(t.value, position: t.position)
+          Ast::LateType.new(t.value, t.position)
         }
 
         position = context.first_position
 
-        nil_type = Ast::LateNative.new(position) do |scope|
-          scope.definition(Object::Nil)          
-        end
-
-        node = Ast::Parameter.new(name, nil_type, type, position: position)
+        node = Ast::Parameter.new(name, type, position: position)
         context.become(node)
       end
     end

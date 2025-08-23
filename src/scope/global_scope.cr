@@ -27,7 +27,7 @@ class Magiika::Scope::Global < Magiika::Scope
 
     # defer to Scope
     super(
-      name: "global",
+      name: SCOPE_NAME,
       position: position,
       parent: nil,
       variables: variables)
@@ -39,14 +39,14 @@ class Magiika::Scope::Global < Magiika::Scope
   private def def_toplevel : ::Nil
     # primitives
     #type_sources : Tuple(Type) = {
-    types : Tuple(Type) = {
+    types : Enumerable(Type) = {
       Object::Bool.new(self),
-      #Object::Flt,
-      #Object::List,
-      #Object::Nil,
-      #Object::Str,
-      #Object::Function
-    }
+      #Object::Flt.new(self),
+      #Object::List.new(self),
+      #Object::Nil.new(self),
+      #Object::Str.new(self),
+      Object::Function.new(self)
+    }.as(Enumerable(Type))
 
     # preliminary initialization of types
     #types : Enumerable(Type) = type_sources.map { |type|

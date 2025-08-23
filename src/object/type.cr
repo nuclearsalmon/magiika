@@ -20,6 +20,10 @@ module Magiika
     protected getter instance_base_scope : Scope  # base for scope of instance
     getter superclass : Type? = nil
 
+    def scope : Scope
+      @static_scope
+    end
+
     def initialize(
       defining_scope : Scope, 
       superclass : Type? = nil,

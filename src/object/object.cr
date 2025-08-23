@@ -24,6 +24,10 @@ module Magiika
 
     getter defining_scope : Scope
 
+    def scope : Scope
+      Scope.new(type_name)  # FIXME: Properly implement this
+    end
+
     def initialize(
       @defining_scope : Scope,
       @position : Position? = nil)

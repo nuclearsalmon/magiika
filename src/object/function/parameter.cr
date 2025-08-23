@@ -1,7 +1,7 @@
 module Magiika
   class Object::Parameter < Object
     getter name : ::String
-    getter type : Object?
+    getter type : Type?
     getter default_value : Object?
 
     def initialize(
@@ -16,9 +16,11 @@ module Magiika
 
     def self.from(ast_parameter : Ast::Parameter, scope : Scope) : Object::Parameter
       Object::Parameter.new(
+        defining_scope: scope,
         name: ast_parameter.name,
         type: ast_parameter.type.try(&.eval(scope)),
-        default_value: ast_parameter.default_value.try(&.eval(scope)),
+        default_value: ast_parameter.default_value \
+          .try(&.eval(scope)),
         position: ast_parameter.position
       )
     end

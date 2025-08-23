@@ -93,7 +93,7 @@ class Magiika::Interpreter
     create_signal_trap
 
     # create scope
-    scope = Scope::Global.new(Position.new(file_path))
+    scope = Scope::Global.new(position: Position.new(file_path))
 
     # read file contents
     file_contents = File.read(file_path)

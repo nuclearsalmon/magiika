@@ -4,7 +4,7 @@ module Magiika
     getter name : ::String
     getter parameters : Array(Ast::Parameter)
     getter statements : Array(Ast)?
-    getter returns : Ast?
+    getter returns : LateType?
     getter access : Access
     
     def abstract? : ::Bool
@@ -16,7 +16,7 @@ module Magiika
         @name : ::String,
         @parameters : Array(Ast::Parameter),
         @statements : Array(Ast)? = nil,
-        @returns : Ast? = nil,
+        @returns : LateType? = nil,
         @access : Access = Access::Public,
         position : Position? = nil)
       super(position)
@@ -47,8 +47,9 @@ module Magiika
 
       slot = Object::Slot.new(
         value: function,
+        defining_scope: scope,
         final: true,
-        type: function,
+        constrained_type: function.type,
         access: @access)
 
       scope.define(@name, slot)

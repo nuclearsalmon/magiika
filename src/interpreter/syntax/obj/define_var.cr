@@ -16,7 +16,9 @@ module Magiika::Syntax
       static : ::Bool,
       access : Access = Access::Public)
     type_t = context[:any_def][:_TYPE]?.try(&.token)
-    type = type_t.nil? ? nil : Ast::Retrieve.new(type_t.value, type_t.position)
+    type = type_t.try { |t| 
+      Ast::LateType.new(t.value, t.position)
+    }
 
     name_t = context[:any_def][:NAME].token
     name = name_t.value

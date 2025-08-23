@@ -1,5 +1,5 @@
 module Magiika
-  class Object::RuntimeFunction < Object::Function
+  class Object::RuntimeFunction < Object::FunctionInstance
     @statements : Array(Ast)
 
     def initialize(
@@ -12,7 +12,9 @@ module Magiika
     protected def method_eval(
       method_scope : Scope
     ) : Object
-      result : Object = Object::Nil.instance
+      result : Object = \
+        method_scope.retrieve_type(Object::Nil) \
+        .instance
       @statements.each { |stmt|
         result = stmt.eval(method_scope)
       }
