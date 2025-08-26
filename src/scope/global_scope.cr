@@ -40,12 +40,12 @@ class Magiika::Scope::Global < Magiika::Scope
     # primitives
     #type_sources : Tuple(Type) = {
     types : Enumerable(Type) = {
+      Object::Function.new(self),
       Object::Bool.new(self),
       #Object::Flt.new(self),
       #Object::List.new(self),
       #Object::Nil.new(self),
       #Object::Str.new(self),
-      Object::Function.new(self)
     }.as(Enumerable(Type))
 
     # preliminary initialization of types

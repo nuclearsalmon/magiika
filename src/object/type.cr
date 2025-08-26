@@ -92,9 +92,10 @@ module Magiika
       # create slot
       slot = Slot.new(
         value: method,
+        defining_scope: @defining_scope,
         final: !Magiika::ALLOW_MONKEY_PATCHING,
         access: access,
-        constrained_type: defining_scope.retrieve_type(Function))
+        constrained_type: defining_scope.definition(Function))
 
       # define in scope
       target_scope = static ? @static_scope : @instance_base_scope

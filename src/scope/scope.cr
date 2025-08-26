@@ -215,7 +215,9 @@ class Magiika::Scope
     type_name = type.type_name
     seek { |scope|
       slot = scope.retrieve?(type_name)
-      next slot if !slot.nil? && slot.is_a?(T)
+      if !slot.nil? && slot.value.is_of?(T)
+        next slot
+      end
     }
   end
 
@@ -248,6 +250,14 @@ class Magiika::Scope
 
   def definition(obj : T.class) : T forall T
     retrieve_type(obj).value.as(T)
+  end
+
+  def definition?(type_name : ::String) : Type?
+    retrieve_type?(type_name).try &slot.value.as(Type?)
+  end
+
+  def definition(type_name : ::String) : Type
+    retrieve_type(type_name).value.as(Type)
   end
 
   def retrieve_fn?(
@@ -307,7 +317,10 @@ class Magiika::Scope
   end
 
   def seek(&block : Scope -> R) : R? forall R
-    ScopeIterator.new(self).each(&block)
+    ScopeIterator.new(self).each { |scope|
+      r = block.call(scope)
+      return r unless r.nil?
+    }
   end
 
   def seek : Iterator(Scope)

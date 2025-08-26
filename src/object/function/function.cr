@@ -11,7 +11,7 @@ class Magiika::Object
       @returns : Object? = nil,
       position : Position? = nil
     )
-      type = defining_scope.retrieve_type(Function)
+      type = defining_scope.definition(Function)
       super(type, position)
 
       # Check that the name starts with a lowercase character
