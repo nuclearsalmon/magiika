@@ -20,14 +20,11 @@ module Magiika
         when Ast::ExtendsStmt
           extends_cls_name = stmt.as(Ast::ExtendsStmt).name
           extends_cls_tmp = defining_scope.retrieve(extends_cls_name).value
-          
-          cls_t = defining_scope.definition(Object::Class)
 
-          unless extends_cls_tmp.is_of?(cls_t)
-            raise Error::Type.new(
-              extends_cls_tmp,
-              cls_t,
-              "Cannot extend a non-class type. Extending an instance is also not allowed."
+          unless extends_cls_tmp.is_a?(Object::Class)
+            raise Error::Lazy.new(
+              "Cannot extend a non-class type. Extending an instance is also not allowed.",
+              nil
             )
           end
           extends_cls = extends_cls_tmp.as(Magiika::Object::Class)

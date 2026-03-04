@@ -1,9 +1,8 @@
 class Magiika::Typing
-  alias TypeID = Int32  # alias to allow for some future flexibility
+  alias TypeID = UInt16  # alias to allow for some future flexibility
+  private INC_TYPE_ID = 1u16.as(TypeID)
 
-  private START_TYPE_ID = 0i32.as(TypeID)
-  private INC_TYPE_ID = 1i32.as(TypeID)
-  @@next_type_id : TypeID = START_TYPE_ID.as(TypeID)
+  @@next_type_id : TypeID = TypeID::MIN
 
   private IDS_IN_USE = Set(TypeID).new
   private FREE_IDS = Deque(TypeID).new
@@ -23,7 +22,7 @@ class Magiika::Typing
         return id
       end
 
-      id = START_TYPE_ID
+      id = TypeID::MIN
       while IDS_IN_USE.includes?(id)
         if id == TypeID::MAX
           raise Error::Internal.new("Type ID space exhausted")

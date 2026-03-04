@@ -49,6 +49,10 @@ module Magiika
       **kwargs
     ) : Instance
 
+    protected def set_instance_base_scope_parent(parent : Scope?) : ::Nil
+      @instance_base_scope.parent = parent
+    end
+
     def complete_definition
       define_mutex = @define_mutex
       raise "Attempted to define twice" if define_mutex.nil?

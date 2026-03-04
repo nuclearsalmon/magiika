@@ -22,12 +22,9 @@ module Magiika
   end
 
   class Object::Flt < GenericType(Object::FltInstance)
-    def initialize(*args, **kwargs)
-      super(*args, **kwargs)
-      def_natives()
-    end
-
-    private def def_natives : ::Nil
+    def define : ::Nil
+      super
+      
       def_native(
         name: "_+",
         returns: self
@@ -44,7 +41,16 @@ module Magiika
 
       def_native(
         name: "+",
-        parameters: [Object::Parameter.new("other", NUMBER_UNION)],
+        parameters: [
+          Object::Parameter.new(
+            scope,
+            "other", 
+            defining_scope.union(
+              scope.position,
+              *NUMBER_TYPES
+            )
+          )
+        ],
         returns: self
       ) do |scope|
         self_value = scope.retrieve(SELF_NAME).value.as(Object::FltInstance).value.to_f32
@@ -55,7 +61,16 @@ module Magiika
 
       def_native(
         name: "-",
-        parameters: [Object::Parameter.new("other", NUMBER_UNION)],
+        parameters: [
+          Object::Parameter.new(
+            scope,
+            "other", 
+            defining_scope.union(
+              scope.position,
+              *NUMBER_TYPES
+            )
+          )
+        ],
         returns: self
       ) do |scope|
         self_value = scope.retrieve(SELF_NAME).value.as(Object::FltInstance).value.to_f32
@@ -66,7 +81,16 @@ module Magiika
 
       def_native(
         name: "*",
-        parameters: [Object::Parameter.new("other", NUMBER_UNION)],
+        parameters: [
+          Object::Parameter.new(
+            scope,
+            "other", 
+            defining_scope.union(
+              scope.position,
+              *NUMBER_TYPES
+            )
+          )
+        ],
         returns: self
       ) do |scope|
         self_value = scope.retrieve(SELF_NAME).value.as(Object::FltInstance).value.to_f32
@@ -77,7 +101,16 @@ module Magiika
 
       def_native(
         name: "/",
-        parameters: [Object::Parameter.new("other", NUMBER_UNION)],
+        parameters: [
+          Object::Parameter.new(
+            scope,
+            "other", 
+            defining_scope.union(
+              scope.position,
+              *NUMBER_TYPES
+            )
+          )
+        ],
         returns: self
       ) do |scope|
         self_value = scope.retrieve(SELF_NAME).value.as(Object::FltInstance).value.to_f32

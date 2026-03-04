@@ -6,9 +6,12 @@ module Magiika::Syntax
       inherited_ignore :COMMENT
       inherited_ignore :SPACE
       inherited_ignore :LINE_CONT
+      ignore_trailing :SPACE
+      inherited_ignore_trailing :COMMENT
       inherited_ignore_trailing :NEWLINE
       inherited_ignore_trailing :INLINE_NEWLINE
       inherited_ignore_trailing :LINE_CONT
+
 
       rule :stmts do |context|
         context.flatten
@@ -32,6 +35,9 @@ module Magiika::Syntax
 
       rule :assign
       rule :cash_stmt
+    
+      rule :chain
+      rule :chain_stmt
 
       rule :cond
     end
@@ -39,6 +45,7 @@ module Magiika::Syntax
     group :stmts do
       ignore :NEWLINE
       ignore :INLINE_NEWLINE
+      ignore_trailing :SPACE
 
       rule :stmts, :stmt do |context|
         context.absorb(:stmts)

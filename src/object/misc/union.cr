@@ -4,16 +4,20 @@ module Magiika
 
     def initialize(
       @types : Set(Type),
+      defining_scope : Scope, 
+      superclass : Type? = nil,
       position : Position? = nil
     )
-      super(position)
+      super(defining_scope, superclass, position)
     end
 
     def initialize(
       *types : Type,
+      defining_scope : Scope,
+      superclass : Type? = nil,
       position : Position? = nil
     )
-      super(position)
+      super(defining_scope, superclass, position)
       @types = Set(Type).new(types)
     end
 

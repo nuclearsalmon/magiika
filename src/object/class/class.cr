@@ -25,7 +25,7 @@ module Magiika
       end
 
       @static_scope, local_scope = create_static_scope
-      #@scope.define(THIS_NAME, self)
+      set_instance_base_scope_parent(@defining_scope)
       init_statements(statements, local_scope)
       check_no_abstracts unless is_abstract?
     end
@@ -35,6 +35,10 @@ module Magiika
       position : Position? = nil,
       **kwargs
     ) : ClassInstance
+      if is_abstract?
+        raise Error::Lazy.new("Cannot instantiate abstract class `#{@name}`.")
+      end
+      
       ClassInstance.new(
         type: self,
         position: position
@@ -42,9 +46,9 @@ module Magiika
     end
 
     private def check_no_abstracts : ::Nil
-      # build simulated instance scope
-      simulated_inst_scope = create_instance().scope
-      @instance_stmts.each { |stmt| stmt.eval(simulated_inst_scope) }
+      # build simulated instance scope (instance_stmts already eval'd in ClassInstance#initialize)
+      inst = create_instance()
+      simulated_inst_scope = inst.scope
 
       scopes = [@static_scope, simulated_inst_scope]
       scopes.each { |scope|
@@ -69,13 +73,13 @@ module Magiika
           end
           if stmt.static?
             stmt.eval(local_scope)
+            next
           end
-          next
         when Ast::DefineVariable
           if stmt.static?
             stmt.eval(local_scope)
+            next
           end
-          next
         when Ast::DefineClass
           stmt.eval(local_scope)
           next
@@ -91,17 +95,28 @@ module Magiika
 
       if (extends_cls = @extended_cls).nil?
         static_scope = Scope.new(@name, @position)
-
-        immediate_defining_scope = @defining_scope.dup(parent: nil)
-        local_static_scope = static_scope.dup(parent: immediate_defining_scope)
       else
         extends_static_scope = extends_cls.static_scope
         static_scope = Scope.new(@name, @position, extends_static_scope)
 
+        static_scope.define("superclass", extends_cls)
+      end
+
+      # Define 'this' as the class itself in the static scope
+      static_scope.define(THIS_NAME, Object::Slot.new(
+        value: self,
+        defining_scope: static_scope,
+        final: true
+      ))
+
+      # Now create local_static_scope with 'this' already defined
+      if (extends_cls = @extended_cls).nil?
+        immediate_defining_scope = @defining_scope.dup(parent: nil)
+        local_static_scope = static_scope.dup(parent: immediate_defining_scope)
+      else
+        extends_static_scope = extends_cls.static_scope
         injected_defining_scope = @defining_scope.dup(parent: extends_static_scope)
         local_static_scope = static_scope.dup(parent: injected_defining_scope)
-
-        static_scope.define("superclass", extends_cls)
       end
 
       return {static_scope, local_static_scope}
@@ -119,13 +134,18 @@ module Magiika
         position: position)
 
       injected_defining_scope = @defining_scope.dup(parent: parent_instance_scope)
-      local_instance_scope = instance_scope.dup(parent: injected_defining_scope)
-
-      #instance_scope.define(THIS_NAME, self)
+      local_instance_scope = instance_scope
+      
+      # Define 'self' as the instance in the instance scope
+      instance_scope.define(SELF_NAME, Object::Slot.new(
+        value: instance,
+        defining_scope: instance_scope,
+        final: true
+      ))
+      
       if (extended_cls = @extended_cls)
         instance_scope.define("superclass", extended_cls)
       end
-      #instance_scope.define(SELF_NAME, instance)
 
       return {instance_scope, local_instance_scope}
     end
@@ -139,7 +159,7 @@ module Magiika
     end
 
     def type_name : ::String
-      "Class::#{@name}"
+      "#{@name}"
     end
 
     def superclass : Object::Class?

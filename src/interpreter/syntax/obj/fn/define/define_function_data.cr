@@ -19,7 +19,7 @@ module Magiika::Syntax
       rule :any_def do |context|
         name = context[:NAME].token.value
 
-        type_tok = context[:any_def][:_TYPE]?.try(&.token)
+        type_tok = context[:_TYPE]?.try(&.token)
         type = type_tok.try { |t| 
           Ast::LateType.new(t.value, t.position)
         }
@@ -70,8 +70,8 @@ module Magiika::Syntax
         pos = name_t.position
         name = name_t.value
 
-        retrieve = Ast::Retrieve.new(name, pos)
-        context.become(retrieve)
+        late_type = Ast::LateType.new(name, pos)
+        context.become(late_type)
       end
     end
 

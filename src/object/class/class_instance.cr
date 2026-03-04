@@ -33,8 +33,8 @@ module Magiika
         Util.is_a!(init_fn, Object::FunctionInstance)
 
         # run constructor
-        init_fn = init_fn.as(Object::FunctionInstance)
-        init_fn.call_safe_raise(args, arg_scope)
+        init_fn.as(Object::FunctionInstance) \
+          .call_safe_raise(args, arg_scope)
       end
 
       # check that all fields are initialized
@@ -44,7 +44,9 @@ module Magiika
     private def check_all_initialized : ::Nil
       @scope.seek { |scope|
         scope.each_slot { |name, slot|
-          if !slot.nilable? && slot.value.is_a?(Object::Nil)
+          # Only flag uninitialized Instance of type Nil, not the Nil type itself
+          val = slot.value
+          if !slot.nilable? && val.is_a?(Instance) && val.type == Object::Nil
             raise Error::Lazy.new("`#{name}` was not initialized in `#{scope.name}`.")
           end
         }
@@ -63,11 +65,11 @@ module Magiika
     end
 
     def to_s_internal : ::String
-      "cls #{self.type_name}()"
+      "cls #{self.type_name}"
     end
 
     def type_name : ::String
-      "Cls::#{self.type_name}()"
+      "#{@type.type_name}"
     end
   end
 end

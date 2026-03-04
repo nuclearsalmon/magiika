@@ -12,7 +12,7 @@ module Magiika
     protected def method_eval(
       method_scope : Scope
     ) : Object
-      result : Object = method_scope.definition(Object::Nil).instance
+      result : Object = method_scope.definition(Object::Nil).create_instance
       @statements.each { |stmt|
         result = stmt.eval(method_scope)
       }

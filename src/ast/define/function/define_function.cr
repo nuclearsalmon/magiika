@@ -26,7 +26,12 @@ module Magiika
       parameters : Array(Object::Parameter) = @parameters.map { |ast_parameter|
         Object::Parameter.from(ast_parameter, scope)
       }
-      returns = @returns.try(&.eval(scope))
+      returns = @returns.try { |r|
+        next nil unless r.is_a?(Ast::LateType)
+        tn = r.type_name
+        next nil if tn.bytesize == 0
+        scope.definition?(tn)
+      }
 
       if (statements = @statements).nil?
         function = Object::AbstractFunction.new(

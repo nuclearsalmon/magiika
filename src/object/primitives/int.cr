@@ -22,12 +22,9 @@ module Magiika
   end
 
   class Object::Int < GenericType(Object::IntInstance)
-    def initialize(*args, **kwargs)
-      super(*args, **kwargs)
-      def_natives()
-    end
+    def define : ::Nil
+      super
 
-    private def def_natives : ::Nil
       def_native(
         name: "_+",
         returns: self
@@ -44,7 +41,16 @@ module Magiika
 
       def_native(
         name: "+",
-        parameters: [Object::Parameter.new("other", NUMBER_UNION)],
+        parameters: [
+          Object::Parameter.new(
+            scope,
+            "other", 
+            defining_scope.union(
+              scope.position,
+              *NUMBER_TYPES
+            )
+          )
+        ],
         returns: self
       ) do |scope|
         self_value = scope.retrieve(SELF_NAME).value.as(Object::IntInstance).value.to_i32
@@ -55,7 +61,16 @@ module Magiika
 
       def_native(
         name: "-",
-        parameters: [Object::Parameter.new("other", NUMBER_UNION)],
+        parameters: [
+          Object::Parameter.new(
+            scope,
+            "other", 
+            defining_scope.union(
+              scope.position,
+              *NUMBER_TYPES
+            )
+          )
+        ],
         returns: self
       ) do |scope|
         self_value = scope.retrieve(SELF_NAME).value.as(Object::IntInstance).value.to_i32
@@ -66,24 +81,42 @@ module Magiika
 
       def_native(
         name: "*",
-        parameters: [Object::Parameter.new("other", NUMBER_UNION)],
+        parameters: [
+          Object::Parameter.new(
+            scope,
+            "other", 
+            defining_scope.union(
+              scope.position,
+              *NUMBER_TYPES
+            )
+          )
+        ],
         returns: self
       ) do |scope|
         self_value = scope.retrieve(SELF_NAME).value.as(Object::IntInstance).value.to_i32
         other_value = scope.retrieve("other").value.as(Psuedo::Number).value.to_i32
         result = self_value * other_value
-        create_instance(result)
+        create_instance(result.to_i32)
       end
 
       def_native(
         name: "/",
-        parameters: [Object::Parameter.new("other", NUMBER_UNION)],
+        parameters: [
+          Object::Parameter.new(
+            scope,
+            "other", 
+            defining_scope.union(
+              scope.position,
+              *NUMBER_TYPES
+            )
+          )
+        ],
         returns: self
       ) do |scope|
         self_value = scope.retrieve(SELF_NAME).value.as(Object::IntInstance).value.to_i32
         other_value = scope.retrieve("other").value.as(Psuedo::Number).value.to_i32
         result = self_value / other_value
-        create_instance(result)
+        create_instance(result.to_i32)
       end
     end
   end

@@ -3,6 +3,7 @@ class Magiika::Object
     getter name : ::String
     getter parameters : Array(Parameter)
     getter returns : Object?
+    getter function_defining_scope : Scope
 
     def initialize(
       defining_scope : Scope,
@@ -11,6 +12,7 @@ class Magiika::Object
       @returns : Object? = nil,
       position : Position? = nil
     )
+      @function_defining_scope = defining_scope
       type = defining_scope.definition(Function)
       super(type, position)
 
@@ -119,8 +121,8 @@ class Magiika::Object
     def call(args : Hash(::String, Object)) : Object
       Scope.use(
         name: @name,
-        parent: @defining_scope, # may be nil
-        position: position      ) do |method_scope|
+        parent: @function_defining_scope,
+        position: position) do |method_scope|
         # inject args into scope
         args.each { |key, value|
           method_scope.define(key, value)
@@ -150,7 +152,7 @@ class Magiika::Object
     def call_safe_raise(
       args : Array(Argument),
       arg_scope : Scope,
-      deep_analysis : ::Bool = false
+      deep_analysis : ::Bool = false,
     ) : Object
       result = call_safe(args, arg_scope, deep_analysis)
 

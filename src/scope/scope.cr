@@ -3,24 +3,31 @@ class Magiika::Scope
   getter? position : Position?
   protected getter variables : Hash(::String, Object::Slot)
   protected getter parent : Scope?
+  def parent=(p : Scope?) : Scope?
+    @parent = p
+  end
 
   @cached_root_scope : Scope?
   @cached_root_scope_mutex : Mutex = Mutex.new
 
   def root_scope : Scope
-    @cached_root_scope_mutex.synchronize {
-      @cached_root_scope || update_cached_root_scope
-    }
+    @cached_root_scope_mutex.synchronize do
+      if (cached = @cached_root_scope).nil?
+        root = self
+        until root.parent.try { |s| root = s }.nil?; end
+        @cached_root_scope = root
+      end
+      @cached_root_scope.not_nil!
+    end
   end
 
   def update_cached_root_scope : Scope
-    @cached_root_scope_mutex.synchronize {
-      root_scope = self
-      until root_scope.parent.try { |scope|
-        root_scope = scope
-      }.nil?; end
-      @root_scope = root_scope
-    }
+    @cached_root_scope_mutex.synchronize do
+      root = self
+      until root.parent.try { |s| root = s }.nil?; end
+      @cached_root_scope = root
+      root
+    end
   end
 
   def position : Position
@@ -115,7 +122,7 @@ class Magiika::Scope
     info = ensure_slot(info)
 
     if @variables.has_key?(name)
-      raise Error::Internal.new("Variable already exists: '#{@name}'")
+      raise Error::Internal.new("Variable already exists: '#{name}' in scope '#{@name}'")
     else
       @variables[name] = info
     end
@@ -245,7 +252,7 @@ class Magiika::Scope
   end
 
   def definition?(obj : T.class) : T? forall T
-    retrieve_type?(obj).try &slot.value.as(T?)
+    retrieve_type?(obj).try(&.value).as(T?)
   end
 
   def definition(obj : T.class) : T forall T
@@ -253,11 +260,27 @@ class Magiika::Scope
   end
 
   def definition?(type_name : ::String) : Type?
-    retrieve_type?(type_name).try &slot.value.as(Type?)
+    retrieve_type?(type_name).try(&.value).as(Type?)
   end
 
   def definition(type_name : ::String) : Type
     retrieve_type(type_name).value.as(Type)
+  end
+
+  def union(*types : Type.class) : Object::Union
+    definitions = types.map { |type| definition(type) }
+    Object::Union.new(
+      *definitions,
+      defining_scope: self, 
+      position: self.position)
+  end
+
+  def union(position : Position, *types : Type.class) : Object::Union
+    definitions = types.map { |type| definition(type) }
+    Object::Union.new(
+      *definitions,
+      defining_scope: self, 
+      position: position)
   end
 
   def retrieve_fn?(

@@ -45,5 +45,24 @@ module Magiika
     def eval(scope : Scope) : Object
       @value
     end
+
+    def to_s_internal
+      String.build { |str|
+        str << @value.to_s_internal
+        
+        opt_props = Deque(String).new(initial_capacity: 4)  # NOTE: Sync to nr. of possible props below
+        opt_props << @access.to_s.downcase unless @access.public?
+        opt_props << "final" if @final
+        opt_props << "nilable" if @type_constraint.nilable?
+        type_s = type_constraint.constrained_type.try { |x| "#{x.to_s_internal}" }
+        opt_props << type_s unless type_s.nil?
+        
+        unless opt_props.empty?
+          str << " ["
+          str << opt_props.join(" ") 
+          str << "]"
+        end
+      }
+    end
   end
 end

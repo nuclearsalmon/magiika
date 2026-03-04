@@ -42,19 +42,12 @@ class Magiika::Scope::Global < Magiika::Scope
     types : Enumerable(Type) = {
       Object::Function.new(self),
       Object::Bool.new(self),
-      #Object::Flt.new(self),
-      #Object::List.new(self),
-      #Object::Nil.new(self),
-      #Object::Str.new(self),
+      Object::Flt.new(self),
+      Object::Int.new(self),
+      Object::List.new(self),
+      Object::Nil.new(self),
+      Object::Str.new(self),
     }.as(Enumerable(Type))
-
-    # preliminary initialization of types
-    #types : Enumerable(Type) = type_sources.map { |type|
-    #  type.as(Type.class).new(
-    #    global_scope: self.as(Scope::Global),
-    #    position: nil.as(Position?)
-    #  )
-    #}
 
     # place in global scope
     define(types.to_h { |type| {type.type_name, type} })

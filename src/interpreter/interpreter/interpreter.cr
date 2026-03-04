@@ -23,8 +23,7 @@ class Magiika::Interpreter
     tokens
   end
 
-  def parse(
-      tokens : Array(Merlin::MatchedToken(Symbol))) : Ast
+  def parse(tokens : Array(Merlin::MatchedToken(Symbol))) : Ast
     parsed_result = @parser.parse(tokens)
     if @show_ast
       token_msg = "Abstract syntax tree:\n   "

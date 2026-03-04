@@ -38,15 +38,11 @@ module Magiika
     end
     
     # NOTE: extend is_of module with magiika-specific error handling
-    def self.is_of!(other : Magiika::Object, message : ::String? = nil) : ::Bool
-      return true if self.is_of?(other)
-      raise Error::Type.new(self, other, message)
-    end
-
-    # NOTE: extend is_of module with magiika-specific error handling
     def is_of!(other : Magiika::Object, message : ::String? = nil) : ::Bool
-      return true if self.is_of?(other)
-      raise Error::Type.new(self, other, message)
+      self_type : Type = self.is_a?(Instance) ? self.type : self.as(Type)
+
+      return true if self_type.is_of?(other)
+      raise Error::Type.new(self_type, other, message)
     end
 
     def self.type_name : ::String
