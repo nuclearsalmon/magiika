@@ -11,6 +11,10 @@ class Magiika::Interpreter
   property show_ast : ::Bool = false
   property show_logs : ::Bool = false
 
+  def debugger : Merlin::Debugger(Symbol, Ast)
+    @parser.debugger
+  end
+
   def tokenize(
       instructions : ::String,
       filename : ::String? = nil) : Array(Merlin::MatchedToken(Symbol))
