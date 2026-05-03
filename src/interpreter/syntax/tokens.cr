@@ -24,18 +24,23 @@ module Magiika::Syntax
     #token :STR_T, /str/
     #token :NIL_T, /nil/
     #token :LIST_T, /list/
-    token :FN_T, /fn/
-    token :CLS_T, /cls/
+    token :FN_T, /fn(?![A-Za-z0-9_])/
+    token :CLS_T, /cls(?![A-Za-z0-9_])/
 
-    token :IF, /if/
-    token :ELSIF, /elsif/
-    token :ELSE, /else/
+    token :IF, /if(?![A-Za-z0-9_])/
+    token :ELSIF, /elsif(?![A-Za-z0-9_])/
+    token :ELSE, /else(?![A-Za-z0-9_])/
+    token :WHILE, /while(?![A-Za-z0-9_])/
+    token :FOR, /for(?![A-Za-z0-9_])/
+    token :IN, /in(?![A-Za-z0-9_])/
+    token :BREAK, /break(?![A-Za-z0-9_])/
+    token :NEXT, /next(?![A-Za-z0-9_])/
 
-    token :BOOL, /(?>true|false)/
+    token :BOOL, /(?>true|false)(?![A-Za-z0-9_])/
 
-    token :ACCESS, /(?>prot|priv)/
-    token :EXTENDS, /extends/
-    token :ABSTRACT, /abstract/
+    token :ACCESS, /(?>prot|priv)(?![A-Za-z0-9_])/
+    token :EXTENDS, /extends(?![A-Za-z0-9_])/
+    token :ABSTRACT, /abstract(?![A-Za-z0-9_])/
 
 
     # multi-character operators and tokens
@@ -48,15 +53,15 @@ module Magiika::Syntax
     token :ASSIGN_POW, /\*\*=/
     token :ASSIGN_PIPE, /\|=/
 
-    token :OR, /\|\||or/
-    token :AND, /&&|and/
-    token :XNOR, /xnor/
-    token :BXNOR, /!\^|XNOR/
-    token :XOR, /xor/
-    token :BNOR, /!\||NOR/
-    token :NOR, /nor/
-    token :BNAND, /!&|NAND/
-    token :NAND, /nand/
+    token :OR, /\|\||or(?![A-Za-z0-9_])/
+    token :AND, /&&|and(?![A-Za-z0-9_])/
+    token :XNOR, /xnor(?![A-Za-z0-9_])/
+    token :BXNOR, /!\^|XNOR(?![A-Za-z0-9_])/
+    token :XOR, /xor(?![A-Za-z0-9_])/
+    token :BNOR, /!\||NOR(?![A-Za-z0-9_])/
+    token :NOR, /nor(?![A-Za-z0-9_])/
+    token :BNAND, /!&|NAND(?![A-Za-z0-9_])/
+    token :NAND, /nand(?![A-Za-z0-9_])/
 
     token :EQ, /==/
     #token :NEQ, /!=/
@@ -73,6 +78,8 @@ module Magiika::Syntax
 
     # single-character operators and tokens
     # ------------------------------------------------------
+    token :RANGE_EXCL, /\.\.\./
+    token :RANGE_INCL, /\.\./
     token :DOT, /\./
     token :COLON, /:/
 

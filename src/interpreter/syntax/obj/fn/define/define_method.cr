@@ -16,7 +16,7 @@ module Magiika::Syntax
       end) || Array(Ast::Parameter).new
 
     returns_raw = context[:function_data][:_returns]?.try(&.node)
-    returns = returns_raw.is_a?(Ast::LateType) && returns_raw.type_name.bytesize > 0 ? returns_raw : nil
+    returns = returns_raw.is_a?(Ast::Type) && returns_raw.type_name.bytesize > 0 ? returns_raw : nil
 
     if abstract_
       function = Ast::DefineFunction.new(

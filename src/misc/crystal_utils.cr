@@ -1,5 +1,3 @@
-require "./is_of"
-
 module CrystalUtils
   extend self
 
@@ -23,13 +21,13 @@ module CrystalUtils
   macro to_class(obj)
     obj.class unless obj.is_a?(::Object.class)
   end
-  
+
   macro pvar(stmt)
     puts "{{ stmt }}:\n  #{ {{ stmt }}.pretty_inspect }"
   end
 
   def s_to_bool(
-      str : ::String, 
+      str : ::String,
       case_sensitive : ::Bool = true,
       matches : Array(String) = ["true", "false"]
     ) : ::Bool
@@ -37,11 +35,11 @@ module CrystalUtils
     match = matches[0] # "true"
     match = match.downcase unless case_sensitive
     return true if str == match
-    
-    match = matches[1] # "false" 
+
+    match = matches[1] # "false"
     match = match.downcase unless case_sensitive
     return false if str == match
-    raise ::Exception::TypeCastError.new("cast to Bool failed: #{str}")
+    raise ::TypeCastError.new("cast to Bool failed: #{str}")
   end
 
   macro env_exists?(key)

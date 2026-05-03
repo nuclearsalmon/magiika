@@ -9,8 +9,8 @@ module Magiika
     end
 
     def eval(scope : Scope) : Object
-      left = @left.eval(scope)
-      right = @right.eval(scope)
+      left = Object::Slot.unpack(@left.eval(scope))
+      right = Object::Slot.unpack(@right.eval(scope))
 
       if (left_oper = left.scope.retrieve?(@oper).try(&.value)).nil?
         raise Error::UndefinedMethod.new(@oper, left, position?)

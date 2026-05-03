@@ -63,8 +63,8 @@ module Magiika::Syntax
       end
 
       rule :if do |context|
-        cond = context[:if][:cond].node
-        stmts = Ast::Statements.new(context[:if][:stmts_block].nodes)
+        cond = context[:cond].node
+        stmts = Ast::Statements.new(context[:stmts_block].nodes)
 
         node = Ast::IfElse.new(
           nil,

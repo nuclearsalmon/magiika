@@ -1,7 +1,7 @@
 name: magiika
 version: 0.1.0
 
-crystal: '>= 1.15.1'
+crystal: ">= 1.15.1"
 
 authors:
   - Gustav Dersjö <gustav.dersjo@gmail.com>
@@ -18,5 +18,7 @@ targets:
 dependencies:
   merlin:
     github: nuclearsalmon/merlin
+  minerals:
+    path: lib/minerals
   dotenv:
     github: drum445/dotenv

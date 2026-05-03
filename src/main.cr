@@ -15,6 +15,15 @@ module Magiika
     debug_exclude = [] of ::String
     debug_events = [] of ::String
 
+    # security CLI overrides (applied after config file)
+    security_config_file : ::String? = nil
+    cli_max_time : Float64? = nil
+    cli_max_memory : UInt64? = nil
+    cli_visibility_mode : SecurityVisibilityMode? = nil
+    cli_visibility_overrides = {} of ::String => ::Bool
+    cli_module_mode : SecurityVisibilityMode? = nil
+    cli_module_overrides = {} of ::String => ::Bool
+
     # define options parser
     option_parser = OptionParser.new do |parser|
       parser.banner = "✨ Usage: magiika [options] [FILE]"
@@ -52,6 +61,54 @@ module Magiika
         debug_enabled = true
         debug_events = events.split(",").map(&.strip)
       end
+
+      parser.separator("\n  🔒 Security options:")
+
+      parser.on("--max-time=SECONDS", "Max execution time in seconds (0=unlimited).") do |s|
+        cli_max_time = s.to_f64
+      end
+      parser.on("--max-memory=BYTES", "Max memory usage in bytes (0=unlimited).") do |b|
+        cli_max_memory = b.to_u64
+      end
+      parser.on("--security-config=FILE", "Load security configuration from file.") do |f|
+        security_config_file = f
+      end
+      parser.on("--visibility-mode=MODE", "Security visibility: allow_all or deny_all.") do |m|
+        case m.downcase
+        when "allow_all"
+          cli_visibility_mode = SecurityVisibilityMode::AllowAll
+        when "deny_all"
+          cli_visibility_mode = SecurityVisibilityMode::DenyAll
+        else
+          STDERR.puts "💫 Error: Unknown visibility mode '#{m}'. Use allow_all or deny_all."
+          STDERR.puts parser
+          exit(1)
+        end
+      end
+      parser.on("--visibility-show=FLAGS", "Comma-separated flags to make visible (whitelist).") do |flags|
+        flags.split(",").each { |f| cli_visibility_overrides[f.strip] = true }
+      end
+      parser.on("--visibility-hide=FLAGS", "Comma-separated flags to hide (blacklist).") do |flags|
+        flags.split(",").each { |f| cli_visibility_overrides[f.strip] = false }
+      end
+      parser.on("--module-mode=MODE", "Module access: allow_all or deny_all.") do |m|
+        case m.downcase
+        when "allow_all"
+          cli_module_mode = SecurityVisibilityMode::AllowAll
+        when "deny_all"
+          cli_module_mode = SecurityVisibilityMode::DenyAll
+        else
+          STDERR.puts "💫 Error: Unknown module mode '#{m}'. Use allow_all or deny_all."
+          STDERR.puts parser
+          exit(1)
+        end
+      end
+      parser.on("--module-allow=MODS", "Comma-separated module names to allow (whitelist).") do |mods|
+        mods.split(",").each { |m| cli_module_overrides[m.strip] = true }
+      end
+      parser.on("--module-deny=MODS", "Comma-separated module names to deny (blacklist).") do |mods|
+        mods.split(",").each { |m| cli_module_overrides[m.strip] = false }
+      end
       
       parser.missing_option do |option_flag|
         STDERR.puts "💫 Error: #{option_flag} is missing something."
@@ -85,11 +142,32 @@ module Magiika
     # parse options
     option_parser.parse
 
+    # build security config: config file first, then CLI overrides
+    security_config = if (cfg_path = security_config_file)
+      unless File.file?(cfg_path)
+        STDERR.puts "💫 Error: Security config file '#{cfg_path}' not found."
+        exit(1)
+      end
+      SecurityConfig.from_file(cfg_path)
+    elsif (f = file) && File.file?("#{f}.security")
+      SecurityConfig.from_file("#{f}.security")
+    else
+      SecurityConfig.new
+    end
+
+    cli_max_time.try { |v| security_config.resource_limits.max_time_seconds = v }
+    cli_max_memory.try { |v| security_config.resource_limits.max_memory_bytes = v }
+    cli_visibility_mode.try { |v| security_config.visibility.mode = v }
+    cli_visibility_overrides.each { |k, v| security_config.visibility.overrides[k] = v }
+    cli_module_mode.try { |v| security_config.module_access.mode = v }
+    cli_module_overrides.each { |k, v| security_config.module_access.overrides[k] = v }
+
     # create interpreter
     interpreter = Interpreter.new
     interpreter.show_tokenization = show_tokenization
     interpreter.show_logs = show_logs
     interpreter.show_ast = show_ast
+    interpreter.security_config = security_config
 
     if debug_enabled
       dbg = interpreter.debugger

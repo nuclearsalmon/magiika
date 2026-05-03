@@ -3,20 +3,22 @@ module Magiika
     getter? static : ::Bool
     @name : ::String
     @value : Ast
-    @type : LateType?
+    @type : Ast::Type?
     @access : Access
 
     def initialize(
         @static : ::Bool,
         @name : ::String,
         @value : Ast,
-        @type : LateType? = nil,
+        @type : Ast::Type? = nil,
         @access : Access = Access::Public,
         position : Position? = nil)
       super(position)
     end
 
     def eval(scope : Scope) : Object
+      scope.root_scope.check_resource_limits!
+
       value = @value.eval(scope)
       type = @type.try(&.eval(scope))
 

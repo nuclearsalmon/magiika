@@ -10,7 +10,7 @@ module Magiika
       resolved_str = @stmt.eval(scope).to_s_internal
       print "✨ " + resolved_str + "\n"
       
-      scope.definition(Magiika::Object::Str) \
+      scope.definition(Magiika::Type::Str) \
         .create_instance(resolved_str)
     end
   end

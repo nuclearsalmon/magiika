@@ -10,6 +10,7 @@ class Magiika::Interpreter
   property show_tokenization : ::Bool = false
   property show_ast : ::Bool = false
   property show_logs : ::Bool = false
+  property security_config : SecurityConfig = SecurityConfig.new
 
   def debugger : Merlin::Debugger(Symbol, Ast)
     @parser.debugger
@@ -95,8 +96,10 @@ class Magiika::Interpreter
     # Create "^C" signal trap
     create_signal_trap
 
-    # create scope
-    scope = Scope::Global.new(position: Position.new(file_path))
+    # create scope with security config
+    scope = Scope::Global.new(
+      position: Position.new(file_path),
+      security_config: @security_config)
 
     # read file contents
     file_contents = File.read(file_path)
@@ -125,8 +128,8 @@ class Magiika::Interpreter
     # Create "^C" signal trap
     create_signal_trap
 
-    # create scope
-    scope = Scope::Global.new
+    # create scope with security config
+    scope = Scope::Global.new(security_config: @security_config)
 
     # print banner
     print \

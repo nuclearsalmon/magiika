@@ -4,7 +4,7 @@ module Magiika
     getter name : ::String
     getter parameters : Array(Ast::Parameter)
     getter statements : Array(Ast)?
-    getter returns : LateType?
+    getter returns : Ast::Type?
     getter access : Access
     
     def abstract? : ::Bool
@@ -16,7 +16,7 @@ module Magiika
         @name : ::String,
         @parameters : Array(Ast::Parameter),
         @statements : Array(Ast)? = nil,
-        @returns : LateType? = nil,
+        @returns : Ast::Type? = nil,
         @access : Access = Access::Public,
         position : Position? = nil)
       super(position)
@@ -27,7 +27,7 @@ module Magiika
         Object::Parameter.from(ast_parameter, scope)
       }
       returns = @returns.try { |r|
-        next nil unless r.is_a?(Ast::LateType)
+        next nil unless r.is_a?(Ast::Type)
         tn = r.type_name
         next nil if tn.bytesize == 0
         scope.definition?(tn)

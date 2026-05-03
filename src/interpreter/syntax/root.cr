@@ -26,6 +26,8 @@ module Magiika::Syntax
 
     group :stmt do
       rule :if_else
+      rule :while_loop
+      rule :for_loop
 
       rule :define_static_method
 
@@ -34,12 +36,12 @@ module Magiika::Syntax
       rule :static_define_var
 
       rule :assign
-      rule :cash_stmt
-    
-      rule :chain
-      rule :chain_stmt
+
+      rule :break_stmt
+      rule :next_stmt
 
       rule :cond
+      rule :cash_stmt
     end
 
     group :stmts do
@@ -67,8 +69,10 @@ module Magiika::Syntax
     group :value do
       rule :chain
       rule :fn_call
+      rule :cash_inspect
       rule :retrieve
       rule :assign
+      rule :list_literal
       rule :literal
       rule :L_PAR, :enclosed_value, :R_PAR do |context|
         context.become(:enclosed_value)

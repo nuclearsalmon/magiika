@@ -18,7 +18,9 @@ module Magiika
       with_scope = extract_scope(with_obj)
 
       @stmts[1..].each_with_index(2) { |stmt, index|
-        if stmt.is_a?(CallerEvalFeat)
+        if stmt.is_a?(Ast::Call)
+          with_obj = stmt.caller_eval_with_receiver(with_scope, scope, with_obj)
+        elsif stmt.is_a?(CallerEvalFeat)
           with_obj = stmt.caller_eval(with_scope, scope)
         else
           with_obj = stmt.eval(with_scope)

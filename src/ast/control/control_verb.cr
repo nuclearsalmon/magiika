@@ -1,5 +1,4 @@
 module Magiika
-  # A control verb. Used for return, break, etc
   abstract class Ast::Control < AstBase
     getter value : Ast?
 
@@ -15,7 +14,18 @@ module Magiika
     end
   end
 
-  class Ast::Return < AstBase::Control; end
-  class Ast::Break < AstBase::Control; end
-  class Ast::Next < AstBase::Control; end
+  class Ast::Return < Ast::Control; end
+
+  class Ast::Break < Ast::Control
+    def eval(scope : Scope) : Object
+      result = super(scope)
+      raise BreakSignal.new(result)
+    end
+  end
+
+  class Ast::Next < Ast::Control
+    def eval(scope : Scope) : Object
+      raise NextSignal.new
+    end
+  end
 end

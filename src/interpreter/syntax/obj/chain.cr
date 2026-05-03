@@ -2,6 +2,15 @@ module Magiika::Syntax
   define_syntax do
     group :chain_stmt do
       rule :fn_call
+      rule :cash_inspect
+      rule :retrieve
+    end
+
+    group :chain_start do
+      rule :fn_call
+      rule :cash_inspect
+      rule :literal
+      rule :list_literal
       rule :retrieve
     end
 
@@ -14,8 +23,9 @@ module Magiika::Syntax
         context.absorb(:chain_stmt)
       end
 
-      rule :chain_stmt, :DOT, :chain_stmt do |context|
+      rule :chain_start, :DOT, :chain_stmt do |context|
         context.drop(:DOT)
+        context.absorb(:chain_start)
         context.absorb(:chain_stmt)
       end
     end

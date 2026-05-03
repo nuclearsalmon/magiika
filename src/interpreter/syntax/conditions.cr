@@ -58,6 +58,55 @@ module Magiika::Syntax
 
     group :comp do
       bin_expr_rule :expr, :EQ, :expr
+
+      rule :expr, :RANGE_INCL, :expr do |context|
+        start_node = context[:expr].node(0)
+        end_node = context[:expr].node(1)
+        position = context[:RANGE_INCL].token.position
+
+        node = Ast::Eval.new(position) do |scope|
+          range_type = scope.definition(Type::Range)
+          start_val = Object::Slot.unpack(start_node.eval(scope))
+          end_val = Object::Slot.unpack(end_node.eval(scope))
+
+          unless start_val.is_a?(Instance::Int) && end_val.is_a?(Instance::Int)
+            raise Error::Lazy.new("Range operands must be Int, got #{start_val.type_name} and #{end_val.type_name}.")
+          end
+
+          range_type.create_instance(
+            start_val.value,
+            end_val.value,
+            true,
+            position: position)
+        end
+
+        context.become(node)
+      end
+
+      rule :expr, :RANGE_EXCL, :expr do |context|
+        start_node = context[:expr].node(0)
+        end_node = context[:expr].node(1)
+        position = context[:RANGE_EXCL].token.position
+
+        node = Ast::Eval.new(position) do |scope|
+          range_type = scope.definition(Type::Range)
+          start_val = Object::Slot.unpack(start_node.eval(scope))
+          end_val = Object::Slot.unpack(end_node.eval(scope))
+
+          unless start_val.is_a?(Instance::Int) && end_val.is_a?(Instance::Int)
+            raise Error::Lazy.new("Range operands must be Int, got #{start_val.type_name} and #{end_val.type_name}.")
+          end
+
+          range_type.create_instance(
+            start_val.value,
+            end_val.value,
+            false,
+            position: position)
+        end
+
+        context.become(node)
+      end
+
       #rule :NOT, :cond do |_, value|
       #  Ast::BooleanInverter.new(value, l.position)
       #end

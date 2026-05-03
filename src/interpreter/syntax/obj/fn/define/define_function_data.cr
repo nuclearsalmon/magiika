@@ -6,7 +6,7 @@ module Magiika::Syntax
 
         type_tok = context[:any_def][:_TYPE]?.try(&.token)
         type = type_tok.try { |t| 
-          Ast::LateType.new(t.value, t.position)
+          Ast::Type.new(t.value, t.position)
         }
 
         value = context[:cond].node
@@ -21,7 +21,7 @@ module Magiika::Syntax
 
         type_tok = context[:_TYPE]?.try(&.token)
         type = type_tok.try { |t| 
-          Ast::LateType.new(t.value, t.position)
+          Ast::Type.new(t.value, t.position)
         }
 
         position = context.first_position
@@ -70,7 +70,7 @@ module Magiika::Syntax
         pos = name_t.position
         name = name_t.value
 
-        late_type = Ast::LateType.new(name, pos)
+        late_type = Ast::Type.new(name, pos)
         context.become(late_type)
       end
     end

@@ -3,12 +3,12 @@ module Magiika
     include NoEvalFeat
 
     getter name : ::String
-    getter type : LateType?
+    getter type : Ast::Type?
     getter default_value : Ast?
 
     def initialize(
         @name : ::String,
-        @type : LateType? = nil,
+        @type : Ast::Type? = nil,
         @default_value : Ast? = nil,
         position : Position? = nil)
       super(position)
